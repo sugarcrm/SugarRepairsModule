@@ -47,8 +47,8 @@
  ********************************************************************************/
 $manifest = array(
 
-    'acceptable_sugar_versions' => array (
-        'regex_matches' => array (
+    'acceptable_sugar_versions' => array(
+        'regex_matches' => array(
             1 => "6\.5\.*.*",
             2 => "6\.7\.*.*",
             3 => "7\.5\.*.*",
@@ -56,52 +56,52 @@ $manifest = array(
             5 => "7\.7\.*.*",
         ),
     ),
-    'acceptable_sugar_flavors' => array (
-        0 => 'OS',
+    'acceptable_sugar_flavors' => array(
+        0 => 'CE',
         1 => 'PRO',
-        2 => 'ENT',
-        3 => 'CE',
+        2 => 'CORP',
+        3 => 'ENT',
         4 => 'ULT',
     ),
-    'name' 			=> 'SugarCRM: Pre-upgrade repair tool',
-    'description' 		=> 'A tool to repair language files',
-    'author' 		=> 'Ken Brill',
-    'published_date'	=> '12/16/2015',
-    'version' 		=> '3.3',
-    'type' 			=> 'module',
-    'is_uninstallable' 	=> true,
+    'name' => 'SugarCRM: Pre-upgrade repair tool',
+    'description' => 'A tool to repair language files',
+    'author' => 'Ken Brill',
+    'published_date' => '12/16/2015',
+    'version' => '3.3',
+    'type' => 'module',
+    'is_uninstallable' => true,
 );
 
 $installdefs = array(
-    'id'=> 'Ken_Brills_Language_File_Fixer',
+    'id' => 'Language_File_Repair_Tool',
     'copy' => array(
-        array('from'=> '<basepath>/files/custom/Extension/application/Ext/EntryPointRegistry/fixLanguageFiles.php',
-            'to'=> 'custom/Extension/application/Ext/EntryPointRegistry/fixLanguageFiles.php',
+        array('from' => '<basepath>/files/custom/Extension/application/Ext/EntryPointRegistry/fixLanguageFiles.php',
+            'to' => 'custom/Extension/application/Ext/EntryPointRegistry/fixLanguageFiles.php',
         ),
-        array('from'=> '<basepath>/files/custom/Extension/modules/Administration/Ext/Administration/FixLanguageFiles.php',
-            'to'=> 'custom/Extension/modules/Administration/Ext/Administration/FixLanguageFiles.php',
+        array('from' => '<basepath>/files/custom/Extension/modules/Administration/Ext/Administration/FixLanguageFiles.php',
+            'to' => 'custom/Extension/modules/Administration/Ext/Administration/FixLanguageFiles.php',
         ),
-        array('from'=> '<basepath>/files/custom/modules/Administration/fixLanguageFiles.php',
-            'to'=> 'custom/modules/Administration/fixLanguageFiles.php',
+        array('from' => '<basepath>/files/custom/modules/Administration/fixLanguageFiles.php',
+            'to' => 'custom/modules/Administration/fixLanguageFiles.php',
         ),
-        array('from'=> '<basepath>/files/custom/modules/Administration/fixLanguageFiles.css',
-            'to'=> 'custom/modules/Administration/fixLanguageFiles.css',
+        array('from' => '<basepath>/files/custom/modules/Administration/fixLanguageFiles.css',
+            'to' => 'custom/modules/Administration/fixLanguageFiles.css',
         ),
-        array('from'=> '<basepath>/files/custom/modules/Administration/fixLanguageFiles.js',
-            'to'=> 'custom/modules/Administration/fixLanguageFiles.js',
+        array('from' => '<basepath>/files/custom/modules/Administration/fixLanguageFiles.js',
+            'to' => 'custom/modules/Administration/fixLanguageFiles.js',
         ),
-        array('from'=> '<basepath>/files/custom/modules/Administration/fixLanguageFiles.tpl',
-            'to'=> 'custom/modules/Administration/fixLanguageFiles.tpl',
+        array('from' => '<basepath>/files/custom/modules/Administration/fixLanguageFiles.tpl',
+            'to' => 'custom/modules/Administration/fixLanguageFiles.tpl',
         ),
-        array('from'=> '<basepath>/files/custom/modules/Administration/fixLanguageFilesResult.tpl',
-            'to'=> 'custom/modules/Administration/fixLanguageFilesResult.tpl',
+        array('from' => '<basepath>/files/custom/modules/Administration/fixLanguageFilesResult.tpl',
+            'to' => 'custom/modules/Administration/fixLanguageFilesResult.tpl',
         ),
-   ),
+    ),
 
-    'language'=> array(
-        array('from'=> '<basepath>/files/custom/Extension/modules/Administration/Ext/Language/en_us.fixLanguageFiles.php',
-            'to_module'=> 'Administration',
-            'language'=>'en_us'
+    'language' => array(
+        array('from' => '<basepath>/files/custom/Extension/modules/Administration/Ext/Language/en_us.fixLanguageFiles.php',
+            'to_module' => 'Administration',
+            'language' => 'en_us'
         ),
     ),
 );
