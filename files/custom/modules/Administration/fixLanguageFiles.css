@@ -1,0 +1,35 @@
+#bar_blank {
+    border: solid 1px #000;
+    height: 20px;
+    width: 1000px;
+}
+
+#bar_color {
+    background-color: #006666;
+    height: 20px;
+    width: 0px;
+}
+
+#bar_blank, #hidden_iframe {
+    display: none;
+}
+
+body {
+    padding: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.5;
+    font-size: 14px;
+}
+.checkboxes label {
+    display: block;
+    float: left;
+    padding-right: 10px;
+    white-space: nowrap;
+}
+.checkboxes input {
+    vertical-align: middle;
+}
+.checkboxes label span {
+    vertical-align: middle;
+}
+
