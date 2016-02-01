@@ -1,4 +1,4 @@
-# Sugar Repair Module
+# Sugar Repairs Module
 This module is designed to help assist with common repair issues. You should always tests any repairs against a cloned enviroment before run on a production instance. This tool is to be used at your own risk.
 
 ## Language Repairs
