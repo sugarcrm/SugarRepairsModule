@@ -96,5 +96,6 @@ phpunit -v --debug --group support --stop-on-failure
 
 # Contributors
 [Ken Brill](https://github.com/kbrill)
+
 [Jerry Clark](https://github.com/geraldclark)
 
