@@ -65,6 +65,7 @@ Corrects common issues with team sets. The various issues addressed are shown be
 
 # CLI Usage
 This is still under development, however, usage will be as follows:
+
 ```
 cd "/<sugar>/modules/supp_SugarRepairs/" && php -f cli.php
 ```
@@ -78,13 +79,15 @@ To setup you environment for unit tests, you will need to do the following:
 * Download the unit tests applicable to your version: https://github.com/sugarcrm/unit-tests/releases
 * Extract the tests from the zip that are applicable to your edition into `./tests/`.
 * Create your new unit test in `./custom/tests/modules/supp_SugarRepairs/` and make sure to add it to the `@group support` in the header comment:
->```
+```
 /**
  *@group support
  */
 ```
+
 * Validate the tests by running:
->```
+
+```
 cd "/<sugar>/tests/"
 phpunit -v --debug --group support --stop-on-failure
 ```
