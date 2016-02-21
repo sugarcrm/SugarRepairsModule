@@ -74,6 +74,8 @@ abstract class supp_Repairs
     protected function getLangRegex()
     {
         $langRegexes = array(
+            //include
+            '(\\/|\\\)custom(\\/|\\\)include(\\/|\\\)language(\\/|\\\)(.*?)\.lang.php$',
             //application extensions
             '(\\/|\\\)custom(\\/|\\\)Extension(\\/|\\\)application(\\/|\\\)Ext(\\/|\\\)Language(\\/|\\\)(.*?)\.php$',
             //module extensions
@@ -89,6 +91,24 @@ abstract class supp_Repairs
         return '/(' . implode(')|(', $langRegexes) . ')/';
     }
 
+    /**
+     * Returns the custom language directories in Sugar.
+     * @return string
+     */
+    protected function getVardefRegex()
+    {
+        $langRegexes = array(
+            //module extensions
+            '(\\/|\\\)custom(\\/|\\\)Extension(\\/|\\\)modules(\\/|\\\)(.*?)(\\/|\\\)Ext(\\/|\\\)Vardefs(\\/|\\\)(.*?)\.php$',
+            //module builder application
+            '(\\/|\\\)custom(\\/|\\\)modulebuilder(\\/|\\\)packages(\\/|\\\)(.*?)(\\/|\\\)modules(\\/|\\\)(.*?)(\\/|\\\)vardefs.php$',
+            //custom modules
+            '(\\/|\\\)custom(\\/|\\\)modules(\\/|\\\)(.*?)(\\/|\\\)vardefs.php$',
+        );
+
+
+        return '/(' . implode(')|(', $langRegexes) . ')/';
+    }
     /**
      * Backs up a database table
      * @param $table
@@ -153,7 +173,7 @@ abstract class supp_Repairs
     /**
      * Fetches all custom language files
      */
-    protected function getCustomLanguageFiles()
+    protected function getCustomLanguageFiles($isTesting = false)
     {
         $path = realpath('custom');
 
@@ -161,6 +181,32 @@ abstract class supp_Repairs
         $iterator = new RecursiveIteratorIterator($directory);
 
         $filter = new RegexIterator($iterator, $this->getLangRegex());
+        $fileList = array();
+        foreach ($filter as $file) {
+            $fullPath = $file->__toString();
+            $relativePath = str_replace(realpath(''), '', $fullPath);
+
+            //we need to order files by date modified
+            $fileList[$file->getMTime()][$fullPath] = $relativePath;
+        }
+
+        ksort($fileList);
+        $fileList = call_user_func_array('array_merge', $fileList);
+
+        return $fileList;
+    }
+
+    /**
+     * Fetches all custom language files
+     */
+    protected function getCustomVardefFiles($isTesting = false)
+    {
+        $path = realpath('custom');
+
+        $directory = new RecursiveDirectoryIterator($path);
+        $iterator = new RecursiveIteratorIterator($directory);
+
+        $filter = new RegexIterator($iterator, $this->getVardefRegex());
         $fileList = array();
         foreach ($filter as $file) {
             $fullPath = $file->__toString();
@@ -185,6 +231,34 @@ abstract class supp_Repairs
         $RAC = new RepairAndClear();
         $actions = array('clearAll');
         $RAC->repairAndClearAll($actions, array('All Modules'), false, false);
+    }
+
+    public function runRebuildWorkflow()
+    {
+        require_once('include/workflow/plugin_utils.php');
+
+        global $beanFiles;
+        global $mod_strings;
+        global $db;
+
+        $workflow_object = new WorkFlow();
+
+
+        $module_array = $workflow_object->get_module_array();
+
+        foreach($module_array as $key => $module){
+            $dir = "custom/modules/".$module."/workflow";
+            if(file_exists($dir)){
+                if($elements = glob($dir."/*")){
+                    foreach($elements as $element) {
+                        is_dir($element)? remove_workflow_dir($element) : unlink($element);
+                    }
+                }
+            }
+        }
+
+        $workflow_object->repair_workflow();
+        build_plugin_list();
     }
 
     /**
