@@ -102,10 +102,9 @@ class supp_LanguageRepairs extends supp_Repairs
         //Next run the file through the tests and fill the new array
         $tokensByLine = $this->processTokenList($fileName);
 
-        if($isTesting) {
+        if ($isTesting) {
             return $tokensByLine;
-        }
-        elseif ($this->changed) {
+        } elseif ($this->changed) {
             $this->changed = false;
             $this->writeNewFile($tokensByLine, $fileName, $isTesting);
         } else {
@@ -205,7 +204,7 @@ class supp_LanguageRepairs extends supp_Repairs
             if (is_array($keyList)) {
                 if ($keyList['TOKEN_NAME'] == 'T_ARRAY_NAME') {
                     $tokenListName = $keyList[1];
-                    }
+                }
                 if ($keyList['TOKEN_NAME'] == 'T_ARRAY_KEY') {
                     $oldValue = $keyList[1];
                     $keyList[1] = $this->fixIndexNames($keyList[1]);
@@ -215,8 +214,8 @@ class supp_LanguageRepairs extends supp_Repairs
                             $listNameInfo = $this->findListField($tokenListName);
                             if (!empty($listNameInfo)) {
                                 //Sometimes the values come though as 'value', we need to get rid of the tick marks
-                                $oldValue=trim($oldValue,"'");
-                                $newKey=trim($keyList[1],"'");
+                                $oldValue = trim($oldValue, "'");
+                                $newKey = trim($keyList[1], "'");
 
                                 $this->updateDatabase($listNameInfo, $oldValue, $newKey);
                                 $this->updateFieldsMetaDataTable($listNameInfo, $oldValue, $newKey);
@@ -230,9 +229,9 @@ class supp_LanguageRepairs extends supp_Repairs
                     }
                 }
             } else {
-                    $tokensByLine[$lineNumber][] = $keyList;
-                    }
-                }
+                $tokensByLine[$lineNumber][] = $keyList;
+            }
+        }
         return $tokensByLine;
     }
 
@@ -588,76 +587,6 @@ class supp_LanguageRepairs extends supp_Repairs
     }
 
     /**
-     * Scan the next three elements to tell what kind of array this is
-     * and processes it accordingly
-     *
-     * @param $index
-     */
-    private function scanAhead($index)
-    {
-        $analysis = "";
-        for ($i = $index; $i <= count($this->tokenList); $i++) {
-            $element = $this->tokenList[$i];
-            if (is_array($element)) {
-                if (token_name($element[0]) == 'T_CONSTANT_ENCAPSED_STRING') {
-                    $analysis .= 'T';
-                }
-                if (token_name($element[0]) == 'T_ARRAY') {
-                    $analysis .= 'A';
-                    $arrayIndex = $i;
-                }
-                switch ($analysis) {
-                    case 'TT':
-                        if (token_name($element[0]) == 'T_CONSTANT_ENCAPSED_STRING') {
-                            $this->tokenList[$i]['TOKEN_NAME'] = 'T_ARRAY_NAME';
-                        }
-                        break;
-                    case 'T':
-                        if (token_name($element[0]) == 'T_CONSTANT_ENCAPSED_STRING') {
-                            $this->tokenList[$i]['TOKEN_NAME'] = 'T_LIST_NAME';
-                        }
-                        break;
-                    default:
-                        break;
-                }
-
-                if (strlen($analysis) == 3) {
-                    break;
-                }
-            }
-        }
-        $i = $arrayIndex;
-        $arrowFlag = false;
-        switch ($analysis) {
-            case "TAT":
-                //Multiline variable
-            case "TTA":
-                //A key that has an array of values
-                while ($this->tokenList[$i] != ';') {
-                    if (is_array($this->tokenList[$i])) {
-                        if (token_name($this->tokenList[$i][0]) == 'T_CONSTANT_ENCAPSED_STRING') {
-                            if ($arrowFlag == false) {
-                                $this->tokenList[$i]['TOKEN_NAME'] = 'T_ARRAY_NAME';
-                            } else {
-                                $arrowFlag = false;
-                            }
-                        }
-                        if (token_name($this->tokenList[$i][0]) == 'T_DOUBLE_ARROW') {
-                            $arrowFlag = true;
-                        }
-                    }
-                    $i++;
-                }
-                break;
-            case "TTT":
-            default:
-                //Single line variable definition
-                // No further action needed
-                break;
-        }
-    }
-
-    /**
      * @param $oldKey
      * @return mixed
      */
@@ -672,7 +601,7 @@ class supp_LanguageRepairs extends supp_Repairs
         } else {
             $this->changed = false;
         }
-        return "'".$newKey."'";
+        return "'" . $newKey . "'";
     }
 
     /**
