@@ -113,6 +113,81 @@ class supp_LanguageRepairs extends supp_Repairs
         }
     }
 
+    private function getAnnotatedTokenList($fileName)
+    {
+        $processedTokenList = array();
+        $globalsFlag = false;
+        $drop = false;
+        $counter = 0;
+        $localTokenList = token_get_all(file_get_contents($fileName));
+        foreach ($localTokenList as $index => $keyList) {
+            if (is_array($keyList)) {
+                $tokenNumber = $keyList[0];
+                $keyList[1] = trim($keyList[1], "''");
+
+                $keyList['TOKEN_NAME'] = token_name($tokenNumber);
+                //eliminate white space
+                if ($keyList['TOKEN_NAME'] == "T_WHITESPACE") {
+                    $drop = true;
+                }
+                if ($keyList[1] == "\$GLOBALS") {
+                    $drop = true;
+                    $globalsFlag = true;
+                }
+                if ($globalsFlag) {
+                    if ($keyList['TOKEN_NAME'] == "T_CONSTANT_ENCAPSED_STRING") {
+                        $keyList[1] = "\$" . $keyList[1];
+                        $keyList['TOKEN_NAME'] = 'T_VARIABLE';
+                    }
+                }
+            } else {
+                if ($globalsFlag) {
+                    if ($keyList == "[" || $keyList == "]") {
+                        if ($keyList == "]") {
+                            $globalsFlag = false;
+                        }
+                        $drop = true;
+                    }
+                }
+            }
+            if (!$drop) {
+                $processedTokenList[$counter] = $keyList;
+                $counter++;
+            }
+            $drop = false;
+        }
+
+        //second pass
+        $complexArray = false;
+        foreach ($processedTokenList as $index => $keyList) {
+            if (is_array($keyList)) {
+                if ($keyList['TOKEN_NAME'] == 'T_VARIABLE') {
+                    if ($keyList[1] == "\$app_list_strings") {
+                        //complex array
+                        if ((isset($processedTokenList[$index + 5]['TOKEN_NAME']) &&
+                            $processedTokenList[$index + 5]['TOKEN_NAME'] == 'T_ARRAY')
+                        ) {
+                            $complexArray = true;
+                        }
+                        //simple array
+                        if ($processedTokenList[$index + 7] == '=') {
+                            $processedTokenList[$index + 5]['TOKEN_NAME'] = 'T_ARRAY_KEY';
+                        }
+                        $processedTokenList[$index + 2]['TOKEN_NAME'] = 'T_ARRAY_NAME';
+                    }
+                }
+                if ($keyList['TOKEN_NAME'] == 'T_DOUBLE_ARROW' && $complexArray) {
+                    $processedTokenList[$index - 1]['TOKEN_NAME'] = 'T_ARRAY_KEY';
+                }
+            } else {
+                if ($keyList == ';' && $complexArray) {
+                    $complexArray = false;
+                }
+            }
+        }
+        return $processedTokenList;
+    }
+
     /**
      * @param string $fileName
      * @return array
@@ -123,30 +198,17 @@ class supp_LanguageRepairs extends supp_Repairs
         $tokensByLine = array();
         $lineNumber = 0;
         $globalsFlag = false;
-        $this->tokenList = token_get_all(file_get_contents($fileName));
+
+        $this->tokenList = $this->getAnnotatedTokenList($fileName);
 
         foreach ($this->tokenList as $index => $keyList) {
             if (is_array($keyList)) {
-                $tokenNumber = $keyList[0];
-                $tokenString = trim($keyList[1], "''");
-                $lineNumber = $keyList[2];
-                //Add the token name to the array, it MAY have already been filled in
-                // by the scan ahead function so we check there first.
-                $keyList['TOKEN_NAME'] = (isset($this->tokenList[$index]['TOKEN_NAME']) ? $this->tokenList[$index]['TOKEN_NAME'] : token_name($tokenNumber));
-
-                if ($keyList['TOKEN_NAME'] == 'T_VARIABLE') {
-                    if ($tokenString == "\$app_list_strings") {
-                        $this->scanAhead($index);
-                    }
-                }
-
-                if ($keyList['TOKEN_NAME'] == 'T_LIST_NAME') {
-                    $tokenListName = $tokenString;
-                }
-
                 if ($keyList['TOKEN_NAME'] == 'T_ARRAY_NAME') {
-                    $oldValue = $tokenString;
-                    $keyList[1] = $this->fixIndexNames($tokenString);
+                    $tokenListName = $keyList[1];
+                    }
+                if ($keyList['TOKEN_NAME'] == 'T_ARRAY_KEY') {
+                    $oldValue = $keyList[1];
+                    $keyList[1] = $this->fixIndexNames($keyList[1]);
                     if ($this->changed) {
                         //OK a key has changed, now we need to update everything
                         if (!empty($tokenListName)) {
@@ -163,21 +225,14 @@ class supp_LanguageRepairs extends supp_Repairs
                                 $this->updateWorkFlow($oldValue, $newKey);
                             }
                         } else {
-                            $this->log("ERROR: No list name for {$tokenString}.");
+                            $this->log("ERROR: No list name for {$keyList[1]}.");
                         }
                     }
                 }
-                $tokensByLine[$lineNumber][] = $keyList;
             } else {
-                if ($globalsFlag == FALSE) {
                     $tokensByLine[$lineNumber][] = $keyList;
-                } else {
-                    if ($keyList == ']') {
-                        $globalsFlag = FALSE;
                     }
                 }
-            }
-        }
         return $tokensByLine;
     }
 
@@ -211,7 +266,7 @@ class supp_LanguageRepairs extends supp_Repairs
      * @param $newKey
      * @param bool $isTesting
      */
-    private function updateWorkFlow($oldKey, $newKey, $isTesting = FALSE)
+    private function updateWorkFlow($oldKey, $newKey, $isTesting = false)
     {
         //TriggerShells
         $sql = "SELECT id AS numOfChagesNeeded FROM workflow_triggershells WHERE eval LIKE \"%'{$oldKey}'%\"";
@@ -262,11 +317,11 @@ class supp_LanguageRepairs extends supp_Repairs
             $reportDef = $this->parseReportFilters($hash['id']);
             $trash[$hash['name']] = $reportDef['filters_def'];
         }
-        sugar_file_put_contents("zzzREPORTDATA.php", "<?php\n\$a=" . var_export($trash, true));
+        //sugar_file_put_contents("zzzREPORTDATA.php", "<?php\n\$a=" . var_export($trash, true));
     }
 
     /**
-     * Returns the changed $reportContent if there are changes made or FALSE in there
+     * Returns the changed $reportContent if there are changes made or false in there
      *  were no changes make
      *
      * @param $reportID
@@ -275,9 +330,9 @@ class supp_LanguageRepairs extends supp_Repairs
      * @param bool $isTesting
      * @return bool|string
      */
-    private function parseReportFilters($reportID, $oldKey = null, $newKey = null, $isTesting = FALSE)
+    private function parseReportFilters($reportID, $oldKey = null, $newKey = null, $isTesting = false)
     {
-        $changed = FALSE;
+        $changed = false;
         $jsonObj = getJSONobj();
         $list = array();
         $savedReport = BeanFactory::getBean('Reports', $reportID);
@@ -321,7 +376,6 @@ class supp_LanguageRepairs extends supp_Repairs
                                         $changed = true;
                                     }
                                 }
-                                $KEN = 'FINISHED';
                             } else {
                                 break 2;
                             }
@@ -333,7 +387,7 @@ class supp_LanguageRepairs extends supp_Repairs
 
         if ($changed) {
             //back up the database table if it has not been backed up yet.
-            if (in_array('saved_reports', $this->tableBackupFlag) == FALSE && !$isTesting) {
+            if (in_array('saved_reports', $this->tableBackupFlag) == false && !$isTesting) {
                 $this->tableBackupFlag['saved_reports'] = 'saved_reports';
                 $this->backupTable('saved_reports', "FLF");
             }
@@ -355,7 +409,7 @@ class supp_LanguageRepairs extends supp_Repairs
                 }
             }
         }
-        return FALSE;
+        return false;
     }
 
     /**
@@ -365,7 +419,7 @@ class supp_LanguageRepairs extends supp_Repairs
      * @param string $oldKey
      * @param bool $isTesting
      */
-    private function updateFiles($oldKey, $newKey, $isTesting = FALSE)
+    private function updateFiles($oldKey, $newKey, $isTesting = false)
     {
         //TODO: Convert this to regex
         //TODO: TODO: learn regex
@@ -379,8 +433,8 @@ class supp_LanguageRepairs extends supp_Repairs
 
         foreach ($this->customOtherFileList as $fullPath => $relativePath) {
             $text = sugar_file_get_contents($fullPath);
-            if (strpos($text, $searchString1) !== FALSE ||
-                strpos($text, $searchString2) !== FALSE
+            if (strpos($text, $searchString1) !== false ||
+                strpos($text, $searchString2) !== false
             ) {
                 $oldText = array(
                     "=> '{$oldKey}'",
@@ -428,12 +482,12 @@ class supp_LanguageRepairs extends supp_Repairs
      * @param $oldKey
      * @param bool $isTesting
      */
-    private function updateFieldsMetaDataTable($fieldData, $newKey, $oldKey, $isTesting = FALSE)
+    private function updateFieldsMetaDataTable($fieldData, $newKey, $oldKey, $isTesting = false)
     {
         $hash = $GLOBALS['db']->fetchOne("SELECT * FROM fields_meta_data WHERE default_value LIKE '%^{$oldKey}^%' OR default_value = '{$oldKey}'");
         if ($hash != false) {
             //back up the database table if it has not been backed up yet.
-            if (in_array('fields_meta_data', $this->tableBackupFlag) == FALSE && !$isTesting) {
+            if (in_array('fields_meta_data', $this->tableBackupFlag) == false && !$isTesting) {
                 $this->tableBackupFlag['fields_meta_data'] = 'fields_meta_data';
                 $this->backupTable('fields_meta_data', "FLF");
             }
@@ -462,7 +516,7 @@ class supp_LanguageRepairs extends supp_Repairs
      * @param $newValue
      * @param bool $isTesting
      */
-    private function updateDatabase($fieldData, $oldValue, $newValue, $isTesting = FALSE)
+    private function updateDatabase($fieldData, $oldValue, $newValue, $isTesting = false)
     {
         if (!empty($fieldData)) {
             foreach ($fieldData as $module => $fieldName) {
@@ -477,7 +531,7 @@ class supp_LanguageRepairs extends supp_Repairs
                 $hash = $GLOBALS['db']->fetchOne("SELECT * FROM {$table} WHERE {$fieldName} LIKE '%^{$oldValue}^%' OR {$fieldName} = '{$oldValue}'");
                 if ($hash != false) {
                     //back up the database table if it has not been backed up yet.
-                    if (in_array($table, $this->tableBackupFlag) == FALSE && !$isTesting) {
+                    if (in_array($table, $this->tableBackupFlag) == false && !$isTesting) {
                         $this->tableBackupFlag[$table] = $table;
                         $this->backupTable($table, "FLF");
                     }
@@ -573,7 +627,7 @@ class supp_LanguageRepairs extends supp_Repairs
             }
         }
         $i = $arrayIndex;
-        $arrowFlag = FALSE;
+        $arrowFlag = false;
         switch ($analysis) {
             case "TAT":
                 //Multiline variable
@@ -582,10 +636,10 @@ class supp_LanguageRepairs extends supp_Repairs
                 while ($this->tokenList[$i] != ';') {
                     if (is_array($this->tokenList[$i])) {
                         if (token_name($this->tokenList[$i][0]) == 'T_CONSTANT_ENCAPSED_STRING') {
-                            if ($arrowFlag == FALSE) {
+                            if ($arrowFlag == false) {
                                 $this->tokenList[$i]['TOKEN_NAME'] = 'T_ARRAY_NAME';
                             } else {
-                                $arrowFlag = FALSE;
+                                $arrowFlag = false;
                             }
                         }
                         if (token_name($this->tokenList[$i][0]) == 'T_DOUBLE_ARROW') {
@@ -594,8 +648,6 @@ class supp_LanguageRepairs extends supp_Repairs
                     }
                     $i++;
                 }
-                break;
-
                 break;
             case "TTT":
             default:
@@ -617,6 +669,8 @@ class supp_LanguageRepairs extends supp_Repairs
         $newKey = str_replace($badChars, $goodChars, $oldKey, $count);
         if ($newKey != $oldKey) {
             $this->changed = true;
+        } else {
+            $this->changed = false;
         }
         return "'".$newKey."'";
     }
