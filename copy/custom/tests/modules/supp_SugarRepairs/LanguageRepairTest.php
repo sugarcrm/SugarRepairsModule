@@ -124,6 +124,29 @@ class suppSugarRepairsTeamSetsBeanTest extends Sugar_PHPUnit_Framework_TestCase
         $this->assertTrue(strstr($hash['industry'], 'one&one') === false);
     }
 
+    /**
+     * This test makes sure the code can find the field name and module if given just the list name.
+     */
+    public function testfindListField() {
+        $newRepairTest = new supp_LanguageRepairs();
+        $testFieldDefLookup=$newRepairTest->findListField('industry_dom');
+        $this->assertTrue($testFieldDefLookup['Accounts']=='industry');
+    }
+
+    /**
+     * This test makes sure the index names are all fixed as intended
+     */
+    public function testfixIndexNames() {
+        $newRepairTest = new supp_LanguageRepairs();
+        $this->assertTrue($newRepairTest->fixIndexNames('one&one')=='one_one');
+        $this->assertTrue($newRepairTest->fixIndexNames('one-one')=='one_one');
+        $this->assertTrue($newRepairTest->fixIndexNames('one/one')=='one_one');
+        $this->assertTrue($newRepairTest->fixIndexNames('one & one')=='one_one');
+        $this->assertTrue($newRepairTest->fixIndexNames('one - one')=='one_one');
+        $this->assertTrue($newRepairTest->fixIndexNames('one / one')=='one_one');
+        $this->assertTrue($newRepairTest->fixIndexNames('one{one}')=='oneone');
+    }
+
     private function mockupLanguageTestRecords()
     {
         $sql = "INSERT INTO workflow_triggershells (id, deleted, date_entered, date_modified, modified_user_id, created_by, field, type, frame_type, eval, parent_id, show_past, rel_module, rel_module_type, parameters)
