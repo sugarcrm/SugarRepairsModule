@@ -15,27 +15,12 @@ class supp_LanguageRepairs extends supp_Repairs
     const SEV_MEDIUM = 1;
     const SEV_LOW = 0;
 
-    public $customLanguageFileList = array();
     public $customOtherFileList = array();
-    public $customListNames = array();
-    public $totalFiles = 0;
-    public $makeBackups = false;
-    public $deleteEmpty = true; //setting to true for no
-    public $lowLevelLog = true;
-    public $compressWhitespace = true;
-
-    //result storage
-    public $manualFixFiles = array();
-    public $modifiedFiles = array();
-    public $indexChanges = array();
-    public $removedFiles = array();
-    public $removedModules = array();
 
     private $dynamicTokens = array('T_OBJECT_OPERATOR', 'T_DOUBLE_COLON', 'T_CONCAT');
     private $arrayCache = array();
     private $queryCache = array();
     private $tokenList = array();
-    private $newTokenList = array("</php");
     private $changed;
     private $syntaxError;
     private $reportKeys = array();
@@ -105,13 +90,19 @@ class supp_LanguageRepairs extends supp_Repairs
         if ($isTesting) {
             return $tokensByLine;
         } elseif ($this->changed) {
-            $this->changed = false;
             $this->writeNewFile($tokensByLine, $fileName, $isTesting);
         } else {
             $this->log("-> No Changes");
         }
     }
 
+    /**
+     * This is the 'Token Engine'  If finds arrays and labels the individual parts for later
+     *    processing.  It also gets rid of 'GLOBALS' in place.
+     *
+     * @param string $fileName - The name and path to the file
+     * @return array
+     */
     private function getAnnotatedTokenList($fileName)
     {
         $processedTokenList = array();
@@ -122,8 +113,6 @@ class supp_LanguageRepairs extends supp_Repairs
         foreach ($localTokenList as $index => $keyList) {
             if (is_array($keyList)) {
                 $tokenNumber = $keyList[0];
-                $keyList[1] = trim($keyList[1], "''");
-
                 $keyList['TOKEN_NAME'] = token_name($tokenNumber);
                 //eliminate white space
                 if ($keyList['TOKEN_NAME'] == "T_WHITESPACE") {
@@ -133,9 +122,10 @@ class supp_LanguageRepairs extends supp_Repairs
                     $drop = true;
                     $globalsFlag = true;
                 }
+                //We need to convert the index to an actual variable
                 if ($globalsFlag) {
                     if ($keyList['TOKEN_NAME'] == "T_CONSTANT_ENCAPSED_STRING") {
-                        $keyList[1] = "\$" . $keyList[1];
+                        $keyList[1] = "\$" . trim($keyList[1],"'");
                         $keyList['TOKEN_NAME'] = 'T_VARIABLE';
                     }
                 }
@@ -196,20 +186,22 @@ class supp_LanguageRepairs extends supp_Repairs
         $this->changed = false;
         $tokensByLine = array();
         $lineNumber = 0;
-        $globalsFlag = false;
 
         $this->tokenList = $this->getAnnotatedTokenList($fileName);
 
         foreach ($this->tokenList as $index => $keyList) {
             if (is_array($keyList)) {
-                if ($keyList['TOKEN_NAME'] == 'T_ARRAY_NAME') {
+                $lineNumber=$keyList[2];
+                switch($keyList['TOKEN_NAME']) {
+                    case 'T_ARRAY_NAME':
                     $tokenListName = $keyList[1];
-                }
-                if ($keyList['TOKEN_NAME'] == 'T_ARRAY_KEY') {
+                        break;
+                    case 'T_ARRAY_KEY':
                     $oldValue = $keyList[1];
-                    $keyList[1] = $this->fixIndexNames($keyList[1]);
-                    if ($this->changed) {
+                        $keyList[1] = $this->fixIndexNames(trim($keyList[1],"'"));
+                        if ($oldValue != $keyList[1]) {
                         //OK a key has changed, now we need to update everything
+                            $this->changed=true;
                         if (!empty($tokenListName)) {
                             $listNameInfo = $this->findListField($tokenListName);
                             if (!empty($listNameInfo)) {
@@ -224,14 +216,20 @@ class supp_LanguageRepairs extends supp_Repairs
                                 $this->updateWorkFlow($oldValue, $newKey);
                             }
                         } else {
+                                $this->updateFiles($oldValue, $newKey);
+                                $this->updateReportFilters($oldValue, $newKey);
+                                $this->updateWorkFlow($oldValue, $newKey);
                             $this->log("ERROR: No list name for {$keyList[1]}.");
                         }
                     }
+                        break;
+                    case 'T_CONSTANT_ENCAPSED_STRING':
+                    default:
+                        break;
                 }
-            } else {
+            }
                 $tokensByLine[$lineNumber][] = $keyList;
             }
-        }
         return $tokensByLine;
     }
 
@@ -333,7 +331,6 @@ class supp_LanguageRepairs extends supp_Repairs
     {
         $changed = false;
         $jsonObj = getJSONobj();
-        $list = array();
         $savedReport = BeanFactory::getBean('Reports', $reportID);
         $reportContent = $jsonObj->decode(html_entity_decode($savedReport->content));
 
@@ -577,9 +574,9 @@ class supp_LanguageRepairs extends supp_Repairs
         }
 
         if (empty($retArray)) {
-            $this->log("-> Could not locate '{$listName}', it appears not to be used as a dropdown list");
+            $this->log("-> Could not locate {$listName}, it appears not to be used as a dropdown list");
         } else {
-            $this->log("-> Found '{$listName}' in bean '{$bean} in field '{$fieldName}'");
+            $this->log("-> Found {$listName} in bean '{$bean} in field '{$fieldName}'");
         }
 
         $this->arrayCache[$listName] = $retArray;
@@ -596,11 +593,6 @@ class supp_LanguageRepairs extends supp_Repairs
         $badChars = array(' & ', '&', ' - ', '-', '/', ' / ', '(', ')');
         $goodChars = array('_', '_', '_', '_', '_', '_', '', '');
         $newKey = str_replace($badChars, $goodChars, $oldKey, $count);
-        if ($newKey != $oldKey) {
-            $this->changed = true;
-        } else {
-            $this->changed = false;
-        }
         return "'" . $newKey . "'";
     }
 
@@ -692,7 +684,7 @@ class supp_LanguageRepairs extends supp_Repairs
                     $assembledFile[$lineNumber] .= $element;
                 }
             }
-            if (stristr($assembledFile[$lineNumber], "\n") === false) {
+            if (substr($assembledFile[$lineNumber],-1) != "\n") {
                 $assembledFile[$lineNumber] .= "\n";
             }
         }
