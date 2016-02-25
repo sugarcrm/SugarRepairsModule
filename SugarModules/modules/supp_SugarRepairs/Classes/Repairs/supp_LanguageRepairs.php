@@ -452,7 +452,7 @@ class supp_LanguageRepairs extends supp_Repairs
      * @param $oldKey
      * @param bool $isTesting
      */
-    private function updateFieldsMetaDataTable($fieldData, $newKey, $oldKey, $isTesting = false)
+    private function updateFieldsMetaDataTable($fieldData, $oldKey, $newKey, $isTesting = false)
     {
         $hash = $GLOBALS['db']->fetchOne("SELECT * FROM fields_meta_data WHERE default_value LIKE '%^{$oldKey}^%' OR default_value = '{$oldKey}'");
         if ($hash != false) {
