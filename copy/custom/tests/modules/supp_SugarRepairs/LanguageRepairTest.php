@@ -95,17 +95,33 @@ class suppSugarRepairsTeamSetsBeanTest extends Sugar_PHPUnit_Framework_TestCase
         $this->assertTrue(strstr($testData, 'one&one') === false);
     }
 
+    /**
+     * This test makes sure that both the default_value and the dependencies of a custom field are updated.
+     */
     public function testupdateFieldsMetaDataTable()
     {
         $newRepairTest = new supp_LanguageRepairs();
         $fieldData=array('Accounts'=>'test_list');
-        $newRepairTest->updateFieldsMetaDataTable($fieldData, "one_one", "one&one", true);
+        $newRepairTest->updateFieldsMetaDataTable($fieldData, "one&one", "one_one", true);
         $sql = "SELECT default_value,ext4 FROM fields_meta_data WHERE id='TEST3'";
         $hash = $GLOBALS['db']->fetchOne($sql);
         $this->assertTrue(strstr($hash['default_value'], 'one_one') !== false);
         $this->assertTrue(strstr($hash['default_value'], 'one&one') === false);
         $this->assertTrue(strstr($hash['ext4'], 'one_one') !== false);
         $this->assertTrue(strstr($hash['ext4'], 'one&one') === false);
+    }
+
+    /**
+     * This test see if the correct value is updated in the correct table for the supplied metadata
+     */
+    public function testupdateDatabase() {
+        $newRepairTest = new supp_LanguageRepairs();
+        $fieldData=array('Accounts'=>'industry');
+        $newRepairTest->updateDatabase($fieldData, "one&one", "one_one", true);
+        $sql = "SELECT industry FROM accounts WHERE id='TEST4'";
+        $hash = $GLOBALS['db']->fetchOne($sql);
+        $this->assertTrue(strstr($hash['industry'], 'one_one') !== false);
+        $this->assertTrue(strstr($hash['industry'], 'one&one') === false);
     }
 
     private function mockupLanguageTestRecords()
@@ -119,6 +135,9 @@ class suppSugarRepairsTeamSetsBeanTest extends Sugar_PHPUnit_Framework_TestCase
         $sql = "INSERT INTO fields_meta_data (id, name, vname, comments, help, custom_module, type, len, required, default_value, date_modified, deleted, audited, massupdate, duplicate_merge, reportable, importable, ext1, ext2, ext3, ext4)
                      VALUES ('TEST3', 'multiple_c', 'LBL_MULTIPLE', '', '', 'Accounts', 'multienum', '100', '0', '^one&one^,^two-two^', '2016-02-09 16:15:02', '0', '0', '0', '0', '1', 'true', 'test_list', '', '', 'a:2:{s:7:\"default\";s:23:\"^two-two^,^one&one^\";s:10:\"dependency\";s:0:\"\";}')";
         $GLOBALS['db']->query($sql);
+        $sql ="INSERT INTO accounts (id, name, date_entered, date_modified, modified_user_id, created_by, description, deleted, assigned_user_id, team_id, team_set_id, account_type, industry, annual_revenue, phone_fax, billing_address_street, billing_address_city, billing_address_state, billing_address_postalcode, billing_address_country, rating, phone_office, phone_alternate, website, ownership, employees, ticker_symbol, shipping_address_street, shipping_address_city, shipping_address_state, shipping_address_postalcode, shipping_address_country, parent_id, sic_code, campaign_id)
+                     VALUES ('TEST4', 'Lang File tester', '2016-02-08 14:54:38', '2016-02-09 23:57:15', '1', '1', NULL, '0', '1', '1', '1', 'one_one', 'one&one', NULL, NULL, '', '', '', '', '', NULL, '', NULL, '', NULL, NULL, NULL, '', '', '', '', '', '', NULL, '')";
+        $GLOBALS['db']->query($sql);
     }
 
     private function teardownLanguageTestRecords()
@@ -128,6 +147,8 @@ class suppSugarRepairsTeamSetsBeanTest extends Sugar_PHPUnit_Framework_TestCase
         $sql = "DELETE FROM workflow_actions WHERE id='TEST2'";
         $GLOBALS['db']->query($sql);
         $sql = "DELETE FROM fields_meta_data WHERE id='TEST3'";
+        $GLOBALS['db']->query($sql);
+        $sql = "DELETE FROM accounts WHERE id='TEST4'";
         $GLOBALS['db']->query($sql);
     }
 }
