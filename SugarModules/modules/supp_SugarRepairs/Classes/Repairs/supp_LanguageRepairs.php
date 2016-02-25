@@ -101,13 +101,13 @@ class supp_LanguageRepairs extends supp_Repairs
      * @param string $testData
      * @return array
      */
-    private function getAnnotatedTokenList($fileName, $testData='')
+    private function getAnnotatedTokenList($fileName, $testData = '')
     {
         $processedTokenList = array();
         $globalsFlag = false;
         $drop = false;
         $counter = 0;
-        if(empty($testData)) {
+        if (empty($testData)) {
             $localTokenList = token_get_all(file_get_contents($fileName));
         } else {
             $localTokenList = token_get_all($testData);;
@@ -184,7 +184,7 @@ class supp_LanguageRepairs extends supp_Repairs
      * @param string $testData
      * @return array
      */
-    public function processTokenList($fileName, $testData='')
+    public function processTokenList($fileName, $testData = '')
     {
         $this->changed = false;
         $tokensByLine = array();
@@ -257,7 +257,7 @@ class supp_LanguageRepairs extends supp_Repairs
                     $this->tableBackupFlag['saved_reports'] = 'saved_reports';
                     $this->backupTable('saved_reports', "FLF");
                 }
-                if(!$isTesting) {
+                if (!$isTesting) {
                     //now save the record
                     $savedReport->save();
                     $this->log("Report {$reportID} saved with new key '{$newKey}'");
@@ -301,14 +301,14 @@ class supp_LanguageRepairs extends supp_Repairs
         $sql = "SELECT id AS numOfChagesNeeded FROM workflow_triggershells WHERE eval LIKE \"%'{$oldKey}'%\"";
         $hash = $GLOBALS['db']->fetchOne($sql);
         if ($hash != false) {
-            if (!in_array('workflow_triggershells', $this->tableBackupFlag)) {
+            if (!in_array('workflow_triggershells', $this->tableBackupFlag) && !$isTesting) {
                 $this->backupTable('workflow_triggershells' . 'FLF');
                 $this->tableBackupFlag['workflow_triggershells'] = 'workflow_triggershells';
             }
             $sql = "UPDATE workflow_triggershells eval = REPLACE(eval, '{$oldKey}', '{$newKey}')
                         WHERE eval LIKE \"%'{$oldKey}'%\"";
             $GLOBALS['db']->query($sql);
-            if(!$isTesting) {
+            if (!$isTesting) {
                 $this->log("-> Updated workflow_triggershells");
             }
         }
@@ -321,7 +321,7 @@ class supp_LanguageRepairs extends supp_Repairs
                         value LIKE \"%^{$oldKey}^%\")";
         $hash = $GLOBALS['db']->fetchOne($sql);
         if ($hash != false) {
-            if (!in_array('workflow_actions', $this->tableBackupFlag)) {
+            if (!in_array('workflow_actions', $this->tableBackupFlag) && !$isTesting) {
                 $this->backupTable('workflow_actions' . 'FLF');
                 $this->tableBackupFlag['workflow_actions'] = 'workflow_actions';
             }
@@ -331,7 +331,7 @@ class supp_LanguageRepairs extends supp_Repairs
                                   value LIKE \"%^{$oldKey}\"
                                   value LIKE \"%^{$oldKey}^%\")";
             $GLOBALS['db']->query($sql);
-            if(!$isTesting) {
+            if (!$isTesting) {
                 $this->log("-> Updated workflow_actions");
             }
         }
@@ -383,22 +383,26 @@ class supp_LanguageRepairs extends supp_Repairs
      * @param string $oldKey
      * @param bool $isTesting
      */
-    private function updateFiles($oldKey, $newKey, $isTesting = false)
+    private function updateFiles($oldKey, $newKey, $testData = '')
     {
         //TODO: Convert this to regex
         //TODO: TODO: learn regex
         //We only need to get this list once, it wont change
-        if (empty($this->customOtherFileList) && !$isTesting) {
+        if (empty($this->customOtherFileList) && empty($testData)) {
             $this->customOtherFileList = $this->getCustomVardefFiles();
-        } elseif ($isTesting) {
-            $this->customOtherFileList = array('TESTING'=>'TESTING');
+        } elseif (!empty($testData)) {
+            $this->customOtherFileList = array('TESTING' => 'TESTING');
         }
 
         $searchString1 = "'" . $oldKey . "'";
         $searchString2 = '"' . $oldKey . '"';
 
         foreach ($this->customOtherFileList as $fullPath => $relativePath) {
-            $text = sugar_file_get_contents($fullPath);
+            if (empty($testData)) {
+                $text = sugar_file_get_contents($fullPath);
+            } else {
+                $text = $testData;
+            }
             if (strpos($text, $searchString1) !== false ||
                 strpos($text, $searchString2) !== false
             ) {
@@ -424,15 +428,15 @@ class supp_LanguageRepairs extends supp_Repairs
 
                 );
                 $newText = str_replace($oldText, $newText, $text, $count);
-                if ($count == 0) {
-                    //There were no changes so this file will have to be examined manually
-                    $this->capture("File", $relativePath, "Key '{$oldKey}' found but could not be changed to '{$newKey}'.", 'Review', self::SEV_HIGH);
+                if (!empty($testData)) {
+                    return $newText;
                 } else {
-                    $this->capture("File", $relativePath, "Key 'Vardef file updated'.", 'Updated', self::SEV_LOW, $text, $newText);
-                    $this->log("-> Updated Vardefs file '{$fullPath}'");
-                    if ($isTesting) {
-                        return $newText;
+                    if ($count == 0) {
+                        //There were no changes so this file will have to be examined manually
+                        $this->capture("File", $relativePath, "Key '{$oldKey}' found but could not be changed to '{$newKey}'.", 'Review', self::SEV_HIGH);
                     } else {
+                        $this->capture("File", $relativePath, "Key 'Vardef file updated'.", 'Updated', self::SEV_LOW, $text, $newText);
+                        $this->log("-> Updated Vardefs file '{$fullPath}'");
                         sugar_file_put_contents($fullPath, $newText, LOCK_EX);
                     }
                 }
@@ -463,6 +467,19 @@ class supp_LanguageRepairs extends supp_Repairs
                         SET default_value = REPLACE(default_value, '{$oldKey}', '{$newKey}')
                         WHERE custom_module='{$moduleName}'
                           AND (default_value LIKE '%^{$oldKey}^%' OR default_value = '{$oldKey}')
+                          AND ext1='{$fieldName}'");
+                $query = preg_replace('/\s+/', ' ', $query);
+                //dont bother running the same query twice
+                if (!in_array($query, $this->queryCache)) {
+                    $GLOBALS['db']->query($query, true, "Error updating fields_meta_data.");
+                    $this->queryCache[] = $query;
+                }
+
+                //catch new dependencies
+                $query = str_replace(array("\r", "\n"), "", "UPDATE fields_meta_data
+                        SET ext4 = REPLACE(default_value, '{$oldKey}', '{$newKey}')
+                        WHERE custom_module='{$moduleName}'
+                          AND (ext4 LIKE '%{$oldKey}%')
                           AND ext1='{$fieldName}'");
                 $query = preg_replace('/\s+/', ' ', $query);
                 //dont bother running the same query twice
