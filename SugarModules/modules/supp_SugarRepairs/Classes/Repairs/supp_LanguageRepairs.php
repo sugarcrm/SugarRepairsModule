@@ -21,10 +21,10 @@ class supp_LanguageRepairs extends supp_Repairs
     private $arrayCache = array();
     private $queryCache = array();
     private $tokenList = array();
-    private $changed;
+    public $changed;
     private $syntaxError;
-    private $reportKeys = array();
-    private $tableBackupFlag = array();
+    public $reportKeys = array();
+    public $tableBackupFlag = array();
 
     function __construct()
     {
@@ -34,9 +34,8 @@ class supp_LanguageRepairs extends supp_Repairs
 
     /**
      * Executes the repairs
-     * @param bool $isTesting
      */
-    public function execute($isTesting = false)
+    public function execute()
     {
         $customLanguageFiles = $this->getCustomLanguageFiles($isTesting);
 
@@ -80,17 +79,15 @@ class supp_LanguageRepairs extends supp_Repairs
     /**
      * @param string $fileName
      */
-    private function repairStaticFile($fileName, $isTesting = false)
+    private function repairStaticFile($fileName)
     {
         $this->log("Processing {$fileName}");
 
         //Next run the file through the tests and fill the new array
         $tokensByLine = $this->processTokenList($fileName);
 
-        if ($isTesting) {
-            return $tokensByLine;
-        } elseif ($this->changed) {
-            $this->writeNewFile($tokensByLine, $fileName, $isTesting);
+        if ($this->changed) {
+            $this->writeNewFile($tokensByLine, $fileName);
         } else {
             $this->log("-> No Changes");
         }
@@ -101,15 +98,20 @@ class supp_LanguageRepairs extends supp_Repairs
      *    processing.  It also gets rid of 'GLOBALS' in place.
      *
      * @param string $fileName - The name and path to the file
+     * @param string $testData
      * @return array
      */
-    private function getAnnotatedTokenList($fileName)
+    private function getAnnotatedTokenList($fileName, $testData='')
     {
         $processedTokenList = array();
         $globalsFlag = false;
         $drop = false;
         $counter = 0;
-        $localTokenList = token_get_all(file_get_contents($fileName));
+        if(empty($testData)) {
+            $localTokenList = token_get_all(file_get_contents($fileName));
+        } else {
+            $localTokenList = token_get_all($testData);;
+        }
         foreach ($localTokenList as $index => $keyList) {
             if (is_array($keyList)) {
                 $tokenNumber = $keyList[0];
@@ -178,16 +180,17 @@ class supp_LanguageRepairs extends supp_Repairs
     }
 
     /**
-     * @param string $fileName
+     * @param $fileName
+     * @param string $testData
      * @return array
      */
-    public function processTokenList($fileName)
+    public function processTokenList($fileName, $testData='')
     {
         $this->changed = false;
         $tokensByLine = array();
         $lineNumber = 0;
 
-        $this->tokenList = $this->getAnnotatedTokenList($fileName);
+        $this->tokenList = $this->getAnnotatedTokenList($fileName, $testData);
 
         foreach ($this->tokenList as $index => $keyList) {
             if (is_array($keyList)) {
@@ -246,17 +249,22 @@ class supp_LanguageRepairs extends supp_Repairs
                 $reportContent = $jsonObj->decode(html_entity_decode($savedReport->content));
                 //do a global search and replace for the old key
                 $newReportContent = $this->recursive_array_replace($oldKey, $newKey, $reportContent);
-                //reenclode the contect
+                //re-encode the Content
                 $encodedContent = $jsonObj->encode(htmlentities($newReportContent));
                 $savedReport->content = $encodedContent;
-                //back up the database table if it has not been backed up yet.
+                //back up the database table if it has not been backed up yet unless we are testing
                 if (in_array('saved_reports', $this->tableBackupFlag) == false && !$isTesting) {
                     $this->tableBackupFlag['saved_reports'] = 'saved_reports';
                     $this->backupTable('saved_reports', "FLF");
                 }
-                //now save the record
-                $savedReport->save();
-                $this->log("Report {$reportID} saved with new key '{$newKey}'");
+                if(!$isTesting) {
+                    //now save the record
+                    $savedReport->save();
+                    $this->log("Report {$reportID} saved with new key '{$newKey}'");
+                } else {
+                    //if we are testing then just return the updated report
+                    return $newReportContent;
+                }
             }
         }
     }
@@ -299,8 +307,10 @@ class supp_LanguageRepairs extends supp_Repairs
             }
             $sql = "UPDATE workflow_triggershells eval = REPLACE(eval, '{$oldKey}', '{$newKey}')
                         WHERE eval LIKE \"%'{$oldKey}'%\"";
-            $result = $GLOBALS['db']->query($sql);
-            $this->log("-> Updated workflow_triggershells");
+            $GLOBALS['db']->query($sql);
+            if(!$isTesting) {
+                $this->log("-> Updated workflow_triggershells");
+            }
         }
 
         //Actions
@@ -320,8 +330,10 @@ class supp_LanguageRepairs extends supp_Repairs
                                  (value LIKE \"{$oldKey}^%\"
                                   value LIKE \"%^{$oldKey}\"
                                   value LIKE \"%^{$oldKey}^%\")";
-            $result = $GLOBALS['db']->query($sql);
-            $this->log("-> Updated workflow_actions");
+            $GLOBALS['db']->query($sql);
+            if(!$isTesting) {
+                $this->log("-> Updated workflow_actions");
+            }
         }
     }
 
@@ -376,8 +388,10 @@ class supp_LanguageRepairs extends supp_Repairs
         //TODO: Convert this to regex
         //TODO: TODO: learn regex
         //We only need to get this list once, it wont change
-        if (empty($this->customOtherFileList)) {
+        if (empty($this->customOtherFileList) && !$isTesting) {
             $this->customOtherFileList = $this->getCustomVardefFiles();
+        } elseif ($isTesting) {
+            $this->customOtherFileList = array('TESTING'=>'TESTING');
         }
 
         $searchString1 = "'" . $oldKey . "'";
