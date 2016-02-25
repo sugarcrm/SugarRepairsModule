@@ -125,7 +125,7 @@ class supp_LanguageRepairs extends supp_Repairs
                 //We need to convert the index to an actual variable
                 if ($globalsFlag) {
                     if ($keyList['TOKEN_NAME'] == "T_CONSTANT_ENCAPSED_STRING") {
-                        $keyList[1] = "\$" . trim($keyList[1],"'");
+                        $keyList[1] = "\$" . trim($keyList[1], "'");
                         $keyList['TOKEN_NAME'] = 'T_VARIABLE';
                     }
                 }
@@ -191,45 +191,44 @@ class supp_LanguageRepairs extends supp_Repairs
 
         foreach ($this->tokenList as $index => $keyList) {
             if (is_array($keyList)) {
-                $lineNumber=$keyList[2];
-                switch($keyList['TOKEN_NAME']) {
+                $lineNumber = $keyList[2];
+                switch ($keyList['TOKEN_NAME']) {
                     case 'T_ARRAY_NAME':
-                    $tokenListName = $keyList[1];
+                        $tokenListName = $keyList[1];
                         break;
                     case 'T_ARRAY_KEY':
-                    $oldValue = $keyList[1];
-                        $keyList[1] = $this->fixIndexNames(trim($keyList[1],"'"));
+                        $oldValue = $keyList[1];
+                        $keyList[1] = $this->fixIndexNames(trim($keyList[1], "'"));
                         if ($oldValue != $keyList[1]) {
-                        //OK a key has changed, now we need to update everything
-                            $this->changed=true;
-                        if (!empty($tokenListName)) {
-                            $listNameInfo = $this->findListField($tokenListName);
-                            if (!empty($listNameInfo)) {
-                                //Sometimes the values come though as 'value', we need to get rid of the tick marks
-                                $oldValue = trim($oldValue, "'");
-                                $newKey = trim($keyList[1], "'");
-
-                                $this->updateDatabase($listNameInfo, $oldValue, $newKey);
-                                $this->updateFieldsMetaDataTable($listNameInfo, $oldValue, $newKey);
-                                $this->updateFiles($oldValue, $newKey);
-                                $this->updateReportFilters($oldValue, $newKey);
-                                $this->updateWorkFlow($oldValue, $newKey);
+                            //OK a key has changed, now we need to update everything
+                            $this->changed = true;
+                            //Sometimes the values come though as 'value', we need to get rid of the tick marks
+                            $oldValue = trim($oldValue, "'");
+                            $newKey = trim($keyList[1], "'");
+                            if (!empty($tokenListName)) {
+                                $listNameInfo = $this->findListField($tokenListName);
+                                if (!empty($listNameInfo)) {
+                                    $this->updateDatabase($listNameInfo, $oldValue, $newKey);
+                                    $this->updateFieldsMetaDataTable($listNameInfo, $oldValue, $newKey);
+                                    $this->updateFiles($oldValue, $newKey);
+                                    $this->updateReportFilters($oldValue, $newKey);
+                                    $this->updateWorkFlow($oldValue, $newKey);
+                                } else {
+                                    $this->updateFiles($oldValue, $newKey);
+                                    $this->updateReportFilters($oldValue, $newKey);
+                                    $this->updateWorkFlow($oldValue, $newKey);
+                                    $this->log("ERROR: No list name for {$keyList[1]}.");
+                                }
                             }
-                        } else {
-                                $this->updateFiles($oldValue, $newKey);
-                                $this->updateReportFilters($oldValue, $newKey);
-                                $this->updateWorkFlow($oldValue, $newKey);
-                            $this->log("ERROR: No list name for {$keyList[1]}.");
                         }
-                    }
                         break;
                     case 'T_CONSTANT_ENCAPSED_STRING':
                     default:
                         break;
                 }
             }
-                $tokensByLine[$lineNumber][] = $keyList;
-            }
+            $tokensByLine[$lineNumber][] = $keyList;
+        }
         return $tokensByLine;
     }
 
@@ -242,17 +241,42 @@ class supp_LanguageRepairs extends supp_Repairs
     {
         $jsonObj = getJSONobj();
         foreach ($this->reportKeys as $reportID => $filterKeys) {
-            if (in_array($oldKey, $filterKeys)) {
-                $contents = $this->parseReportFilters($reportID, $oldKey, $newKey, $isTesting);
-                if ($contents !== false) {
-                    $encodedContent = $jsonObj->encode(htmlentities($contents));
-                    $savedReport = BeanFactory::getBean('Reports', $reportID);
-                    $savedReport->content = $encodedContent;
-                    $savedReport->save();
-                    $this->log("Report {$reportID} saved with new key '{$newKey}'");
+            if ($this->recursiveValueSearch($oldKey, $filterKeys) !== false) {
+                $savedReport = BeanFactory::getBean('Reports', $reportID);
+                $reportContent = $jsonObj->decode(html_entity_decode($savedReport->content));
+                //do a global search and replace for the old key
+                $newReportContent = $this->recursive_array_replace($oldKey, $newKey, $reportContent);
+                //reenclode the contect
+                $encodedContent = $jsonObj->encode(htmlentities($newReportContent));
+                $savedReport->content = $encodedContent;
+                //back up the database table if it has not been backed up yet.
+                if (in_array('saved_reports', $this->tableBackupFlag) == false && !$isTesting) {
+                    $this->tableBackupFlag['saved_reports'] = 'saved_reports';
+                    $this->backupTable('saved_reports', "FLF");
                 }
+                //now save the record
+                $savedReport->save();
+                $this->log("Report {$reportID} saved with new key '{$newKey}'");
             }
         }
+    }
+
+    /**
+     * @param $find - What to find
+     * @param $replace - What to replace it with
+     * @param $array - The array to search
+     * @return array|mixed - The returned updated array
+     */
+    private function recursive_array_replace($find, $replace, $array)
+    {
+        if (!is_array($array)) {
+            return str_replace($find, $replace, $array);
+        }
+        $newArray = array();
+        foreach ($array as $key => $value) {
+            $newArray[$key] = $this->recursive_array_replace($find, $replace, $value);
+        }
+        return $newArray;
     }
 
     /**
@@ -306,101 +330,28 @@ class supp_LanguageRepairs extends supp_Repairs
      */
     private function preLoadReportData()
     {
+        $jsonObj = getJSONobj();
         $this->log("Preloading data from Reports module.");
-        $sql = "SELECT id,name FROM saved_reports";
+        $sql = "SELECT id,name FROM saved_reports WHERE deleted=0";
         $result = $GLOBALS['db']->query($sql);
         $trash = array();
         while ($hash = $GLOBALS['db']->fetchByAssoc($result, false)) {
-            $reportDef = $this->parseReportFilters($hash['id']);
-            $trash[$hash['name']] = $reportDef['filters_def'];
-        }
-        //sugar_file_put_contents("zzzREPORTDATA.php", "<?php\n\$a=" . var_export($trash, true));
-    }
-
-    /**
-     * Returns the changed $reportContent if there are changes made or false in there
-     *  were no changes make
-     *
-     * @param $reportID
-     * @param $oldKey
-     * @param $newKey
-     * @param bool $isTesting
-     * @return bool|string
-     */
-    private function parseReportFilters($reportID, $oldKey = null, $newKey = null, $isTesting = false)
-    {
-        $changed = false;
-        $jsonObj = getJSONobj();
-        $savedReport = BeanFactory::getBean('Reports', $reportID);
-        $reportContent = $jsonObj->decode(html_entity_decode($savedReport->content));
-
-        if (!is_array($this->reportKeys[$reportID])) {
-            $this->reportKeys[$reportID] = array();
-        }
-        if ($oldKey != null) {
-            foreach ($reportContent['filters_def'] as $index => $filterGroup) {
-                if (is_array($filterGroup)) {
-                    for ($x = 0; $x <= 256; $x++) {
-                        for ($y = 0; $y <= 256; $y++) {
-                            if (!array_key_exists(0, $filterGroup)) {
-                                $value = $filterGroup['input_name' . $y];
-                                if (is_array($value)) {
-                                    foreach ($value as $arrayIndex => $arrayValue) {
-                                        if ($arrayValue == $oldKey && $oldKey != null) {
-                                            $reportContent['filters_def'][$index][$x]['input_name' . $y][$arrayIndex] = $this->fixIndexNames($oldKey);
-                                            $changed = true;
-                                        }
-                                    }
-                                } else {
-                                    if ($value == $oldKey && $oldKey != null) {
-                                        $reportContent['filters_def'][$index][$x]['input_name' . $y] = $this->fixIndexNames($oldKey);
-                                        $changed = true;
-                                    }
-                                }
-                            } elseif (array_key_exists('input_name' . $y, $filterGroup[$x])) {
-                                $value = $filterGroup[$x]['input_name' . $y];
-                                if (is_array($value)) {
-                                    foreach ($value as $arrayIndex => $arrayValue) {
-                                        if ($arrayValue == $oldKey && $oldKey != null) {
-                                            $reportContent['filters_def'][$index][$x]['input_name' . $y][$arrayIndex] = $this->fixIndexNames($oldKey);
-                                            $changed = true;
-                                        }
-                                    }
-                                } else {
-                                    if ($value == $oldKey && $oldKey != null) {
-                                        $reportContent['filters_def'][$index][$x]['input_name' . $y] = $this->fixIndexNames($oldKey);
-                                        $changed = true;
-                                    }
-                                }
-                            } else {
-                                break 2;
-                            }
-                        }
-                    }
-                }
+            $savedReport = BeanFactory::getBean('Reports', $hash['id']);
+            $reportContent = $jsonObj->decode(html_entity_decode($savedReport->content));
+            if (array_key_exists('filters_def', $reportContent)) {
+                $this->reportKeys[$hash['id']] = $reportContent['filters_def'];
             }
-        }
-
-        if ($changed) {
-            //back up the database table if it has not been backed up yet.
-            if (in_array('saved_reports', $this->tableBackupFlag) == false && !$isTesting) {
-                $this->tableBackupFlag['saved_reports'] = 'saved_reports';
-                $this->backupTable('saved_reports', "FLF");
-            }
-            return $reportContent;
-        } else {
-            return $reportContent;
         }
     }
 
-    private function recursiveKeySearch($needle, array $array)
+    private function recursiveValueSearch($needle, array $array)
     {
         foreach ($array as $key => $value) {
-            if ($key === $needle) {
+            if ($value == $needle) {
                 return $value;
             }
             if (is_array($value)) {
-                if ($x = $this->recursiveKeySearch($needle, $value)) {
+                if ($x = $this->recursiveValueSearch($needle, $value)) {
                     return $x;
                 }
             }
@@ -684,7 +635,7 @@ class supp_LanguageRepairs extends supp_Repairs
                     $assembledFile[$lineNumber] .= $element;
                 }
             }
-            if (substr($assembledFile[$lineNumber],-1) != "\n") {
+            if (substr($assembledFile[$lineNumber], -1) != "\n") {
                 $assembledFile[$lineNumber] .= "\n";
             }
         }
