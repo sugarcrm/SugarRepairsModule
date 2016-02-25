@@ -298,7 +298,7 @@ class supp_LanguageRepairs extends supp_Repairs
     private function updateWorkFlow($oldKey, $newKey, $isTesting = false)
     {
         //TriggerShells
-        $sql = "SELECT id AS numOfChagesNeeded FROM workflow_triggershells WHERE eval LIKE \"%'{$oldKey}'%\"";
+        $sql = "SELECT id AS numOfChangesNeeded FROM workflow_triggershells WHERE eval LIKE \"%'{$oldKey}'%\"";
         $hash = $GLOBALS['db']->fetchOne($sql);
         if ($hash != false) {
             if (!in_array('workflow_triggershells', $this->tableBackupFlag) && !$isTesting) {
@@ -314,7 +314,7 @@ class supp_LanguageRepairs extends supp_Repairs
         }
 
         //Actions
-        $sql = "SELECT count(id) AS numOfChagesNeeded FROM workflow_actions
+        $sql = "SELECT count(id) AS numOfChangesNeeded FROM workflow_actions
                   WHERE value = \"{$oldKey}\" OR
                        (value LIKE \"{$oldKey}^%\" OR
                         value LIKE \"%^{$oldKey}\" OR
@@ -675,7 +675,8 @@ class supp_LanguageRepairs extends supp_Repairs
                 $assembledFile[$lineNumber] .= "\n";
             }
         }
-        sugar_file_put_contents($fileName, $assembledFile, LOCK_EX);
+
+        return sugar_file_put_contents($fileName, $assembledFile, LOCK_EX);
     }
 
     /**

@@ -6,7 +6,7 @@ require_once ('modules/supp_SugarRepairs/Classes/Repairs/supp_TeamSetRepairs.php
  * @group support
  */
 
-class suppSugarRepairsTeamSetsBeanTest extends Sugar_PHPUnit_Framework_TestCase
+class suppSugarRepairsTeamSetRepairsTest extends Sugar_PHPUnit_Framework_TestCase
 {
     public function setUp()
     {

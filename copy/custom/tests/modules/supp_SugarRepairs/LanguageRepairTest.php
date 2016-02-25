@@ -5,7 +5,7 @@ require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_LanguageRepairs.php
 /**
  * @group support
  */
-class suppSugarRepairsTeamSetsBeanTest extends Sugar_PHPUnit_Framework_TestCase
+class suppSugarRepairsLanguageRepairs extends Sugar_PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
@@ -19,7 +19,6 @@ class suppSugarRepairsTeamSetsBeanTest extends Sugar_PHPUnit_Framework_TestCase
         parent::tearDown();
         $this->teardownLanguageTestRecords();
     }
-
 
     /**
      * In this test we are checking that the T_VARIABLE, T_ARRAY_NAME & T_ARRAY_KEY tags
