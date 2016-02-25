@@ -590,7 +590,7 @@ class supp_LanguageRepairs extends supp_Repairs
     private function fixIndexNames($oldKey)
     {
         //Now go through and remove the characters [& / - ( )] and spaces (in some cases) from array keys
-        $badChars = array(' & ', '&', ' - ', '-', '/', ' / ', '(', ')');
+        $badChars = array(' & ', '&', ' - ', '-', ' / ', '/', '(', ')');
         $goodChars = array('_', '_', '_', '_', '_', '_', '', '');
         $newKey = str_replace($badChars, $goodChars, $oldKey, $count);
         return "'" . $newKey . "'";
