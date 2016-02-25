@@ -344,6 +344,11 @@ class supp_LanguageRepairs extends supp_Repairs
         }
     }
 
+    /**
+     * @param $needle = The VALUE you are looking for
+     * @param array $array - The array to search
+     * @return bool
+     */
     private function recursiveValueSearch($needle, array $array)
     {
         foreach ($array as $key => $value) {
