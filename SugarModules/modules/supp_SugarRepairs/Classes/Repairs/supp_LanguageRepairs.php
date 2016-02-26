@@ -24,7 +24,6 @@ class supp_LanguageRepairs extends supp_Repairs
     public $changed;
     private $syntaxError;
     public $reportKeys = array();
-    public $tableBackupFlag = array();
 
     function __construct()
     {
@@ -86,7 +85,7 @@ class supp_LanguageRepairs extends supp_Repairs
         $this->log("Processing {$fileName}");
 
         //Next run the file through the tests and fill the new array
-        $tokensByLine = $this->processTokenList($fileName);
+        $tokensByLine = $this->processTokenList(sugar_file_get_contents($fileName));
 
         if ($this->changed) {
             $this->writeNewFile($tokensByLine, $fileName);
@@ -99,21 +98,16 @@ class supp_LanguageRepairs extends supp_Repairs
      * This is the 'Token Engine'  If finds arrays and labels the individual parts for later
      *    processing.  It also gets rid of 'GLOBALS' in place.
      *
-     * @param string $fileName - The name and path to the file
-     * @param string $testData
+     * @param string $fileContents - The contents of the file to be parsed
      * @return array
      */
-    public function getAnnotatedTokenList($fileName, $testData = '')
+    public function getAnnotatedTokenList($fileContents)
     {
         $processedTokenList = array();
         $globalsFlag = false;
         $drop = false;
         $counter = 0;
-        if (empty($testData)) {
-            $localTokenList = token_get_all(file_get_contents($fileName));
-        } else {
-            $localTokenList = token_get_all($testData);;
-        }
+        $localTokenList = token_get_all($fileContents);
         foreach ($localTokenList as $index => $keyList) {
             if (is_array($keyList)) {
                 $tokenNumber = $keyList[0];
@@ -129,7 +123,7 @@ class supp_LanguageRepairs extends supp_Repairs
                 //We need to convert the index to an actual variable
                 if ($globalsFlag) {
                     if ($keyList['TOKEN_NAME'] == "T_CONSTANT_ENCAPSED_STRING") {
-                        $keyList[1] = "\$" . trim($keyList[1], "'");
+                        $keyList[1] = "\$" . trim($keyList[1], "'\"");
                         $keyList['TOKEN_NAME'] = 'T_VARIABLE';
                     }
                 }
@@ -182,17 +176,17 @@ class supp_LanguageRepairs extends supp_Repairs
     }
 
     /**
-     * @param $fileName
+     * @param $fileContents
      * @param string $testData
      * @return array
      */
-    public function processTokenList($fileName, $testData = '')
+    public function processTokenList($fileContents)
     {
         $this->changed = false;
         $tokensByLine = array();
         $lineNumber = 0;
 
-        $this->tokenList = $this->getAnnotatedTokenList($fileName, $testData);
+        $this->tokenList = $this->getAnnotatedTokenList($fileContents);
 
         foreach ($this->tokenList as $index => $keyList) {
             if (is_array($keyList)) {
@@ -202,26 +196,26 @@ class supp_LanguageRepairs extends supp_Repairs
                         $tokenListName = $keyList[1];
                         break;
                     case 'T_ARRAY_KEY':
-                        $oldValue = $keyList[1];
-                        $keyList[1] = $this->fixIndexNames(trim($keyList[1], "'"));
-                        if ($oldValue != $keyList[1]) {
+                        $oldKey = $keyList[1];
+                        $keyList[1] = $this->fixIndexNames($keyList[1]);
+                        if ($oldKey != $keyList[1]) {
                             //OK a key has changed, now we need to update everything
                             $this->changed = true;
                             //Sometimes the values come though as 'value', we need to get rid of the tick marks
-                            $oldValue = trim($oldValue, "'");
-                            $newKey = trim($keyList[1], "'");
+                            $oldKey = trim($oldKey, "'\"");
+                            $newKey = trim($keyList[1], "'\"");
                             if (!empty($tokenListName)) {
                                 $listNameInfo = $this->findListField($tokenListName);
                                 if (!empty($listNameInfo)) {
-                                    $this->updateDatabase($listNameInfo, $oldValue, $newKey);
-                                    $this->updateFieldsMetaDataTable($listNameInfo, $oldValue, $newKey);
-                                    $this->updateFiles($oldValue, $newKey);
-                                    $this->updateReportFilters($oldValue, $newKey);
-                                    $this->updateWorkFlow($oldValue, $newKey);
+                                    $this->updateDatabase($listNameInfo, $oldKey, $newKey);
+                                    $this->updateFieldsMetaDataTable($listNameInfo, $oldKey, $newKey);
+                                    $this->updateFiles($oldKey, $newKey);
+                                    $this->updateReportFilters($oldKey, $newKey);
+                                    $this->updateWorkFlow($oldKey, $newKey);
                                 } else {
-                                    $this->updateFiles($oldValue, $newKey);
-                                    $this->updateReportFilters($oldValue, $newKey);
-                                    $this->updateWorkFlow($oldValue, $newKey);
+                                    $this->updateFiles($oldKey, $newKey);
+                                    $this->updateReportFilters($oldKey, $newKey);
+                                    $this->updateWorkFlow($oldKey, $newKey);
                                     $this->log("ERROR: No list name for {$keyList[1]}.");
                                 }
                             }
@@ -254,20 +248,17 @@ class supp_LanguageRepairs extends supp_Repairs
                 $encodedContent = $jsonObj->encode(htmlentities($newReportContent));
                 $savedReport->content = $encodedContent;
                 //back up the database table if it has not been backed up yet unless we are testing
-                if (in_array('saved_reports', $this->tableBackupFlag) == false && !$this->isTesting) {
-                    $this->tableBackupFlag['saved_reports'] = 'saved_reports';
+                if (in_array('saved_reports', $this->backupTables) == false) {
                     $this->backupTable('saved_reports', "FLF");
                 }
                 if (!$this->isTesting) {
                     //now save the record
                     $savedReport->save();
-                    $this->log("Report {$reportID} saved with new key '{$newKey}'");
-                } else {
-                    //if we are testing then just return the updated report
-                    return $newReportContent;
                 }
+                $this->log("-> Report {$savedReport->name} was found to have a filter with {$oldKey} in it");
             }
         }
+        return $newReportContent;
     }
 
     /**
@@ -301,16 +292,15 @@ class supp_LanguageRepairs extends supp_Repairs
         $sql = "SELECT id AS numOfChangesNeeded FROM workflow_triggershells WHERE eval LIKE \"%'{$oldKey}'%\"";
         $hash = $GLOBALS['db']->fetchOne($sql);
         if ($hash != false) {
-            if (!in_array('workflow_triggershells', $this->tableBackupFlag) && !$this->isTesting) {
+            if (!in_array('workflow_triggershells', $this->backupTables)) {
                 $this->backupTable('workflow_triggershells' . 'FLF');
-                $this->tableBackupFlag['workflow_triggershells'] = 'workflow_triggershells';
             }
-            $sql = "UPDATE workflow_triggershells eval = REPLACE(eval, '{$oldKey}', '{$newKey}')
-                        WHERE eval LIKE \"%'{$oldKey}'%\"";
-            $GLOBALS['db']->query($sql);
             if (!$this->isTesting) {
-                $this->log("-> Updated workflow_triggershells");
+                $sql = "UPDATE workflow_triggershells eval = REPLACE(eval, '{$oldKey}', '{$newKey}')
+                        WHERE eval LIKE \"%'{$oldKey}'%\"";
+                $GLOBALS['db']->query($sql);
             }
+            $this->log("-> Workflow trigger found with {$oldKey} in it.");
         }
 
         //Actions
@@ -325,15 +315,15 @@ class supp_LanguageRepairs extends supp_Repairs
                 $this->backupTable('workflow_actions' . 'FLF');
                 $this->tableBackupFlag['workflow_actions'] = 'workflow_actions';
             }
-            $sql = "UPDATE workflow_actions value = REPLACE(value, '{$oldKey}', '{$newKey}')
+            if (!$this->isTesting) {
+                $sql = "UPDATE workflow_actions value = REPLACE(value, '{$oldKey}', '{$newKey}')
                             WHERE value = \"{$oldKey}\" OR
                                  (value LIKE \"{$oldKey}^%\"
                                   value LIKE \"%^{$oldKey}\"
                                   value LIKE \"%^{$oldKey}^%\")";
-            $GLOBALS['db']->query($sql);
-            if (!$this->isTesting) {
-                $this->log("-> Updated workflow_actions");
+                $GLOBALS['db']->query($sql);
             }
+            $this->log("-> Workflow action found with {$oldKey} in it.");
         }
     }
 
@@ -346,7 +336,6 @@ class supp_LanguageRepairs extends supp_Repairs
         $this->log("Preloading data from Reports module.");
         $sql = "SELECT id,name FROM saved_reports WHERE deleted=0";
         $result = $GLOBALS['db']->query($sql);
-        $trash = array();
         while ($hash = $GLOBALS['db']->fetchByAssoc($result, false)) {
             $savedReport = BeanFactory::getBean('Reports', $hash['id']);
             $reportContent = $jsonObj->decode(html_entity_decode($savedReport->content));
@@ -383,62 +372,60 @@ class supp_LanguageRepairs extends supp_Repairs
      * @param string $oldKey
      * @param bool $testData
      */
-    public function updateFiles($oldKey, $newKey, $testData = '')
+    private function scanFiles($oldKey, $newKey)
     {
-        //TODO: Convert this to regex
-        //TODO: TODO: learn regex
         //We only need to get this list once, it wont change
-        if (empty($this->customOtherFileList) && empty($testData)) {
+        if (empty($this->customOtherFileList)) {
             $this->customOtherFileList = $this->getCustomVardefFiles();
-        } elseif (!empty($testData)) {
-            $this->customOtherFileList = array('TESTING' => 'TESTING');
         }
 
-        $searchString1 = "'" . $oldKey . "'";
-        $searchString2 = '"' . $oldKey . '"';
-
         foreach ($this->customOtherFileList as $fullPath => $relativePath) {
-            if (empty($testData)) {
-                $text = sugar_file_get_contents($fullPath);
-            } else {
-                $text = $testData;
-            }
-            if (strpos($text, $searchString1) !== false ||
-                strpos($text, $searchString2) !== false
-            ) {
-                $oldText = array(
-                    "=> '{$oldKey}'",
-                    "=> \"{$oldKey}\"",
-                    "=>'{$oldKey}'",
-                    "=>\"{$oldKey}\"",
-                    "= '{$oldKey}'",
-                    "= \"{$oldKey}\"",
-                    "='{$oldKey}'",
-                    "=\"{$oldKey}\""
-                );
-                $newText = array(
-                    "=> '{$newKey}'",
-                    "=> \"{$newKey}\"",
-                    "=>'{$newKey}'",
-                    "=>\"{$newKey}\"",
-                    "= '{$newKey}'",
-                    "= \"{$newKey}\"",
-                    "='{$newKey}'",
-                    "=\"{$newKey}\""
+            $this->updateFiles($oldKey, $newKey, $fullPath, $relativePath, sugar_file_get_contents($fullPath));
+        }
+    }
 
-                );
-                $newText = str_replace($oldText, $newText, $text, $count);
-                if (!empty($testData)) {
-                    return $newText;
-                } else {
-                    if ($count == 0) {
-                        //There were no changes so this file will have to be examined manually
-                        $this->capture("File", $relativePath, "Key '{$oldKey}' found but could not be changed to '{$newKey}'.", 'Review', self::SEV_HIGH);
-                    } else {
-                        $this->capture("File", $relativePath, "Key 'Vardef file updated'.", 'Updated', self::SEV_LOW, $text, $newText);
-                        $this->log("-> Updated Vardefs file '{$fullPath}'");
-                        sugar_file_put_contents($fullPath, $newText, LOCK_EX);
-                    }
+    public function updateFiles($oldKey, $newKey, $fullPath, $relativePath, $fileContents)
+    {
+        $searchString1 = "'" . trim($oldKey, "'\"") . "'";
+        $searchString2 = '"' . trim($oldKey, "'\"") . '"';
+
+        //TODO: Convert this to regex
+
+        if (strpos($fileContents, $searchString1) !== false ||
+            strpos($fileContents, $searchString2) !== false
+        ) {
+            $oldText = array(
+                "=> '{$oldKey}'",
+                "=> \"{$oldKey}\"",
+                "=>'{$oldKey}'",
+                "=>\"{$oldKey}\"",
+                "= '{$oldKey}'",
+                "= \"{$oldKey}\"",
+                "='{$oldKey}'",
+                "=\"{$oldKey}\""
+            );
+            $newText = array(
+                "=> '{$newKey}'",
+                "=> \"{$newKey}\"",
+                "=>'{$newKey}'",
+                "=>\"{$newKey}\"",
+                "= '{$newKey}'",
+                "= \"{$newKey}\"",
+                "='{$newKey}'",
+                "=\"{$newKey}\""
+
+            );
+
+            $newText = str_replace($oldText, $newText, $fileContents, $count);
+
+            if ($count == 0) {
+                //There were no changes so this file will have to be examined manually
+                $this->capture("File", $relativePath, "Key '{$oldKey}' found but could not be changed to '{$newKey}'.", 'Review', self::SEV_HIGH);
+            } else {
+                $this->capture("File", $relativePath, "Key 'Vardef file updated'.", 'Updated', self::SEV_LOW, $fileContents, $newText);
+                $this->log("-> {$oldKey} found in Vardefs file '{$relativePath}'");
+                if (!$this->isTesting) {
+                    sugar_file_put_contents($fullPath, $newText, LOCK_EX);
                 }
             }
         }
@@ -456,8 +443,7 @@ class supp_LanguageRepairs extends supp_Repairs
         $hash = $GLOBALS['db']->fetchOne("SELECT * FROM fields_meta_data WHERE default_value LIKE '%^{$oldKey}^%' OR default_value = '{$oldKey}'");
         if ($hash != false) {
             //back up the database table if it has not been backed up yet.
-            if (in_array('fields_meta_data', $this->tableBackupFlag) == false && !$this->isTesting) {
-                $this->tableBackupFlag['fields_meta_data'] = 'fields_meta_data';
+            if (!in_array('fields_meta_data', $this->backupTables)) {
                 $this->backupTable('fields_meta_data', "FLF");
             }
 
@@ -468,11 +454,11 @@ class supp_LanguageRepairs extends supp_Repairs
                           AND (default_value LIKE '%^{$oldKey}^%' OR default_value = '{$oldKey}')
                           AND ext1='{$fieldName}'");
                 $query = preg_replace('/\s+/', ' ', $query);
-                //dont bother running the same query twice
-                if (!in_array($query, $this->queryCache)) {
+                //dont bother running the same query twice or at all if we are in testing mode
+                if (!in_array($query, $this->queryCache) && !$this->isTesting) {
                     $GLOBALS['db']->query($query, true, "Error updating fields_meta_data.");
-                    $this->queryCache[] = $query;
                 }
+                $this->queryCache[] = $query;
 
                 //catch new dependencies
                 $query = str_replace(array("\r", "\n"), "", "UPDATE fields_meta_data
@@ -481,12 +467,13 @@ class supp_LanguageRepairs extends supp_Repairs
                           AND (ext4 LIKE '%{$oldKey}%')
                           AND ext1='{$fieldName}'");
                 $query = preg_replace('/\s+/', ' ', $query);
-                //dont bother running the same query twice
-                if (!in_array($query, $this->queryCache)) {
+                //dont bother running the same query twice or at all if we are in testing mode
+                if (!in_array($query, $this->queryCache) && !$this->isTesting) {
                     $GLOBALS['db']->query($query, true, "Error updating fields_meta_data.");
-                    $this->queryCache[] = $query;
                 }
+                $this->queryCache[] = $query;
             }
+            $this->log("-> {$oldKey} found as a default value or in a dependency in fields_meta_data table.");
         }
     }
 
@@ -494,10 +481,10 @@ class supp_LanguageRepairs extends supp_Repairs
      * This updates the tables in the database, it automatically detects if it is in the stock table or the custom table
      *
      * @param $fieldData
-     * @param $oldValue
+     * @param $oldKey
      * @param $newValue
      */
-    public function updateDatabase($fieldData, $oldValue, $newValue)
+    public function updateDatabase($fieldData, $oldKey, $newValue)
     {
         if (!empty($fieldData)) {
             foreach ($fieldData as $module => $fieldName) {
@@ -509,24 +496,23 @@ class supp_LanguageRepairs extends supp_Repairs
                     $table = $bean->table_name;
                 }
 
-                $hash = $GLOBALS['db']->fetchOne("SELECT * FROM {$table} WHERE {$fieldName} LIKE '%^{$oldValue}^%' OR {$fieldName} = '{$oldValue}'");
+                $hash = $GLOBALS['db']->fetchOne("SELECT * FROM {$table} WHERE {$fieldName} LIKE '%^{$oldKey}^%' OR {$fieldName} = '{$oldKey}'");
                 if ($hash != false) {
                     //back up the database table if it has not been backed up yet.
-                    if (in_array($table, $this->tableBackupFlag) == false && !$this->isTesting) {
-                        $this->tableBackupFlag[$table] = $table;
+                    if (!in_array($table, $this->backupTables) && !$this->isTesting) {
                         $this->backupTable($table, "FLF");
                     }
 
                     $query = str_replace(array("\r", "\n"), "", "UPDATE {$table}
-                            SET {$fieldName} = REPLACE({$fieldName}, '{$oldValue}', '{$newValue}')
-                            WHERE {$fieldName} LIKE '%^{$oldValue}^%' OR
-                                  {$fieldName} = '{$oldValue}'");
+                            SET {$fieldName} = REPLACE({$fieldName}, '{$oldKey}', '{$newValue}')
+                            WHERE {$fieldName} LIKE '%^{$oldKey}^%' OR
+                                  {$fieldName} = '{$oldKey}'");
                     $query = preg_replace('/\s+/', ' ', $query);
                     //dont bother running the same query twice
-                    if (!in_array($query, $this->queryCache)) {
+                    if (!in_array($query, $this->queryCache) && !$this->isTesting) {
                         $GLOBALS['db']->query($query, true, "Error updating {$table}.");
-                        $this->queryCache[] = $query;
                     }
+                    $this->queryCache[] = $query;
                 }
             }
         }
@@ -578,7 +564,7 @@ class supp_LanguageRepairs extends supp_Repairs
         $badChars = array(' & ', '&', ' - ', '-', ' / ', '/', '(', ')');
         $goodChars = array('_', '_', '_', '_', '_', '_', '', '');
         $newKey = str_replace($badChars, $goodChars, $oldKey, $count);
-        return "'" . $newKey . "'";
+        return $newKey;
     }
 
     /**
@@ -674,8 +660,14 @@ class supp_LanguageRepairs extends supp_Repairs
             }
         }
 
-        //somewhere around here we are gonna have to use touch to reset the lang file date
-        return sugar_file_put_contents($fileName, $assembledFile, LOCK_EX);
+        if(!$this->isTesting) {
+            //Update the file but retain its modified and access date stamps
+            $fileAccessTime = date('U', fileatime($fileName), time());
+            $fileModifiedTime = date('U', filemtime($fileName), time());
+            sugar_file_put_contents($fileName, $assembledFile, LOCK_EX);
+            sugar_touch($fileName, $fileModifiedTime, $fileAccessTime);
+        }
+        return $assembledFile;
     }
 
     /**
