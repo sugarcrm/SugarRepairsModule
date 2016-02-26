@@ -19,7 +19,7 @@ class supp_LanguageRepairs extends supp_Repairs
 
     private $dynamicTokens = array('T_OBJECT_OPERATOR', 'T_DOUBLE_COLON', 'T_CONCAT');
     private $arrayCache = array();
-    private $queryCache = array();
+    private $sqlCache = array();
     private $tokenList = array();
     public $changed;
     private $syntaxError;
@@ -48,7 +48,8 @@ class supp_LanguageRepairs extends supp_Repairs
             switch ($result) {
                 case self::TYPE_SYNTAXERROR:
                     $this->capture('File', $relativePath, "Syntax Error in file: {$relativePath} ({$this->syntaxError})", 'Review', self::SEV_HIGH);
-                    $this->log("Syntax Error in file: {$relativePath}");
+                    $this->log("Syntax Error in file: {$relativePath}",'FATAL');
+                    $this->log($this->syntaxError,'FATAL');
                     break;
                 case self::TYPE_UNREADABLE:
                     $this->capture('File', $relativePath, "Unreadable file: {$relativePath}", 'Review', self::SEV_HIGH);
@@ -186,7 +187,6 @@ class supp_LanguageRepairs extends supp_Repairs
 
     /**
      * @param $fileContents
-     * @param string $testData
      * @return array
      */
     public function processTokenList($fileContents)
@@ -241,21 +241,23 @@ class supp_LanguageRepairs extends supp_Repairs
     }
 
     /**
-     * @param string $oldKey
-     * @param string $newKey
+     * @param $oldKey
+     * @param $newKey
+     * @return array|mixed - Only used in unit tests
      */
     private function updateReportFilters($oldKey, $newKey)
     {
+        //todo: need to capture before/after info
         $jsonObj = getJSONobj();
         $newReportContent = array();
         foreach ($this->reportKeys as $reportID => $filterKeys) {
             if ($this->recursiveValueSearch($oldKey, $filterKeys) !== false) {
                 $savedReport = BeanFactory::getBean('Reports', $reportID);
-                $reportContent = $jsonObj->decode(html_entity_decode($savedReport->content));
+                $reportContent = $jsonObj->decode(html_entity_decode($savedReport->content, ENT_COMPAT | ENT_HTML401, 'UTF-8'));
                 //do a global search and replace for the old key
                 $newReportContent = $this->recursive_array_replace($oldKey, $newKey, $reportContent);
                 //re-encode the Content
-                $encodedContent = $jsonObj->encode(htmlentities($newReportContent));
+                $encodedContent = $jsonObj->encode(htmlentities($newReportContent, ENT_COMPAT | ENT_HTML401, 'UTF-8'));
                 $savedReport->content = $encodedContent;
                 //back up the database table if it has not been backed up yet unless we are testing
                 if (!$this->isTesting && !$this->isBackedUpTable('saved_reports')) {
@@ -263,7 +265,7 @@ class supp_LanguageRepairs extends supp_Repairs
                 }
                 if (!$this->isTesting) {
                     //now save the record
-                    $savedReport->save();
+                    $savedReport->save(false);
                 }
                 $this->log("-> Report {$savedReport->name} was found to have a filter with {$oldKey} in it");
             }
@@ -299,40 +301,37 @@ class supp_LanguageRepairs extends supp_Repairs
     public function updateWorkFlow($oldKey, $newKey)
     {
         //TriggerShells
-        $sql = "SELECT id AS numOfChangesNeeded FROM workflow_triggershells WHERE eval LIKE \"%'{$oldKey}'%\"";
-        $hash = $GLOBALS['db']->fetchOne($sql);
-        if ($hash != false) {
-            if (!$this->isTesting && !$this->isBackedUpTable('workflow_triggershells')) {
-                $this->backupTable('workflow_triggershells');  //why did this have FLF?
+        $sql = "SELECT id FROM workflow_triggershells WHERE eval LIKE \"%'{$oldKey}'%\"";
+        $result = $GLOBALS['db']->query($sql);
+        while($hash=$GLOBALS['db']->fetchByAssoc($result)) {
+            if (!$this->isBackedUpTable('workflow_triggershells')) {
+                $this->backupTable('workflow_triggershells');
             }
             if (!$this->isTesting) {
                 $sql = "UPDATE workflow_triggershells eval = REPLACE(eval, '{$oldKey}', '{$newKey}')
-                        WHERE eval LIKE \"%'{$oldKey}'%\"";
+                        WHERE id = '{$hash['id']}'";
                 $GLOBALS['db']->query($sql);
             }
-            $this->log("-> Workflow trigger found with {$oldKey} in it.");
+            $this->log("-> Workflow trigger '{$hash['id']}' found with {$oldKey} in it.");
         }
 
         //Actions
-        $sql = "SELECT count(id) AS numOfChangesNeeded FROM workflow_actions
+        $sql = "SELECT id FROM workflow_actions
                   WHERE value = \"{$oldKey}\" OR
                        (value LIKE \"{$oldKey}^%\" OR
                         value LIKE \"%^{$oldKey}\" OR
                         value LIKE \"%^{$oldKey}^%\")";
-        $hash = $GLOBALS['db']->fetchOne($sql);
-        if ($hash != false) {
-            if (!$this->isTesting && !$this->isBackedUpTable('workflow_actions')) {
-                $this->backupTable('workflow_actions'); //why did this have FLF?
+        $result = $GLOBALS['db']->query($sql);
+        while($hash=$GLOBALS['db']->fetchByAssoc($result)) {
+            if (!$this->isBackedUpTable('workflow_actions')) {
+                $this->backupTable('workflow_actions');
             }
             if (!$this->isTesting) {
                 $sql = "UPDATE workflow_actions value = REPLACE(value, '{$oldKey}', '{$newKey}')
-                            WHERE value = \"{$oldKey}\" OR
-                                 (value LIKE \"{$oldKey}^%\"
-                                  value LIKE \"%^{$oldKey}\"
-                                  value LIKE \"%^{$oldKey}^%\")";
+                            WHERE id = '{$hash['id']}'";
                 $GLOBALS['db']->query($sql);
             }
-            $this->log("-> Workflow action found with {$oldKey} in it.");
+            $this->log("-> Workflow action '{$hash['id']}' found with {$oldKey} in it.");
         }
     }
 
@@ -347,7 +346,7 @@ class supp_LanguageRepairs extends supp_Repairs
         $result = $GLOBALS['db']->query($sql);
         while ($hash = $GLOBALS['db']->fetchByAssoc($result, false)) {
             $savedReport = BeanFactory::getBean('Reports', $hash['id']);
-            $reportContent = $jsonObj->decode(html_entity_decode($savedReport->content));
+            $reportContent = $jsonObj->decode(html_entity_decode($savedReport->content, ENT_COMPAT | ENT_HTML401, 'UTF-8'));
             if (array_key_exists('filters_def', $reportContent)) {
                 $this->reportKeys[$hash['id']] = $reportContent['filters_def'];
             }
@@ -437,6 +436,9 @@ class supp_LanguageRepairs extends supp_Repairs
                     sugar_file_put_contents($fullPath, $newText, LOCK_EX);
                 }
             }
+            return $newText;
+        } else {
+            return $fileContents;
         }
     }
 
@@ -449,38 +451,49 @@ class supp_LanguageRepairs extends supp_Repairs
      */
     public function updateFieldsMetaDataTable($fieldData, $oldKey, $newKey)
     {
-        $hash = $GLOBALS['db']->fetchOne("SELECT * FROM fields_meta_data WHERE default_value LIKE '%^{$oldKey}^%' OR default_value = '{$oldKey}'");
+        $hash = $GLOBALS['db']->fetchOne("SELECT * FROM fields_meta_data
+                                          WHERE default_value LIKE '%^{$oldKey}^%' OR
+                                                default_value = '{$oldKey}' OR
+                                                ext4 LIKE '%{$oldKey}%'");
         if ($hash != false) {
             //back up the database table if it has not been backed up yet.
-            if (!$this->isTesting && !$this->isBackedUpTable('fields_meta_data')) {
+            if (!$this->isBackedUpTable('fields_meta_data')) {
                 $this->backupTable('fields_meta_data');
             }
 
             foreach ($fieldData as $moduleName => $fieldName) {
-                $query = str_replace(array("\r", "\n"), "", "UPDATE fields_meta_data
-                        SET default_value = REPLACE(default_value, '{$oldKey}', '{$newKey}')
+                $sql = "SELECT id FROM fields_meta_data
                         WHERE custom_module='{$moduleName}'
                           AND (default_value LIKE '%^{$oldKey}^%' OR default_value = '{$oldKey}')
-                          AND ext1='{$fieldName}'");
-                $query = preg_replace('/\s+/', ' ', $query);
-                //dont bother running the same query twice or at all if we are in testing mode
-                if (!in_array($query, $this->queryCache) && !$this->isTesting) {
-                    $GLOBALS['db']->query($query, true, "Error updating fields_meta_data.");
+                          AND ext1='{$fieldName}'";
+                $result = $GLOBALS['db']->query($sql, true, "Error updating fields_meta_data.");
+                while($hash=$GLOBALS['db']->fetchByAssoc($result)) {
+                    $sql ="UPDATE fields_meta_data
+                           SET default_value = REPLACE(default_value, '{$oldKey}', '{$newKey}')
+                           WHERE id = '{$hash['id']}'";
+                    //don't bother running the same query twice or at all if we are in testing mode
+                    if (!in_array($sql, $this->queryCache) && !$this->isTesting) {
+                        $GLOBALS['db']->query($sql);
+                    }
+                    $this->queryCache[] = $sql;
                 }
-                $this->queryCache[] = $query;
 
                 //catch new dependencies
-                $query = str_replace(array("\r", "\n"), "", "UPDATE fields_meta_data
-                        SET ext4 = REPLACE(default_value, '{$oldKey}', '{$newKey}')
+                $sql = "SELECT id FROM fields_meta_data
                         WHERE custom_module='{$moduleName}'
                           AND (ext4 LIKE '%{$oldKey}%')
-                          AND ext1='{$fieldName}'");
-                $query = preg_replace('/\s+/', ' ', $query);
-                //dont bother running the same query twice or at all if we are in testing mode
-                if (!in_array($query, $this->queryCache) && !$this->isTesting) {
-                    $GLOBALS['db']->query($query, true, "Error updating fields_meta_data.");
+                          AND ext1='{$fieldName}'";
+                $result = $GLOBALS['db']->query($sql, true, "Error updating fields_meta_data.");
+                while($hash=$GLOBALS['db']->fetchByAssoc($result)) {
+                    $sql ="UPDATE fields_meta_data
+                           SET ext4 = REPLACE(default_value, '{$oldKey}', '{$newKey}')
+                           WHERE id = '{$hash['id']}'";
+                    //don't bother running the same query twice or at all if we are in testing mode
+                    if (!in_array($sql, $this->queryCache) && !$this->isTesting) {
+                        $GLOBALS['db']->query($sql);
+                    }
+                    $this->queryCache[] = $sql;
                 }
-                $this->queryCache[] = $query;
             }
             $this->log("-> {$oldKey} found as a default value or in a dependency in fields_meta_data table.");
         }
@@ -489,9 +502,10 @@ class supp_LanguageRepairs extends supp_Repairs
     /**
      * This updates the tables in the database, it automatically detects if it is in the stock table or the custom table
      *
-     * @param $fieldData
-     * @param $oldKey
-     * @param $newValue
+     * @param array $fieldData
+     * @param string $oldKey
+     * @param string $newValue
+     * @return array
      */
     public function updateDatabase($fieldData, $oldKey, $newValue)
     {
@@ -508,27 +522,32 @@ class supp_LanguageRepairs extends supp_Repairs
                 $hash = $GLOBALS['db']->fetchOne("SELECT * FROM {$table} WHERE {$fieldName} LIKE '%^{$oldKey}^%' OR {$fieldName} = '{$oldKey}'");
                 if ($hash != false) {
                     //back up the database table if it has not been backed up yet.
-                    if (!$this->isTesting && !$this->isBackedUpTable($table)) {
+                    if (!$this->isBackedUpTable($table)) {
                         $this->backupTable($table);
                     }
 
-                    $query = str_replace(array("\r", "\n"), "", "UPDATE {$table}
-                            SET {$fieldName} = REPLACE({$fieldName}, '{$oldKey}', '{$newValue}')
+                    $sql = "SELECT id FROM {$table}
                             WHERE {$fieldName} LIKE '%^{$oldKey}^%' OR
-                                  {$fieldName} = '{$oldKey}'");
-                    $query = preg_replace('/\s+/', ' ', $query);
-                    //dont bother running the same query twice
-                    if (!in_array($query, $this->queryCache) && !$this->isTesting) {
-                        $GLOBALS['db']->query($query, true, "Error updating {$table}.");
+                                  {$fieldName} = '{$oldKey}'";
+                    $result = $GLOBALS['db']->query($sql, true, "Error updating fields_meta_data.");
+                    while($hash=$GLOBALS['db']->fetchByAssoc($result)) {
+                        $sql = "UPDATE {$table}
+                                SET {$fieldName} = REPLACE({$fieldName}, '{$oldKey}', '{$newValue}')
+                                WHERE {$fieldName} LIKE '%^{$oldKey}^%' OR
+                                  {$fieldName} = '{$oldKey}'";
+                        //don't bother running the same query twice or at all if we are in testing mode
+                        if (!in_array($sql, $this->queryCache) && !$this->isTesting) {
+                            $GLOBALS['db']->query($sql);
+                        }
+                        $this->queryCache[] = $sql;
                     }
-                    $this->queryCache[] = $query;
                 }
             }
         }
     }
 
     /**
-     * @param $listName
+     * @param string $listName
      * @return array
      */
     public function findListField($listName)
@@ -554,7 +573,8 @@ class supp_LanguageRepairs extends supp_Repairs
         }
 
         if (empty($retArray)) {
-            $this->log("-> Could not locate {$listName}, it appears not to be used as a dropdown list");
+            $this->log("-> Could not locate {$listName}, it appears not to be used as a dropdown list.");
+            $this->log("     This is just a warning and this list will simply be ignored by SugarCRM");
         } else {
             $this->log("-> Found {$listName} in bean '{$bean} in field '{$fieldName}'");
         }
@@ -611,7 +631,7 @@ class supp_LanguageRepairs extends supp_Repairs
         if ($output !== false) {
             $syntaxError = "";
             foreach ($output as $msg => $line) {
-                $syntaxError .= "\nError: '{$msg}' in line {$line}";
+                $syntaxError .= "Error: '{$msg}' in line {$line} in {$fileName}\n";
             }
             $this->syntaxError = $syntaxError;
             return self::TYPE_SYNTAXERROR;
@@ -671,8 +691,8 @@ class supp_LanguageRepairs extends supp_Repairs
 
         if (!$this->isTesting) {
             //Update the file but retain its modified and access date stamps
-            $fileAccessTime = date('U', fileatime($fileName), time());
-            $fileModifiedTime = date('U', filemtime($fileName), time());
+            $fileAccessTime = date('U', fileatime($fileName));
+            $fileModifiedTime = date('U', filemtime($fileName));
             sugar_file_put_contents($fileName, $assembledFile, LOCK_EX);
             sugar_touch($fileName, $fileModifiedTime, $fileAccessTime);
         }
