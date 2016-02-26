@@ -111,6 +111,21 @@ abstract class supp_Repairs
 
         return '/(' . implode(')|(', $langRegexes) . ')/';
     }
+
+    /**
+     * Determines if we've already backed up a table
+     * @param $table
+     * @return bool
+     */
+    protected function isBackedUpTable($table)
+    {
+        if (in_array($table, $this->backupTables)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /**
      * Backs up a database table
      * @param $table
@@ -256,12 +271,12 @@ abstract class supp_Repairs
 
         $module_array = $workflow_object->get_module_array();
 
-        foreach($module_array as $key => $module){
-            $dir = "custom/modules/".$module."/workflow";
-            if(file_exists($dir)){
-                if($elements = glob($dir."/*")){
-                    foreach($elements as $element) {
-                        is_dir($element)? remove_workflow_dir($element) : unlink($element);
+        foreach ($module_array as $key => $module) {
+            $dir = "custom/modules/" . $module . "/workflow";
+            if (file_exists($dir)) {
+                if ($elements = glob($dir . "/*")) {
+                    foreach ($elements as $element) {
+                        is_dir($element) ? remove_workflow_dir($element) : unlink($element);
                     }
                 }
             }

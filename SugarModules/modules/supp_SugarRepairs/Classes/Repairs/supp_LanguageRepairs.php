@@ -24,6 +24,7 @@ class supp_LanguageRepairs extends supp_Repairs
     public $changed;
     private $syntaxError;
     public $reportKeys = array();
+    protected $loggerTitle = "Language";
 
     function __construct()
     {
@@ -47,34 +48,37 @@ class supp_LanguageRepairs extends supp_Repairs
             switch ($result) {
                 case self::TYPE_SYNTAXERROR:
                     $this->capture('File', $relativePath, "Syntax Error in file: {$relativePath} ({$this->syntaxError})", 'Review', self::SEV_HIGH);
-                    $this->log("Syntax Error in file: {$relativePath}", 'Review', self::SEV_HIGH);
+                    $this->log("Syntax Error in file: {$relativePath}");
                     break;
                 case self::TYPE_UNREADABLE:
                     $this->capture('File', $relativePath, "Unreadable file: {$relativePath}", 'Review', self::SEV_HIGH);
-                    $this->log("Unreadable file: {$relativePath}", 'Review', self::SEV_HIGH);
+                    $this->log("Unreadable file: {$relativePath}");
                     break;
                 case self::TYPE_UNWRITABLE:
                     $this->capture('File', $relativePath, "Unwritable file: {$relativePath}", 'Review', self::SEV_HIGH);
-                    $this->log("Unwritable file: {$relativePath}", 'Review', self::SEV_HIGH);
+                    $this->log("Unwritable file: {$relativePath}");
                     break;
                 case self::TYPE_EMPTY:
                     $this->capture('File', $relativePath, "Deleted file: {$relativePath}", 'Updated', self::SEV_HIGH, file_get_contents($fullPath));
                     if (!$this->isTesting) {
                         unlink($fullPath);
                     }
-                    $this->log("Deleted file: {$relativePath}", 'Review', self::SEV_HIGH);
+                    $this->log("Deleted file: {$relativePath}");
                     break;
                 case self::TYPE_DYNAMIC:
                     $this->capture('File', $relativePath, "Dynamic file: {$relativePath}", 'Review', self::SEV_HIGH);
-                    $this->log("Dynamic file: {$relativePath}", 'Review', self::SEV_HIGH);
+                    $this->log("Dynamic file: {$relativePath}");
                     break;
                 case self::TYPE_STATIC:
                     $this->repairStaticFile($fullPath);
                     break;
             }
         }
-        $this->runRebuildWorkflow();
-        $this->runQRAR();
+
+        if (!$this->isTesting) {
+            $this->runRebuildWorkflow();
+            $this->runQRAR();
+        }
     }
 
     /**
@@ -87,8 +91,13 @@ class supp_LanguageRepairs extends supp_Repairs
         //Next run the file through the tests and fill the new array
         $tokensByLine = $this->processTokenList(sugar_file_get_contents($fileName));
 
+
         if ($this->changed) {
-            $this->writeNewFile($tokensByLine, $fileName);
+            if (!$this->isTesting) {
+                $this->writeNewFile($tokensByLine, $fileName);
+            } else {
+                $this->log("Will need to rewrite {$fileName}");
+            }
         } else {
             $this->log("-> No Changes");
         }
@@ -216,7 +225,7 @@ class supp_LanguageRepairs extends supp_Repairs
                                     $this->scanFiles($oldKey, $newKey);
                                     $this->updateReportFilters($oldKey, $newKey);
                                     $this->updateWorkFlow($oldKey, $newKey);
-                                    $this->log("ERROR: No list name for {$keyList[1]}.");
+                                    $this->log("ERROR: No list name for {$tokenListName} => {$keyList[1]}.");
                                 }
                             }
                         }
@@ -238,6 +247,7 @@ class supp_LanguageRepairs extends supp_Repairs
     private function updateReportFilters($oldKey, $newKey)
     {
         $jsonObj = getJSONobj();
+        $newReportContent = array();
         foreach ($this->reportKeys as $reportID => $filterKeys) {
             if ($this->recursiveValueSearch($oldKey, $filterKeys) !== false) {
                 $savedReport = BeanFactory::getBean('Reports', $reportID);
@@ -248,8 +258,8 @@ class supp_LanguageRepairs extends supp_Repairs
                 $encodedContent = $jsonObj->encode(htmlentities($newReportContent));
                 $savedReport->content = $encodedContent;
                 //back up the database table if it has not been backed up yet unless we are testing
-                if (in_array('saved_reports', $this->backupTables) == false) {
-                    $this->backupTable('saved_reports', "FLF");
+                if (!$this->isTesting && !$this->isBackedUpTable('saved_reports')) {
+                    $this->backupTable('saved_reports');
                 }
                 if (!$this->isTesting) {
                     //now save the record
@@ -292,8 +302,8 @@ class supp_LanguageRepairs extends supp_Repairs
         $sql = "SELECT id AS numOfChangesNeeded FROM workflow_triggershells WHERE eval LIKE \"%'{$oldKey}'%\"";
         $hash = $GLOBALS['db']->fetchOne($sql);
         if ($hash != false) {
-            if (!in_array('workflow_triggershells', $this->backupTables)) {
-                $this->backupTable('workflow_triggershells' . 'FLF');
+            if (!$this->isTesting && !$this->isBackedUpTable('workflow_triggershells')) {
+                $this->backupTable('workflow_triggershells');  //why did this have FLF?
             }
             if (!$this->isTesting) {
                 $sql = "UPDATE workflow_triggershells eval = REPLACE(eval, '{$oldKey}', '{$newKey}')
@@ -311,9 +321,8 @@ class supp_LanguageRepairs extends supp_Repairs
                         value LIKE \"%^{$oldKey}^%\")";
         $hash = $GLOBALS['db']->fetchOne($sql);
         if ($hash != false) {
-            if (!in_array('workflow_actions', $this->tableBackupFlag) && !$this->isTesting) {
-                $this->backupTable('workflow_actions' . 'FLF');
-                $this->tableBackupFlag['workflow_actions'] = 'workflow_actions';
+            if (!$this->isTesting && !$this->isBackedUpTable('workflow_actions')) {
+                $this->backupTable('workflow_actions'); //why did this have FLF?
             }
             if (!$this->isTesting) {
                 $sql = "UPDATE workflow_actions value = REPLACE(value, '{$oldKey}', '{$newKey}')
@@ -443,8 +452,8 @@ class supp_LanguageRepairs extends supp_Repairs
         $hash = $GLOBALS['db']->fetchOne("SELECT * FROM fields_meta_data WHERE default_value LIKE '%^{$oldKey}^%' OR default_value = '{$oldKey}'");
         if ($hash != false) {
             //back up the database table if it has not been backed up yet.
-            if (!in_array('fields_meta_data', $this->backupTables)) {
-                $this->backupTable('fields_meta_data', "FLF");
+            if (!$this->isTesting && !$this->isBackedUpTable('fields_meta_data')) {
+                $this->backupTable('fields_meta_data');
             }
 
             foreach ($fieldData as $moduleName => $fieldName) {
@@ -499,8 +508,8 @@ class supp_LanguageRepairs extends supp_Repairs
                 $hash = $GLOBALS['db']->fetchOne("SELECT * FROM {$table} WHERE {$fieldName} LIKE '%^{$oldKey}^%' OR {$fieldName} = '{$oldKey}'");
                 if ($hash != false) {
                     //back up the database table if it has not been backed up yet.
-                    if (!in_array($table, $this->backupTables) && !$this->isTesting) {
-                        $this->backupTable($table, "FLF");
+                    if (!$this->isTesting && !$this->isBackedUpTable($table)) {
+                        $this->backupTable($table);
                     }
 
                     $query = str_replace(array("\r", "\n"), "", "UPDATE {$table}
@@ -660,7 +669,7 @@ class supp_LanguageRepairs extends supp_Repairs
             }
         }
 
-        if(!$this->isTesting) {
+        if (!$this->isTesting) {
             //Update the file but retain its modified and access date stamps
             $fileAccessTime = date('U', fileatime($fileName), time());
             $fileModifiedTime = date('U', filemtime($fileName), time());
