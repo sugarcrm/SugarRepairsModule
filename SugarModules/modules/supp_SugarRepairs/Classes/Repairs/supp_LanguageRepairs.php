@@ -209,11 +209,11 @@ class supp_LanguageRepairs extends supp_Repairs
                                 if (!empty($listNameInfo)) {
                                     $this->updateDatabase($listNameInfo, $oldKey, $newKey);
                                     $this->updateFieldsMetaDataTable($listNameInfo, $oldKey, $newKey);
-                                    $this->updateFiles($oldKey, $newKey);
+                                    $this->scanFiles($oldKey, $newKey);
                                     $this->updateReportFilters($oldKey, $newKey);
                                     $this->updateWorkFlow($oldKey, $newKey);
                                 } else {
-                                    $this->updateFiles($oldKey, $newKey);
+                                    $this->scanFiles($oldKey, $newKey);
                                     $this->updateReportFilters($oldKey, $newKey);
                                     $this->updateWorkFlow($oldKey, $newKey);
                                     $this->log("ERROR: No list name for {$keyList[1]}.");
