@@ -5,6 +5,7 @@ This module is designed to help assist with common repair issues. You should alw
 Corrects common language file issues. The various issues addressed are shown below:
 
 * Health Check Errors:
+
 >[Health Check Error: Bad vardefs - key] (https://support.sugarcrm.com/Knowledge_Base/Administration/Install/Troubleshooting_Health_Check_Output/Health_Check_Error_Bad_Vardefs_Key/)
 
 >[Health Check Error: Bad vardefs - multienum] (https://support.sugarcrm.com/Knowledge_Base/Administration/Install/Troubleshooting_Health_Check_Output/Health_Check_Error_Bad_Vardefs_Multienum/)
