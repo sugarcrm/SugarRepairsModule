@@ -16,9 +16,9 @@ $dictionary['supp_SugarRepairs'] = array(
     'audited' => true,
     'activity_enabled' => false,
     'duplicate_merge' => true,
-    'fields' => array (
+    'fields' => array(
         'cycle_id' =>
-            array (
+            array(
                 'required' => false,
                 'name' => 'cycle_id',
                 'vname' => 'LBL_CYCLE_ID',
@@ -36,7 +36,7 @@ $dictionary['supp_SugarRepairs'] = array(
                 'unified_search' => false,
                 'merge_filter' => 'disabled',
                 'full_text_search' =>
-                    array (
+                    array(
                         'boost' => '0',
                         'enabled' => false,
                     ),
@@ -45,7 +45,7 @@ $dictionary['supp_SugarRepairs'] = array(
                 'size' => '20',
             ),
         'target_type' =>
-            array (
+            array(
                 'required' => false,
                 'name' => 'target_type',
                 'vname' => 'LBL_TARGET_TYPE',
@@ -69,7 +69,7 @@ $dictionary['supp_SugarRepairs'] = array(
                 'dependency' => false,
             ),
         'target' =>
-            array (
+            array(
                 'required' => false,
                 'name' => 'target',
                 'vname' => 'LBL_TARGET',
@@ -87,7 +87,7 @@ $dictionary['supp_SugarRepairs'] = array(
                 'unified_search' => false,
                 'merge_filter' => 'disabled',
                 'full_text_search' =>
-                    array (
+                    array(
                         'boost' => '0',
                         'enabled' => false,
                     ),
@@ -96,7 +96,7 @@ $dictionary['supp_SugarRepairs'] = array(
                 'size' => '20',
             ),
         'value_before' =>
-            array (
+            array(
                 'required' => false,
                 'name' => 'value_before',
                 'vname' => 'LBL_VALUE_BEFORE',
@@ -114,7 +114,7 @@ $dictionary['supp_SugarRepairs'] = array(
                 'unified_search' => false,
                 'merge_filter' => 'disabled',
                 'full_text_search' =>
-                    array (
+                    array(
                         'boost' => '0',
                         'enabled' => false,
                     ),
@@ -125,7 +125,7 @@ $dictionary['supp_SugarRepairs'] = array(
                 'cols' => '20',
             ),
         'type' =>
-            array (
+            array(
                 'name' => 'type',
                 'vname' => 'LBL_TYPE',
                 'type' => 'enum',
@@ -152,7 +152,7 @@ $dictionary['supp_SugarRepairs'] = array(
                 'dependency' => false,
             ),
         'value_after' =>
-            array (
+            array(
                 'required' => false,
                 'name' => 'value_after',
                 'vname' => 'LBL_VALUE_AFTER',
@@ -170,7 +170,7 @@ $dictionary['supp_SugarRepairs'] = array(
                 'unified_search' => false,
                 'merge_filter' => 'disabled',
                 'full_text_search' =>
-                    array (
+                    array(
                         'boost' => '0',
                         'enabled' => false,
                     ),
@@ -182,7 +182,7 @@ $dictionary['supp_SugarRepairs'] = array(
             ),
     ),
     'acls' =>
-        array (
+        array(
             'SugarACLAdministration' => true,
         ),
     'relationships' => array(),
@@ -190,7 +190,7 @@ $dictionary['supp_SugarRepairs'] = array(
     'unified_search' => true,
 );
 
-if (!class_exists('VardefManager')){
-  require_once 'include/SugarObjects/VardefManager.php';
+if (!class_exists('VardefManager')) {
+    require_once 'include/SugarObjects/VardefManager.php';
 }
-VardefManager::createVardef('supp_SugarRepairs','supp_SugarRepairs', array('basic','assignable','issue'));
+VardefManager::createVardef('supp_SugarRepairs', 'supp_SugarRepairs', array('basic', 'assignable', 'issue'));

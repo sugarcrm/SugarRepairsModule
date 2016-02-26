@@ -36,6 +36,7 @@ class suppSugarRepairsTeamSetRepairsTest extends Sugar_PHPUnit_Framework_TestCas
         $countBefore = $GLOBALS['db']->getOne("SELECT count(*) FROM team_sets_teams  WHERE team_set_id = '{$teamSetId}' AND team_id = '{$team->id}'");
 
         $teamSetRepairs = new supp_TeamSetRepairs();
+        $teamSetRepairs->setTesting(false);
         $teamSetRepairs->removeDuplicateTeams();
 
         $countAfter = $GLOBALS['db']->getOne("SELECT count(*) FROM team_sets_teams WHERE team_set_id = '{$teamSetId}' AND team_id = '{$team->id}'");
@@ -61,6 +62,7 @@ class suppSugarRepairsTeamSetRepairsTest extends Sugar_PHPUnit_Framework_TestCas
 
         $countBefore = $GLOBALS['db']->getOne("SELECT team_count FROM team_sets  WHERE id = '{$teamSetId}'");
         $teamSetRepairs = new supp_TeamSetRepairs();
+        $teamSetRepairs->setTesting(false);
         $teamSetRepairs->repairTeamCounts();
         $countAfter = $GLOBALS['db']->getOne("SELECT team_count FROM team_sets  WHERE id = '{$teamSetId}'");
 

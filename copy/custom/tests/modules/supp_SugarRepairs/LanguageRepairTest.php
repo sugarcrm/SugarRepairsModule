@@ -59,7 +59,6 @@ class suppSugarRepairsLanguageRepairs extends Sugar_PHPUnit_Framework_TestCase
     public function testupdateReportFilters()
     {
         $this->markTestSkipped('Skipping for now as I am not sure how to test this function');
-
     }
 
     /**

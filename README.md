@@ -8,12 +8,16 @@ Corrects common language file issues. The various issues addressed are shown bel
 >[Health Check Error: Bad vardefs - key] (https://support.sugarcrm.com/Knowledge_Base/Administration/Install/Troubleshooting_Health_Check_Output/Health_Check_Error_Bad_Vardefs_Key/)
 >[Health Check Error: Bad vardefs - multienum] (https://support.sugarcrm.com/Knowledge_Base/Administration/Install/Troubleshooting_Health_Check_Output/Health_Check_Error_Bad_Vardefs_Multienum/)
 >[Health Check Error: Found NULL values in moduleList strings] (https://support.sugarcrm.com/Knowledge_Base/Administration/Install/Troubleshooting_Health_Check_Output/Health_Check_Error_Found_NULL_Values_in_moduleList_Strings/)
+
 * Extra CR/LF issues
 >If there are extra CR/LF characters between the lines of a language file they will be eliminated
+
 * Replaces `$GLOBALS` in language files
 >Any language string that is defined as global is rewritten in place.  This assures that when duplicates are removed the correct value is left behind. The example being that `$GLOBALS['app_list_strings']['key'] = array(…);` will be converted to `$app_list_strings['key'] = array(…);`
+
 * Duplicate Keys
 >If an array key appears more than once in any given language file, only the final one will be retained.
+
 * Redefined module list arrays
 >If the entire module list array is redefined in the language file, it is then written to individual indexes rather than a redefined array. This prevents the system from having undefined modules and issues when deploying new modules through Module Builder. 
 ```php

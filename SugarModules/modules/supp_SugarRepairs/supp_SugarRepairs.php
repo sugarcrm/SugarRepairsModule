@@ -26,20 +26,20 @@ class supp_SugarRepairs extends supp_SugarRepairs_sugar
      * Repairs the Sugar language files
      * @param bool $isTesting
      */
-    public function repairLanguages($isTesting = false)
+    public function repairLanguages($args)
     {
         $langRepairs = new supp_LanguageRepairs();
-        return $langRepairs->execute($isTesting);
+        return $langRepairs->execute($args);
     }
 
     /**
      * Repairs the Team Sets
      * @param bool $isTesting
      */
-    public function repairTeamSets($isTesting = false)
+    public function repairTeamSets(array $args)
     {
         $teamSetRepairs = new supp_TeamSetRepairs();
-        return $teamSetRepairs->execute($isTesting);
+        return $teamSetRepairs->execute($args);
     }
 
 }

@@ -16,6 +16,16 @@ if (empty($current_user) || empty($current_user->id)) {
 }
 
 $sugarRepairs = BeanFactory::newBean('supp_SugarRepairs');
+$options = getopt("r:t:tp:");
 
-$sugarRepairs->repairLanguages();
-$sugarRepairs->repairTeamSets();
+if (isset($options['r'])) {
+    if ($options['r'] == 'lang') {
+        $sugarRepairs->repairLanguages($options);
+    } else if ($options['r'] == 'team') {
+        $sugarRepairs->repairTeamSets($options);
+    } else {
+        echo "Invalid repair type. Please refer to the documentation.\n";
+    }
+} else {
+    echo "Please specify a repair type.\n";
+}

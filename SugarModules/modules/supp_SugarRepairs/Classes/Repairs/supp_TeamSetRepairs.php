@@ -17,6 +17,11 @@ class supp_TeamSetRepairs extends supp_Repairs
      */
     public function removeDuplicateTeams()
     {
+        if ($this->isCE()) {
+            $this->log('Repair ignored as it does not apply to CE');
+            return false;
+        }
+
         $this->log("Checking for duplicates in team sets...");
 
         //Fix team set duplicate teams --------------------------------------
@@ -25,12 +30,20 @@ class supp_TeamSetRepairs extends supp_Repairs
         $result = $GLOBALS['db']->query($sql);
         $teamSetBean = new supp_TeamSets();
 
+        $foundIssues = 0;
         while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
-            $this->log("Updating team set teams for {$row['team_set_id']}");
-            $teamSetBean->id = $row['team_set_id'];
-            $teamSetBean->removeTeamFromSet($row['team_id']);
-            $teamSetBean->addTeamToSet($row['team_id']);
+            $foundIssues++;
+            if (!$this->isTesting) {
+                $this->log("Updating team set teams for {$row['team_set_id']}");
+                $teamSetBean->id = $row['team_set_id'];
+                $teamSetBean->removeTeamFromSet($row['team_id']);
+                $teamSetBean->addTeamToSet($row['team_id']);
+            } else {
+                $this->log("Found duplicate team set: " . $row['id']);
+            }
         }
+
+        $this->log("Found {$foundIssues} duplicates");
     }
 
     /**
@@ -38,6 +51,11 @@ class supp_TeamSetRepairs extends supp_Repairs
      */
     public function repairTeamCounts()
     {
+        if ($this->isCE()) {
+            $this->log('Repair ignored as it does not apply to CE');
+            return false;
+        }
+
         $this->log("Checking for bad team counts in team sets...");
 
         //Fix teams with bad team counts --------------------------------------
@@ -46,19 +64,36 @@ class supp_TeamSetRepairs extends supp_Repairs
         $result = $GLOBALS['db']->query($sql);
         $teamSetBean = new supp_TeamSets();
 
+        $foundIssues = 0;
         while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
-            $this->log("Updating team set " . $row['id']);
-            $teamSetBean->id = $row['id'];
-            $teams = $teamSetBean->fixTeamCount($row['id']);
+            $foundIssues++;
+
+            if (!$this->isTesting) {
+                $this->log("Updating team set " . $row['id']);
+                $teamSetBean->id = $row['id'];
+                $teams = $teamSetBean->fixTeamCount($row['id']);
+            } else {
+                $this->log("Found invalid team set: " . $row['id']);
+            }
         }
+
+        $this->log("Found {$foundIssues} bad team counts");
     }
 
     /**
      * Executes the TeamSet repairs
-     * @param bool $isTesting
+     * @param array $args
      */
-    public function execute($isTesting = false)
+    public function execute(array $args)
     {
+        if ($this->isCE()) {
+            $this->log('Repair ignored as it does not apply to CE');
+            return false;
+        }
+
+        //check for testing an other reapir generic params
+        parent::execute($args);
+
         $stamp = time();
 
         if (

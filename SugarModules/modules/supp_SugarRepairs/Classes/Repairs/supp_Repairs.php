@@ -4,6 +4,8 @@ abstract class supp_Repairs
 {
     protected $loggerTitle = "Logger Title";
     protected $cycle_id = '';
+    protected $isTesting = true; //always default to true
+    protected $backupTables = array();
 
     /**
      * Construct to set the cycle id
@@ -115,6 +117,10 @@ abstract class supp_Repairs
      */
     protected function backupTable($table, $stamp = '')
     {
+        if ($this->isTesting) {
+            return true;
+        }
+
         if (empty($stamp)) {
             $stamp = time();
         }
@@ -142,7 +148,8 @@ abstract class supp_Repairs
 
         $result = $GLOBALS['db']->tableExists($backupTable);
         if ($result) {
-            $this->log("Database table '{$backupTable}' already exists.");
+            $this->log("Database table '{$backupTable}' already exists. Renaming.");
+            $backupTable . '_' . time();
         }
 
         if ($sugar_config['dbconfig']['db_type'] == 'mysql') {
@@ -160,6 +167,9 @@ abstract class supp_Repairs
             return false;
         }
 
+        //capture list
+        $this->backupTables[$backupTable] = $table;
+
         $result = $GLOBALS['db']->tableExists($backupTable);
         if ($result) {
             $this->log("Created {$backupTable} from {$table}.");
@@ -173,7 +183,7 @@ abstract class supp_Repairs
     /**
      * Fetches all custom language files
      */
-    protected function getCustomLanguageFiles($isTesting = false)
+    protected function getCustomLanguageFiles()
     {
         $path = realpath('custom');
 
@@ -199,7 +209,7 @@ abstract class supp_Repairs
     /**
      * Fetches all custom language files
      */
-    protected function getCustomVardefFiles($isTesting = false)
+    protected function getCustomVardefFiles()
     {
         $path = realpath('custom');
 
@@ -366,11 +376,71 @@ abstract class supp_Repairs
     }
 
     /**
-     * Executes the repairs
-     * @param bool $isTesting
+     * Determines is the edition is CE
+     * @return bool
      */
-    public function execute($isTesting = false)
+    public function isCE()
     {
+        return $GLOBALS['sugar_flavor'] == 'CE';
+    }
 
+    /**
+     * Determines is the edition is Professional
+     * @return bool
+     */
+    public function isPro()
+    {
+        return $GLOBALS['sugar_flavor'] == 'PRO';
+    }
+
+    /**
+     * Determines is the edition is Corporate
+     * @return bool
+     */
+    public function isCorp()
+    {
+        return $GLOBALS['sugar_flavor'] == 'CORP';
+    }
+
+    /**
+     * Determines is the edition is Enterprise
+     * @return bool
+     */
+    public function isEnt()
+    {
+        return $GLOBALS['sugar_flavor'] == 'ENT';
+    }
+
+    /**
+     * Determines is the edition is Ultimate
+     * @return bool
+     */
+    public function isUlt()
+    {
+        return $GLOBALS['sugar_flavor'] == 'ULT';
+    }
+
+    /**
+     * Allows a developer to toggle the isTesting flag
+     * @param $isTesting
+     */
+    public function setTesting($isTesting)
+    {
+        $this->isTesting = $isTesting;
+    }
+
+    /**
+     * Executes the repairs
+     * @param array $args
+     */
+    public function execute(array $args)
+    {
+        if (isset($args['t']) && ($args['t'] == 'false' || $args['t'] == '0' || $args['t'] == false)) {
+            $this->setTesting(false);
+        }
+
+        if ($this->isTesting) {
+            $this->log("Running in test mode.");
+        }
     }
 }

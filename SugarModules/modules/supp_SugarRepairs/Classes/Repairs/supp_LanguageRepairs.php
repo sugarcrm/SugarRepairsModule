@@ -35,9 +35,11 @@ class supp_LanguageRepairs extends supp_Repairs
     /**
      * Executes the repairs
      */
-    public function execute()
+    public function execute(array $args)
     {
-        $customLanguageFiles = $this->getCustomLanguageFiles($isTesting);
+        parent::execute($args);
+
+        $customLanguageFiles = $this->getCustomLanguageFiles();
 
         $currentFileCount = 0;
         foreach ($customLanguageFiles as $fullPath => $relativePath) {
@@ -58,7 +60,7 @@ class supp_LanguageRepairs extends supp_Repairs
                     break;
                 case self::TYPE_EMPTY:
                     $this->capture('File', $relativePath, "Deleted file: {$relativePath}", 'Updated', self::SEV_HIGH, file_get_contents($fullPath));
-                    if (!$isTesting) {
+                    if (!$this->isTesting) {
                         unlink($fullPath);
                     }
                     $this->log("Deleted file: {$relativePath}", 'Review', self::SEV_HIGH);
@@ -101,7 +103,7 @@ class supp_LanguageRepairs extends supp_Repairs
      * @param string $testData
      * @return array
      */
-    private function getAnnotatedTokenList($fileName, $testData = '')
+    public function getAnnotatedTokenList($fileName, $testData = '')
     {
         $processedTokenList = array();
         $globalsFlag = false;
@@ -238,9 +240,8 @@ class supp_LanguageRepairs extends supp_Repairs
     /**
      * @param string $oldKey
      * @param string $newKey
-     * @param bool $isTesting
      */
-    private function updateReportFilters($oldKey, $newKey, $isTesting = false)
+    private function updateReportFilters($oldKey, $newKey)
     {
         $jsonObj = getJSONobj();
         foreach ($this->reportKeys as $reportID => $filterKeys) {
@@ -253,11 +254,11 @@ class supp_LanguageRepairs extends supp_Repairs
                 $encodedContent = $jsonObj->encode(htmlentities($newReportContent));
                 $savedReport->content = $encodedContent;
                 //back up the database table if it has not been backed up yet unless we are testing
-                if (in_array('saved_reports', $this->tableBackupFlag) == false && !$isTesting) {
+                if (in_array('saved_reports', $this->tableBackupFlag) == false && !$this->isTesting) {
                     $this->tableBackupFlag['saved_reports'] = 'saved_reports';
                     $this->backupTable('saved_reports', "FLF");
                 }
-                if (!$isTesting) {
+                if (!$this->isTesting) {
                     //now save the record
                     $savedReport->save();
                     $this->log("Report {$reportID} saved with new key '{$newKey}'");
@@ -293,22 +294,21 @@ class supp_LanguageRepairs extends supp_Repairs
      *
      * @param $oldKey
      * @param $newKey
-     * @param bool $isTesting
      */
-    private function updateWorkFlow($oldKey, $newKey, $isTesting = false)
+    public function updateWorkFlow($oldKey, $newKey)
     {
         //TriggerShells
         $sql = "SELECT id AS numOfChangesNeeded FROM workflow_triggershells WHERE eval LIKE \"%'{$oldKey}'%\"";
         $hash = $GLOBALS['db']->fetchOne($sql);
         if ($hash != false) {
-            if (!in_array('workflow_triggershells', $this->tableBackupFlag) && !$isTesting) {
+            if (!in_array('workflow_triggershells', $this->tableBackupFlag) && !$this->isTesting) {
                 $this->backupTable('workflow_triggershells' . 'FLF');
                 $this->tableBackupFlag['workflow_triggershells'] = 'workflow_triggershells';
             }
             $sql = "UPDATE workflow_triggershells eval = REPLACE(eval, '{$oldKey}', '{$newKey}')
                         WHERE eval LIKE \"%'{$oldKey}'%\"";
             $GLOBALS['db']->query($sql);
-            if (!$isTesting) {
+            if (!$this->isTesting) {
                 $this->log("-> Updated workflow_triggershells");
             }
         }
@@ -321,7 +321,7 @@ class supp_LanguageRepairs extends supp_Repairs
                         value LIKE \"%^{$oldKey}^%\")";
         $hash = $GLOBALS['db']->fetchOne($sql);
         if ($hash != false) {
-            if (!in_array('workflow_actions', $this->tableBackupFlag) && !$isTesting) {
+            if (!in_array('workflow_actions', $this->tableBackupFlag) && !$this->isTesting) {
                 $this->backupTable('workflow_actions' . 'FLF');
                 $this->tableBackupFlag['workflow_actions'] = 'workflow_actions';
             }
@@ -331,7 +331,7 @@ class supp_LanguageRepairs extends supp_Repairs
                                   value LIKE \"%^{$oldKey}\"
                                   value LIKE \"%^{$oldKey}^%\")";
             $GLOBALS['db']->query($sql);
-            if (!$isTesting) {
+            if (!$this->isTesting) {
                 $this->log("-> Updated workflow_actions");
             }
         }
@@ -381,9 +381,9 @@ class supp_LanguageRepairs extends supp_Repairs
      *
      * @param string $searchString
      * @param string $oldKey
-     * @param bool $isTesting
+     * @param bool $testData
      */
-    private function updateFiles($oldKey, $newKey, $testData = '')
+    public function updateFiles($oldKey, $newKey, $testData = '')
     {
         //TODO: Convert this to regex
         //TODO: TODO: learn regex
@@ -450,14 +450,13 @@ class supp_LanguageRepairs extends supp_Repairs
      * @param $fieldData
      * @param $newKey
      * @param $oldKey
-     * @param bool $isTesting
      */
-    private function updateFieldsMetaDataTable($fieldData, $oldKey, $newKey, $isTesting = false)
+    public function updateFieldsMetaDataTable($fieldData, $oldKey, $newKey)
     {
         $hash = $GLOBALS['db']->fetchOne("SELECT * FROM fields_meta_data WHERE default_value LIKE '%^{$oldKey}^%' OR default_value = '{$oldKey}'");
         if ($hash != false) {
             //back up the database table if it has not been backed up yet.
-            if (in_array('fields_meta_data', $this->tableBackupFlag) == false && !$isTesting) {
+            if (in_array('fields_meta_data', $this->tableBackupFlag) == false && !$this->isTesting) {
                 $this->tableBackupFlag['fields_meta_data'] = 'fields_meta_data';
                 $this->backupTable('fields_meta_data', "FLF");
             }
@@ -497,9 +496,8 @@ class supp_LanguageRepairs extends supp_Repairs
      * @param $fieldData
      * @param $oldValue
      * @param $newValue
-     * @param bool $isTesting
      */
-    private function updateDatabase($fieldData, $oldValue, $newValue, $isTesting = false)
+    public function updateDatabase($fieldData, $oldValue, $newValue)
     {
         if (!empty($fieldData)) {
             foreach ($fieldData as $module => $fieldName) {
@@ -514,7 +512,7 @@ class supp_LanguageRepairs extends supp_Repairs
                 $hash = $GLOBALS['db']->fetchOne("SELECT * FROM {$table} WHERE {$fieldName} LIKE '%^{$oldValue}^%' OR {$fieldName} = '{$oldValue}'");
                 if ($hash != false) {
                     //back up the database table if it has not been backed up yet.
-                    if (in_array($table, $this->tableBackupFlag) == false && !$isTesting) {
+                    if (in_array($table, $this->tableBackupFlag) == false && !$this->isTesting) {
                         $this->tableBackupFlag[$table] = $table;
                         $this->backupTable($table, "FLF");
                     }
@@ -538,7 +536,7 @@ class supp_LanguageRepairs extends supp_Repairs
      * @param $listName
      * @return array
      */
-    private function findListField($listName)
+    public function findListField($listName)
     {
         global $beanList;
         $retArray = array();
@@ -574,7 +572,7 @@ class supp_LanguageRepairs extends supp_Repairs
      * @param $oldKey
      * @return mixed
      */
-    private function fixIndexNames($oldKey)
+    public function fixIndexNames($oldKey)
     {
         //Now go through and remove the characters [& / - ( )] and spaces (in some cases) from array keys
         $badChars = array(' & ', '&', ' - ', '-', ' / ', '/', '(', ')');
@@ -658,7 +656,7 @@ class supp_LanguageRepairs extends supp_Repairs
      * @param array $tokenList
      * @param string $fileName
      */
-    private function writeNewFile($tokenList, $fileName, $isTesting = false)
+    private function writeNewFile($tokenList, $fileName)
     {
         $assembledFile = array();
         foreach ($tokenList as $lineNumber => $contents) {
@@ -676,6 +674,7 @@ class supp_LanguageRepairs extends supp_Repairs
             }
         }
 
+        //somewhere around here we are gonna have to use touch to reset the lang file date
         return sugar_file_put_contents($fileName, $assembledFile, LOCK_EX);
     }
 
@@ -688,6 +687,10 @@ class supp_LanguageRepairs extends supp_Repairs
      */
     protected function capture($target_type, $target, $status, $priority, $description = '', $value_before = '', $value_after = '')
     {
+        if ($this->isTesting) {
+            return;
+        }
+
         parent::capture($this->cycle_id, 'Language', $target_type, $target, $value_before, $value_after, $description, $status, $priority);
     }
 }
