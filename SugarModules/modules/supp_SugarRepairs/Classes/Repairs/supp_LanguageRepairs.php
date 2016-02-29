@@ -76,13 +76,13 @@ class supp_LanguageRepairs extends supp_Repairs
             }
         }
 
-        //execute the workflow repairs to correct any language updates
-        $workflowRepair = new supp_WorkflowRepairs();
-        $workflowRepair->execute($args);
-
         if (!$this->isTesting) {
             $this->runQRAR();
         }
+
+        //execute the workflow repairs to correct any language updates
+        $workflowRepair = new supp_WorkflowRepairs();
+        $workflowRepair->execute($args);
     }
 
     /**
