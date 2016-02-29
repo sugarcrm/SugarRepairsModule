@@ -63,33 +63,13 @@ class suppSugarRepairsLanguageRepairs extends Sugar_PHPUnit_Framework_TestCase
     }
 
     /**
-     * This test checks to make sure the eval and value fields in the DB are updated, it looks for the correct one_one and makes sure
-     * that the old one&one has been removed
-     */
-    public function testupdateWorkFlow()
-    {
-        $newRepairTest = new supp_LanguageRepairs();
-        $newRepairTest->updateWorkflow("one&one", "one_one", true);
-
-        $sql = "SELECT eval FROM workflow_triggershells WHERE id='TEST1'";
-        $hash = $GLOBALS['db']->fetchOne($sql);
-        $this->assertTrue(strstr($hash['eval'], 'one_one') !== false);
-        $this->assertTrue(strstr($hash['eval'], 'one&one') === false);
-
-        $sql = "SELECT value FROM workflow_actions WHERE id='TEST1'";
-        $hash = $GLOBALS['db']->fetchOne($sql);
-        $this->assertTrue(strstr($hash['value'], 'one_one') !== false);
-        $this->assertTrue(strstr($hash['value'], 'one&one') === false);
-    }
-
-    /**
      * This test see if the verdefs is updated to one_one and that one&one has been removed
      */
     public function testupdateFiles()
     {
         $newRepairTest = new supp_LanguageRepairs();
         $testFile = "<?php\n\$dictionary['Account']['fields']['account_type']['default']='one&one';";
-        $testData = $newRepairTest->updateFiles('one&one', 'one_one', $testFile);
+        $testData = $newRepairTest->updateFiles('one&one', 'one_one', null, null, $testFile);
         $this->assertTrue(strstr($testData, 'one_one') !== false);
         $this->assertTrue(strstr($testData, 'one&one') === false);
     }
@@ -148,12 +128,6 @@ class suppSugarRepairsLanguageRepairs extends Sugar_PHPUnit_Framework_TestCase
 
     private function mockupLanguageTestRecords()
     {
-        $sql = "INSERT INTO workflow_triggershells (id, deleted, date_entered, date_modified, modified_user_id, created_by, field, type, frame_type, eval, parent_id, show_past, rel_module, rel_module_type, parameters)
-                     VALUES ('TEST1', '0', '2016-02-09 18:27:01', '2016-02-09 18:27:01', '1', '1', 'single_c', 'compare_specific', 'Primary', ' (\$focus->fetched_row[''single_c''] == ''one&one'')&& (isset(\$focus->single_c) && \$focus->single_c == ''two-two'')', '1', '1', NULL, 'any', NULL)";
-        $GLOBALS['db']->query($sql);
-        $sql = "INSERT INTO workflow_actions (id, deleted, date_entered, date_modified, modified_user_id, created_by, field, value, set_type, adv_type, parent_id, ext1, ext2, ext3)
-                     VALUES ('TEST2', '0', '2016-02-09 19:58:01', '2016-02-09 19:58:01', '1', '1', 'multiple_c', 'one&one^,^four(four^,^nine_nine^,^seven / seven^,^one&one^,^ten(ten)', 'Basic', '', '1', '', '', '')";
-        $GLOBALS['db']->query($sql);
         $sql = "INSERT INTO fields_meta_data (id, name, vname, comments, help, custom_module, type, len, required, default_value, date_modified, deleted, audited, massupdate, duplicate_merge, reportable, importable, ext1, ext2, ext3, ext4)
                      VALUES ('TEST3', 'multiple_c', 'LBL_MULTIPLE', '', '', 'Accounts', 'multienum', '100', '0', '^one&one^,^two-two^', '2016-02-09 16:15:02', '0', '0', '0', '0', '1', 'true', 'test_list', '', '', 'a:2:{s:7:\"default\";s:23:\"^two-two^,^one&one^\";s:10:\"dependency\";s:0:\"\";}')";
         $GLOBALS['db']->query($sql);
@@ -164,10 +138,6 @@ class suppSugarRepairsLanguageRepairs extends Sugar_PHPUnit_Framework_TestCase
 
     private function teardownLanguageTestRecords()
     {
-        $sql = "DELETE FROM workflow_triggershells WHERE id='TEST1'";
-        $GLOBALS['db']->query($sql);
-        $sql = "DELETE FROM workflow_actions WHERE id='TEST2'";
-        $GLOBALS['db']->query($sql);
         $sql = "DELETE FROM fields_meta_data WHERE id='TEST3'";
         $GLOBALS['db']->query($sql);
         $sql = "DELETE FROM accounts WHERE id='TEST4'";
