@@ -5,14 +5,65 @@ require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_Repairs.php');
 class supp_WorkflowRepairs extends supp_Repairs
 {
     protected $loggerTitle = "Workflow";
+    protected $changedWorkflows = array();
 
     function __construct()
     {
         parent::__construct();
     }
 
+    private function disableWorkflow($id)
+    {
+        if (!empty($id)) {
+            $wfBean = BeanFactory::getBean('WorkFlow', $id);
+            if ($wfBean) {
+                $wfBean->status = 0;
+                $wfBean->save(false);
+            }
+        }
+    }
+
     /**
-     * Removes duplicate teams in a team set
+     * @param $beanName
+     * @param $fieldName
+     * @param bool $typeOnly
+     * @return bool
+     */
+    private function determine_field_type($beanName, $fieldName, $typeOnly = true)
+    {
+        $focus = BeanFactory::getBean($beanName);
+        if (isset($focus->field_defs[$fieldName]['type'])) {
+            if ($typeOnly) {
+                return $focus->field_defs[$fieldName]['type'];
+            } else {
+                return $focus->field_defs[$fieldName];
+            }
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @param $module
+     * @param $field
+     * @return array|bool
+     */
+    private function getFieldOptionKeys($module, $field)
+    {
+        global $sugar_config;
+        $current_language = $sugar_config['default_language'];
+        $app_list_strings = return_app_list_strings_language($current_language);
+        $fieldDefs = $this->determine_field_type($module, $field, false);
+        $listName = $fieldDefs['options'];
+        if(array_key_exists($listName,$app_list_strings)) {
+            return array_keys($app_list_strings[$listName]);
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Repairs field level issues in the Workflows Expressions table
      */
     public function repairExpressions()
     {
@@ -22,11 +73,10 @@ class supp_WorkflowRepairs extends supp_Repairs
 
         $foundIssues = 0;
         while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
-
             $leftModule = $row['lhs_module'];
             $leftField = $row['lhs_field'];
             $rightValue = $row['rhs_value'];
-            $type = $this->getFieldType($leftModule, $leftField);
+            $type = $this->determine_field_type($leftModule, $leftField);
 
             if ($type == false) {
                 $this->log("Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an expression ({$row['expression_id']}) with a deleted or missing field on {$leftModule} / {$leftField}");
@@ -78,7 +128,7 @@ class supp_WorkflowRepairs extends supp_Repairs
                     $from = implode('^,^', $selectedKeys);
                     $to = implode('^,^', $modifiedSelectedKeys);
                     if (!$this->isTesting) {
-                        $expression = BeanFactory::retrieveBean('Expressions', $row['expression_id']);
+                        $expression = BeanFactory::getBean('Expressions', $row['expression_id']);
 
                         if ($expression) {
                             $expression->rhs_value = $to;
@@ -86,12 +136,12 @@ class supp_WorkflowRepairs extends supp_Repairs
                         }
 
                         if (!empty($expression->parent_id)) {
-                            $workflowTriggerShell = BeanFactory::retrieveBean('WorkFlowTriggerShells', $expression->parent_id);
+                            $workflowTriggerShell = BeanFactory::getBean('WorkFlowTriggerShells', $expression->parent_id);
                             $workflowTriggerShell->save();
                         }
 
                         if (!empty($workflowTriggerShell->parent_id)) {
-                            $workflow = BeanFactory::retrieveBean('WorkFlow', $workflowTriggerShell->parent_id);
+                            $workflow = BeanFactory::getBean('WorkFlow', $workflowTriggerShell->parent_id);
                             $workflow->save();
                         }
 
