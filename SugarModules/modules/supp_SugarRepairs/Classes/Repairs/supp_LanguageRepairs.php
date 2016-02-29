@@ -83,6 +83,10 @@ class supp_LanguageRepairs extends supp_Repairs
         //execute the workflow repairs to correct any language updates
         $workflowRepair = new supp_WorkflowRepairs();
         $workflowRepair->execute($args);
+
+        //execute the report repairs to correct or notify of any language updates
+        $reportRepair = new supp_ReportRepairs();
+        $reportRepair->execute($args);
     }
 
     /**
@@ -222,10 +226,10 @@ class supp_LanguageRepairs extends supp_Repairs
                                     $this->updateDatabase($listNameInfo, $oldKey, $newKey);
                                     $this->updateFieldsMetaDataTable($listNameInfo, $oldKey, $newKey);
                                     $this->scanFiles($oldKey, $newKey);
-                                    $this->updateReportFilters($oldKey, $newKey);
+                                    //$this->updateReportFilters($oldKey, $newKey);
                                 } else {
                                     $this->scanFiles($oldKey, $newKey);
-                                    $this->updateReportFilters($oldKey, $newKey);
+                                    //$this->updateReportFilters($oldKey, $newKey);
                                     $this->log("ERROR: No list name for {$tokenListName} => {$keyList[1]}.");
                                 }
                             }
@@ -241,38 +245,38 @@ class supp_LanguageRepairs extends supp_Repairs
         return $tokensByLine;
     }
 
-    /**
-     * @param $oldKey
-     * @param $newKey
-     * @return array|mixed - Only used in unit tests
-     */
-    private function updateReportFilters($oldKey, $newKey)
-    {
-        //todo: need to capture before/after info
-        $jsonObj = getJSONobj();
-        $newReportContent = array();
-        foreach ($this->reportKeys as $reportID => $filterKeys) {
-            if ($this->recursiveValueSearch($oldKey, $filterKeys) !== false) {
-                $savedReport = BeanFactory::getBean('Reports', $reportID);
-                $reportContent = $jsonObj->decode(html_entity_decode($savedReport->content, ENT_COMPAT | ENT_HTML401, 'UTF-8'));
-                //do a global search and replace for the old key
-                $newReportContent = $this->recursive_array_replace($oldKey, $newKey, $reportContent);
-                //re-encode the Content
-                $encodedContent = $jsonObj->encode(htmlentities($newReportContent, ENT_COMPAT | ENT_HTML401, 'UTF-8'));
-                $savedReport->content = $encodedContent;
-                //back up the database table if it has not been backed up yet unless we are testing
-                if (!$this->isTesting && !$this->isBackedUpTable('saved_reports')) {
-                    $this->backupTable('saved_reports');
-                }
-                if (!$this->isTesting) {
-                    //now save the record
-                    $savedReport->save(false);
-                }
-                $this->log("-> Report {$savedReport->name} was found to have a filter with {$oldKey} in it");
-            }
-        }
-        return $newReportContent;
-    }
+//    /**
+//     * @param $oldKey
+//     * @param $newKey
+//     * @return array|mixed - Only used in unit tests
+//     */
+//    private function updateReportFilters($oldKey, $newKey)
+//    {
+//        //todo: need to capture before/after info
+//        $jsonObj = getJSONobj();
+//        $newReportContent = array();
+//        foreach ($this->reportKeys as $reportID => $filterKeys) {
+//            if ($this->recursiveValueSearch($oldKey, $filterKeys) !== false) {
+//                $savedReport = BeanFactory::getBean('Reports', $reportID);
+//                $reportContent = $jsonObj->decode(html_entity_decode($savedReport->content, ENT_COMPAT | ENT_HTML401, 'UTF-8'));
+//                //do a global search and replace for the old key
+//                $newReportContent = $this->recursive_array_replace($oldKey, $newKey, $reportContent);
+//                //re-encode the Content
+//                $encodedContent = $jsonObj->encode(htmlentities($newReportContent, ENT_COMPAT | ENT_HTML401, 'UTF-8'));
+//                $savedReport->content = $encodedContent;
+//                //back up the database table if it has not been backed up yet unless we are testing
+//                if (!$this->isTesting && !$this->isBackedUpTable('saved_reports')) {
+//                    $this->backupTable('saved_reports');
+//                }
+//                if (!$this->isTesting) {
+//                    //now save the record
+//                    $savedReport->save(false);
+//                }
+//                $this->log("-> Report {$savedReport->name} was found to have a filter with {$oldKey} in it");
+//            }
+//        }
+//        return $newReportContent;
+//    }
 
     /**
      * @param $find - What to find

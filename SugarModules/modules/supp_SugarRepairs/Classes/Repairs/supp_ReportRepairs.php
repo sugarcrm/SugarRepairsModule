@@ -2,6 +2,7 @@
 
 require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_Repairs.php');
 require_once('modules/Reports/templates/templates_reports.php');
+require_once('modules/Reports/Report.php');
 
 class supp_ReportRepairs extends supp_Repairs
 {
@@ -16,149 +17,124 @@ class supp_ReportRepairs extends supp_Repairs
      * Iterates the filter
      * @param $filters
      */
-    public function repairFilters(&$filters, $report)
+    public function repairFilters(&$filters, $report, $allFields)
     {
         for ($i = 0; $i < count($filters) - 1; $i++) {
             if (isset($filters[$i]['operator'])) {
-                $this->repairFilters($filters[$i], $report);
-            }
-            else {
+                $this->repairFilters($filters[$i], $report, $allFields);
+            } else {
 
-                $key = $report->module;
+                $module = $report->module;
+                $field = $filters[$i]['name'];
                 if (isset($filters[$i]['table_key']) && $filters[$i]['table_key'] !== 'self') {
-                    $key = $filters[$i]['table_key'];
+
+                    $fieldKey = $filters[$i]['table_key'] . ":" . $field;
+                    if (isset($allFields[$fieldKey]['module'])) {
+                        $module = $allFields[$fieldKey]['module'];
+                    } else {
+                        $this->log("Report '{$report->name}' ({$report->id}) has a filter with an invalid mapping key of '{$fieldKey}'. The field {$field} may have been deleted.");
+                        $this->markReportBroken($report->id);
+                        continue;
+                    }
                 }
 
-                $type = $this->getFieldType($key, $filters[$i]['name']);
+                $type = $this->getFieldType($module, $field);
 
-                if ($type == false) {
-                    $this->log("Report '{$report->name}' ({$report->id}) has a filter with a deleted or missing field on {$key} / {$filters[$i]['name']}");
-                    //$this->disableWorkflow($row['workflow_id']);
+                if ($type) {
+
+                    if (in_array($type, array('enum', 'multienum'))) {
+                        $listKeys = $this->getFieldOptionKeys($module, $field);
+                        $selectedKeys = unencodeMultienum($filters[$i]['input_name0']);
+                        $modifiedSelectedKeys = $selectedKeys;
+                        foreach ($selectedKeys as $id => $selectedKey) {
+                            $issue = false;
+                            if (!in_array($selectedKey, $listKeys)) {
+                                $issue = true;
+                            }
+                            if ($issue) {
+                                $testKey = $this->getValidLanguageKeyName($selectedKey);
+                                //try to fix the key if it was updated in the lang repair script
+                                if ($testKey !== $selectedKey) {
+                                    if (in_array($testKey, $listKeys)) {
+                                        $issue = false;
+                                        $modifiedSelectedKeys[$id] = $testKey;
+                                        if (!$this->isTesting) {
+                                            $this->log("Report '{$report->name}' ({$report->id}) has an invalid key '{$selectedKey}' that was updated to '{$testKey}'. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
+                                        } else {
+                                            $this->log("Report '{$report->name}' ({$report->id}) has an invalid key '{$selectedKey}' that will be updated to '{$testKey}'. Allowed keys for {$report->name} / {$field} are: " . print_r($listKeys, true));
+                                        }
+                                    }
+                                }
+                            }
+                            if ($issue) {
+                                $this->log("Report '{$report->name}' ({$report->id}) has an action with an invalid key '{$selectedKey}'. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
+                                $this->markReportBroken($report->id);
+                            }
+                        }
+                        if ($modifiedSelectedKeys !== $selectedKeys) {
+                            $filters[$i]['input_name0'] = array_values($modifiedSelectedKeys);
+                        }
+                    }
+
+
+                } else {
+                    $this->log("Report '{$report->name}' ({$report->id}) has a filter with a deleted or missing field on {$module} / {$field}");
+                    $this->markReportBroken($report->id);
                 }
-
             }
         }
     }
-
 
     /**
      * Removes duplicate teams in a team set
      */
     public function repairReports()
     {
-        $sql = "SELECT id FROM saved_reports where id = '1062c902-7938-ccb8-6d4f-56d486c7b9b8' and deleted = 0";
+        $_REQUEST['module'] = 'supp_SugarRepairs'; //hack to prevent the reports module from rebuilding the language files
+        $sql = "SELECT id FROM saved_reports WHERE deleted = 0";
 
         $result = $GLOBALS['db']->query($sql);
 
-        $foundIssues = 0;
+        $foundIssues = array();
         $jsonObj = getJSONobj();
         while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
-            $report = BeanFactory::getBean('Reports', $row['id']);
+            $savedReport = BeanFactory::getBean('Reports', $row['id']);
+            $beforeJson = html_entity_decode($savedReport->content);
+            $report = new Report($beforeJson);
+            $report->id = $savedReport->id; //hack to pass id
+            $content = $jsonObj->decode($beforeJson, false);
 
-            $content = $jsonObj->decode(html_entity_decode($report->content, ENT_COMPAT, 'UTF-8'));
-
-
-
-
-            if (isset($content['filters_def']) && !empty($content['filters_def'])) {
-                //echo $row['id'];
-
-                //$filterContentsArray = array();
-                //getFlatListFilterContents($content['filters_def']['Filter_1'], $filterContentsArray);
-
-                $this->repairFilters($content['filters_def']['Filter_1'], $report);
-
-                print_r($content['filters_def']);
-                die();
+            $this->log("Processing report '{$savedReport->name}' ({$savedReport->id})...");
+            if (isset($content['filters_def']) && isset($content['filters_def']['Filter_1']) && !empty($content['filters_def']['Filter_1'])) {
+                $this->repairFilters($content['filters_def']['Filter_1'], $savedReport, $report->all_fields);
+            } else {
+                $this->log("-> Skipping filter repair as no filter def was found.");
+                continue;
             }
-            //print_r($content);
-            //die();
+
+            $afterJson = $jsonObj->encode($content, false);
+
+            if ($beforeJson !== $afterJson) {
+                $foundIssues[$savedReport->id] = $savedReport->id;
+                $this->log("before " . $beforeJson);
+                $this->log("After " . $afterJson);
+
+                if (!$this->isTesting) {
+                    $this->log("Updating report '{$savedReport->name}' ({$savedReport->id}).");
+                    $savedReport->content = $afterJson;
+                    $savedReport->save();
+                } else {
+                    $this->log("Will update '{$savedReport->name}' ({$savedReport->id}).");
+                }
+            }
+
+            $this->log("-> Report scan complete.");
         }
-//        while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
-//
-//            $leftModule = $row['lhs_module'];
-//            $leftField = $row['lhs_field'];
-//            $rightValue = $row['rhs_value'];
-//            $type = $this->getFieldType($leftModule, $leftField);
-//
-//            if ($type == false) {
-//                $this->log("Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an expression ({$row['expression_id']}) with a deleted or missing field on {$leftModule} / {$leftField}");
-//                $this->disableWorkflow($row['workflow_id']);
-//            }
-//
-//            if ($type && $type !== $row['exp_type']) {
-//                $this->log("Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an expression ({$row['expression_id']}) that has a mismatched field type of {$row['exp_type']} / {$type} for {$leftModule} / {$leftField}");
-//                $this->disableWorkflow($row['workflow_id']);
-//            }
-//
-//            if (in_array($row['exp_type'], array('enum', 'multienum')) && in_array($type, array('enum', 'multienum'))) {
-//                $listKeys = $this->getFieldOptionKeys($leftModule, $leftField);
-//                $selectedKeys = unencodeMultienum($rightValue);
-//
-//                $modifiedSelectedKeys = $selectedKeys;
-//                foreach ($selectedKeys as $id => $selectedKey) {
-//                    $issue = false;
-//                    if (!in_array($selectedKey, $listKeys)) {
-//                        $foundIssues++;
-//                        $issue = true;
-//                    }
-//
-//                    if ($issue) {
-//                        $testKey = $this->getValidLanguageKeyName($selectedKey);
-//                        //try to fix the key if it was updated in the lang repair script
-//                        if ($testKey !== $selectedKey) {
-//                            if (in_array($testKey, $listKeys)) {
-//                                $issue = false;
-//                                $modifiedSelectedKeys[$id] = $testKey;
-//                                if (!$this->isTesting) {
-//                                    $this->log("Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an expression ({$row['expression_id']}) with an invalid key '{$selectedKey}' that was updated to '{$testKey}'. Allowed keys for {$leftModule} / {$leftField} are: " . print_r($listKeys, true));
-//                                } else {
-//                                    $this->log("Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an expression ({$row['expression_id']}) with an invalid key '{$selectedKey}' that will be updated to '{$testKey}'. Allowed keys for {$leftModule} / {$leftField} are: " . print_r($listKeys, true));
-//                                }
-//                            }
-//                        }
-//                    }
-//
-//                    if ($issue) {
-//                        $this->log("Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an expression ({$row['expression_id']}) with an invalid key '{$selectedKey}'. Allowed keys for {$leftModule} / {$leftField} are: " . print_r($listKeys, true));
-//                        $this->disableWorkflow($row['workflow_id']);
-//                    }
-//                }
-//
-//                if ($modifiedSelectedKeys !== $selectedKeys) {
-//
-//                    //dont use encodeMultienumValue(), for some reason expressions dont use the outer ^ chars
-//                    $from = implode('^,^', $selectedKeys);
-//                    $to = implode('^,^', $modifiedSelectedKeys);
-//                    if (!$this->isTesting) {
-//                        $expression = BeanFactory::retrieveBean('Expressions', $row['expression_id']);
-//
-//                        if ($expression) {
-//                            $expression->rhs_value = $to;
-//                            $expression->save();
-//                        }
-//
-//                        if (!empty($expression->parent_id)) {
-//                            $workflowTriggerShell = BeanFactory::retrieveBean('WorkFlowTriggerShells', $expression->parent_id);
-//                            $workflowTriggerShell->save();
-//                        }
-//
-//                        if (!empty($workflowTriggerShell->parent_id)) {
-//                            $workflow = BeanFactory::retrieveBean('WorkFlow', $workflowTriggerShell->parent_id);
-//                            $workflow->save();
-//                        }
-//
-//                    } else {
-//                        $this->log("Will update expression '{$row['expression_id']}' from: '{$from}' to: '{$to}'");
-//                    }
-//
-//                }
-//            }
-//        }
 
-        $this->log("Found {$foundIssues} bad workflow expressions.");
+        unset($_REQUEST['module']); //removing hack to prevent the reports module from rebuilding the language files
+        $foundIssues = count($foundIssues);
+        $this->log("Found {$foundIssues} bad reports.");
     }
-
 
 
     /**
@@ -182,7 +158,6 @@ class supp_ReportRepairs extends supp_Repairs
         ) {
             $this->repairReports();
         }
-
     }
 
 }
