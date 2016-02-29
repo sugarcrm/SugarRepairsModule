@@ -13,26 +13,6 @@ class supp_WorkflowRepairs extends supp_Repairs
     }
 
     /**
-     * @param $beanName
-     * @param $fieldName
-     * @param bool $typeOnly
-     * @return bool
-     */
-    private function determine_field_type($beanName, $fieldName, $typeOnly = true)
-    {
-        $focus = BeanFactory::getBean($beanName);
-        if (isset($focus->field_defs[$fieldName]['type'])) {
-            if ($typeOnly) {
-                return $focus->field_defs[$fieldName]['type'];
-            } else {
-                return $focus->field_defs[$fieldName];
-            }
-        } else {
-            return false;
-        }
-    }
-
-    /**
      * Repairs field level issues in the Workflows Actions table
      */
     public function repairActions()
@@ -51,18 +31,18 @@ class supp_WorkflowRepairs extends supp_Repairs
             $field = $row['field'];
             $value = $row['value'];
             $base_module = $row['base_module'];
-            $type = $this->determine_field_type($base_module, $field);
+            $type = $this->getFieldType($base_module, $field);
             $seed_object = new WorkFlow();
             $seed_object->retrieve($row['workflow_id']);
             if(isset($row['rel_module']) && !empty($row['rel_module'])) {
                 $rel_module = $seed_object->get_rel_module($row['rel_module']);
                 $base_module = $rel_module;
-                $type = $this->determine_field_type($rel_module, $field);
+                $type = $this->getFieldType($rel_module, $field);
             }
             if(isset($row['action_module']) && !empty($row['action_module'])) {
                 $action_module = $seed_object->get_rel_module($row['action_module']);
                 $base_module = $action_module;
-                $type = $this->determine_field_type($action_module, $field);
+                $type = $this->getFieldType($action_module, $field);
             }
 
             if ($type == false) {
@@ -152,7 +132,7 @@ class supp_WorkflowRepairs extends supp_Repairs
             $leftModule = $row['lhs_module'];
             $leftField = $row['lhs_field'];
             $rightValue = $row['rhs_value'];
-            $type = $this->determine_field_type($leftModule, $leftField);
+            $type = $this->getFieldType($leftModule, $leftField);
 
             if ($type == false) {
                 $this->log("Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an expression ({$row['expression_id']}) with a deleted or missing field on {$leftModule} / {$leftField}");
