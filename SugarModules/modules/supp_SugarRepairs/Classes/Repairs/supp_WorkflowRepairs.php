@@ -5,6 +5,7 @@ require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_Repairs.php');
 class supp_WorkflowRepairs extends supp_Repairs
 {
     protected $loggerTitle = "Workflow";
+    protected $changedWorkflows = array();
 
     function __construct()
     {
@@ -12,7 +13,113 @@ class supp_WorkflowRepairs extends supp_Repairs
     }
 
     /**
-     * Removes duplicate teams in a team set
+     * Repairs field level issues in the Workflows Actions table
+     */
+    public function repairActions()
+    {
+        $sql = "SELECT workflow.id AS workflow_id, workflow.base_module, workflow_actions.field, workflow_actions.value,
+                workflow.name as workflow_name, workflow_actionshells.rel_module, workflow_actionshells.action_module,
+                workflow_actions.id as workflow_actionsID
+                FROM workflow_actions
+                    INNER JOIN workflow_actionshells ON workflow_actionshells.id = workflow_actions.parent_id
+                    INNER JOIN workflow ON workflow.id = workflow_actionshells.parent_id
+                WHERE workflow.deleted=0 AND workflow_actions.deleted=0 AND workflow_actionshells.deleted=0";
+        $result = $GLOBALS['db']->query($sql);
+
+        $foundIssues = 0;
+        while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
+            $field = $row['field'];
+            $value = $row['value'];
+            $base_module = $row['base_module'];
+            $type = $this->getFieldType($base_module, $field);
+            $seed_object = new WorkFlow();
+            $seed_object->retrieve($row['workflow_id']);
+            if(isset($row['rel_module']) && !empty($row['rel_module'])) {
+                $rel_module = $seed_object->get_rel_module($row['rel_module']);
+                $base_module = $rel_module;
+                $type = $this->getFieldType($rel_module, $field);
+            }
+            if(isset($row['action_module']) && !empty($row['action_module'])) {
+                $action_module = $seed_object->get_rel_module($row['action_module']);
+                $base_module = $action_module;
+                $type = $this->getFieldType($action_module, $field);
+            }
+
+            if ($type == false) {
+                $this->log("Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an action ({$row['workflow_actionsID']}) with a deleted or missing field on {$base_module} / {$field}");
+                $this->disableWorkflow($row['workflow_id']);
+            }
+
+            if (in_array($type, array('enum', 'multienum'))) {
+                $listKeys = $this->getFieldOptionKeys($base_module, $field);
+                $selectedKeys = unencodeMultienum($value);
+
+                $modifiedSelectedKeys = $selectedKeys;
+                foreach ($selectedKeys as $id => $selectedKey) {
+                    $issue = false;
+                    if (!in_array($selectedKey, $listKeys)) {
+                        $foundIssues++;
+                        $issue = true;
+                    }
+
+                    if ($issue) {
+                        $testKey = $this->getValidLanguageKeyName($selectedKey);
+                        //try to fix the key if it was updated in the lang repair script
+                        if ($testKey !== $selectedKey) {
+                            if (in_array($testKey, $listKeys)) {
+                                $issue = false;
+                                $modifiedSelectedKeys[$id] = $testKey;
+                                if (!$this->isTesting) {
+                                    $this->log("Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an action ({$row['workflow_actionsID']}) with an invalid key '{$selectedKey}' that was updated to '{$testKey}'. Allowed keys for {$base_module} / {$field} are: " . print_r($listKeys, true));
+                                } else {
+                                    $this->log("Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an action ({$row['workflow_actionsID']}) with an invalid key '{$selectedKey}' that will be updated to '{$testKey}'. Allowed keys for {$base_module} / {$field} are: " . print_r($listKeys, true));
+                                }
+                            }
+                        }
+                    }
+
+                    if ($issue) {
+                        $this->log("Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an action ({$row['workflow_actionsID']}) with an invalid key '{$selectedKey}'. Allowed keys for {$base_module} / {$field} are: " . print_r($listKeys, true));
+                        $this->disableWorkflow($row['workflow_id']);
+                    }
+                }
+
+                if ($modifiedSelectedKeys !== $selectedKeys) {
+
+                    //dont use encodeMultienumValue(), for some reason expressions dont use the outer ^ chars
+                    $from = implode('^,^', $selectedKeys);
+                    $to = implode('^,^', $modifiedSelectedKeys);
+                    if (!$this->isTesting) {
+                        $workFlowAction = BeanFactory::getBean('WorkFlowActions', $row['workflow_actionsID']);
+
+                        if ($workFlowAction) {
+                            $workFlowAction->value = $to;
+                            $workFlowAction->save();
+                        }
+
+//                        if (!empty($workFlowAction->parent_id)) {
+//                            $workflowActionShell = BeanFactory::getBean('WorkFlowActionShells', $workFlowAction->parent_id);
+//                            $workflowActionShell->save();
+//                        }
+//
+//                        if (!empty($workflowActionShell->parent_id)) {
+//                            $workflow = BeanFactory::getBean('WorkFlow', $workflowActionShell->parent_id);
+//                            $workflow->save();
+//                        }
+
+                    } else {
+                        $this->log("Will update workFlowActions '{$row['workflow_actionsID']}' from: '{$from}' to: '{$to}'");
+                    }
+
+                }
+            }
+        }
+
+        $this->log("Found {$foundIssues} bad workflow actions.");
+    }
+
+    /**
+     * Repairs field level issues in the Workflows Expressions table
      */
     public function repairExpressions()
     {
@@ -22,7 +129,6 @@ class supp_WorkflowRepairs extends supp_Repairs
 
         $foundIssues = 0;
         while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
-
             $leftModule = $row['lhs_module'];
             $leftField = $row['lhs_field'];
             $rightValue = $row['rhs_value'];
@@ -78,7 +184,7 @@ class supp_WorkflowRepairs extends supp_Repairs
                     $from = implode('^,^', $selectedKeys);
                     $to = implode('^,^', $modifiedSelectedKeys);
                     if (!$this->isTesting) {
-                        $expression = BeanFactory::retrieveBean('Expressions', $row['expression_id']);
+                        $expression = BeanFactory::getBean('Expressions', $row['expression_id']);
 
                         if ($expression) {
                             $expression->rhs_value = $to;
@@ -86,12 +192,12 @@ class supp_WorkflowRepairs extends supp_Repairs
                         }
 
                         if (!empty($expression->parent_id)) {
-                            $workflowTriggerShell = BeanFactory::retrieveBean('WorkFlowTriggerShells', $expression->parent_id);
+                            $workflowTriggerShell = BeanFactory::getBean('WorkFlowTriggerShells', $expression->parent_id);
                             $workflowTriggerShell->save();
                         }
 
                         if (!empty($workflowTriggerShell->parent_id)) {
-                            $workflow = BeanFactory::retrieveBean('WorkFlow', $workflowTriggerShell->parent_id);
+                            $workflow = BeanFactory::getBean('WorkFlow', $workflowTriggerShell->parent_id);
                             $workflow->save();
                         }
 
@@ -133,6 +239,7 @@ class supp_WorkflowRepairs extends supp_Repairs
             && $this->backupTable('expressions', $stamp)
         ) {
             $this->repairExpressions();
+            $this->repairActions();
         }
 
         if (!$this->isTesting) {
