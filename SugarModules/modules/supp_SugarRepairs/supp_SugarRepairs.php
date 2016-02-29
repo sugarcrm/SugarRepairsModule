@@ -3,6 +3,8 @@
 require_once('modules/supp_SugarRepairs/supp_SugarRepairs_sugar.php');
 require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_LanguageRepairs.php');
 require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_TeamSetRepairs.php');
+require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_WorkflowRepairs.php');
+require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_ReportRepairs.php');
 
 class supp_SugarRepairs extends supp_SugarRepairs_sugar
 {
@@ -24,7 +26,7 @@ class supp_SugarRepairs extends supp_SugarRepairs_sugar
 
     /**
      * Repairs the Sugar language files
-     * @param bool $isTesting
+     * @param $args
      */
     public function repairLanguages($args)
     {
@@ -43,8 +45,9 @@ class supp_SugarRepairs extends supp_SugarRepairs_sugar
     }
 
     /**
-     * Repairs workflows
-     * @param bool $isTesting
+     * Repairs or disables workflows
+     * @param array $args
+     * @return bool|void
      */
     public function repairWorkflows(array $args)
     {
@@ -52,4 +55,14 @@ class supp_SugarRepairs extends supp_SugarRepairs_sugar
         return $workflowRepairs->execute($args);
     }
 
+    /**
+     * Repairs reports
+     * @param array $args
+     * @return bool|void
+     */
+    public function repairReports(array $args)
+    {
+        $workflowRepairs = new supp_ReportRepairs();
+        return $workflowRepairs->execute($args);
+    }
 }
