@@ -1,9 +1,18 @@
 # Sugar Repairs Module
 This module is designed to help assist with common repair issues. You should always tests any repairs against a cloned enviroment before run on a production instance. This tool is to be used at your own risk.
 
+All repairs currently need to be run from the command line. By default, all repairs are run in test mode until a `-t false` is added to the cli command.
+
 ## Language Repairs
 Corrects common language file issues. The various issues addressed are shown below:
 
+###Testing Command:
+`cd "modules/supp_SugarRepairs/" && php cli.php -r workflow`
+
+###Execute Command:
+`cd "modules/supp_SugarRepairs/" && php cli.php -r workflow -t false`
+
+###Issues Addressed
 * Health Check Errors:
 
 >[Health Check Error: Bad vardefs - key] (https://support.sugarcrm.com/Knowledge_Base/Administration/Install/Troubleshooting_Health_Check_Output/Health_Check_Error_Bad_Vardefs_Key/)
@@ -57,16 +66,38 @@ Reports
  
 
 ##Team Set Repairs
-Corrects common issues with team sets. The various issues addressed are shown below:
+Corrects common issues with team sets.
 
+###Testing Command:
+`cd "modules/supp_SugarRepairs/" && php cli.php -r team`
+
+###Execute Command:
+`cd "modules/supp_SugarRepairs/" && php cli.php -r team -t false`
+
+###Issues Addressed
 * Duplicate teams in a team set
 > Removes any duplicate team relationships to a team set.
        
 * Incorrect team counts on team sets
 > Correct any team sets with invalid team counts and relationships.
     
+##Workflow Repairs
+Corrects common issues with workflows.
+
+###Testing Command:
+`cd "modules/supp_SugarRepairs/" && php cli.php -r workflow`
+
+###Execute Command:
+`cd "modules/supp_SugarRepairs/" && php cli.php -r team -t workflow`
+
+###Issues Addressed
+* Workflows with invalid fields
+> Disables any workflows with missing or invalid fields
        
-# Adding Repair Actions
+* Workflows with invalid list selections
+> Attempts to find a valid key. If no key is found, the workflow is disabled.
+       
+# Adding New Repair Actions
 * All repair actions should be located in `./modules/supp_SugarRepairs/Classes/Repairs/` and extend the abstract class `supp_Repairs`. 
 * Any custom classes should use the `supp_` prefix.
 
@@ -82,8 +113,9 @@ PHP unit tests are required for all repair actions. They should all be located i
 
 To setup you environment for unit tests, you will need to do the following:
 
-* Install the Sugar Repairs module to a new Sugar instance.
-* Download the unit tests applicable to your version: https://github.com/sugarcrm/unit-tests/releases
+* Install the Sugar Repairs module to a new Sugar 7.6.1.0 instance. 7.6.1.0 is required as it has published unit tests.
+* in the root of the instance, install composer. `composer install`
+* Download the 7.6.1.0 unit tests from: https://github.com/sugarcrm/unit-tests/releases
 * Extract the tests from the zip that are applicable to your edition into `./tests/`.
 * Create your new unit test in `./custom/tests/modules/supp_SugarRepairs/` and make sure to add it to the `@group support` in the header comment:
 ```

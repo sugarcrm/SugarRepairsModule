@@ -48,8 +48,8 @@ class supp_LanguageRepairs extends supp_Repairs
             switch ($result) {
                 case self::TYPE_SYNTAXERROR:
                     $this->capture('File', $relativePath, "Syntax Error in file: {$relativePath} ({$this->syntaxError})", 'Review', self::SEV_HIGH);
-                    $this->log("Syntax Error in file: {$relativePath}",'FATAL');
-                    $this->log($this->syntaxError,'FATAL');
+                    $this->log("Syntax Error in file: {$relativePath}", 'FATAL');
+                    $this->log($this->syntaxError, 'FATAL');
                     break;
                 case self::TYPE_UNREADABLE:
                     $this->capture('File', $relativePath, "Unreadable file: {$relativePath}", 'Review', self::SEV_HIGH);
@@ -76,8 +76,11 @@ class supp_LanguageRepairs extends supp_Repairs
             }
         }
 
+        //execute the workflow repairs to correct any language updates
+        $workflowRepair = new supp_WorkflowRepairs();
+        $workflowRepair->execute($args);
+
         if (!$this->isTesting) {
-            $this->runRebuildWorkflow();
             $this->runQRAR();
         }
     }
@@ -206,7 +209,7 @@ class supp_LanguageRepairs extends supp_Repairs
                         break;
                     case 'T_ARRAY_KEY':
                         $oldKey = $keyList[1];
-                        $keyList[1] = $this->fixIndexNames($keyList[1]);
+                        $keyList[1] = $this->getValidLanguageKeyName($keyList[1]);
                         if ($oldKey != $keyList[1]) {
                             //OK a key has changed, now we need to update everything
                             $this->changed = true;
@@ -220,11 +223,11 @@ class supp_LanguageRepairs extends supp_Repairs
                                     $this->updateFieldsMetaDataTable($listNameInfo, $oldKey, $newKey);
                                     $this->scanFiles($oldKey, $newKey);
                                     $this->updateReportFilters($oldKey, $newKey);
-                                    $this->updateWorkFlow($oldKey, $newKey);
+                                    //$this->updateWorkFlow($oldKey, $newKey);
                                 } else {
                                     $this->scanFiles($oldKey, $newKey);
                                     $this->updateReportFilters($oldKey, $newKey);
-                                    $this->updateWorkFlow($oldKey, $newKey);
+                                    //$this->updateWorkFlow($oldKey, $newKey);
                                     $this->log("ERROR: No list name for {$tokenListName} => {$keyList[1]}.");
                                 }
                             }
@@ -303,7 +306,7 @@ class supp_LanguageRepairs extends supp_Repairs
         //TriggerShells
         $sql = "SELECT id FROM workflow_triggershells WHERE eval LIKE \"%'{$oldKey}'%\"";
         $result = $GLOBALS['db']->query($sql);
-        while($hash=$GLOBALS['db']->fetchByAssoc($result)) {
+        while ($hash = $GLOBALS['db']->fetchByAssoc($result)) {
             if (!$this->isBackedUpTable('workflow_triggershells')) {
                 $this->backupTable('workflow_triggershells');
             }
@@ -322,7 +325,7 @@ class supp_LanguageRepairs extends supp_Repairs
                         value LIKE \"%^{$oldKey}\" OR
                         value LIKE \"%^{$oldKey}^%\")";
         $result = $GLOBALS['db']->query($sql);
-        while($hash=$GLOBALS['db']->fetchByAssoc($result)) {
+        while ($hash = $GLOBALS['db']->fetchByAssoc($result)) {
             if (!$this->isBackedUpTable('workflow_actions')) {
                 $this->backupTable('workflow_actions');
             }
@@ -467,8 +470,8 @@ class supp_LanguageRepairs extends supp_Repairs
                           AND (default_value LIKE '%^{$oldKey}^%' OR default_value = '{$oldKey}')
                           AND ext1='{$fieldName}'";
                 $result = $GLOBALS['db']->query($sql, true, "Error updating fields_meta_data.");
-                while($hash=$GLOBALS['db']->fetchByAssoc($result)) {
-                    $sql ="UPDATE fields_meta_data
+                while ($hash = $GLOBALS['db']->fetchByAssoc($result)) {
+                    $sql = "UPDATE fields_meta_data
                            SET default_value = REPLACE(default_value, '{$oldKey}', '{$newKey}')
                            WHERE id = '{$hash['id']}'";
                     //don't bother running the same query twice or at all if we are in testing mode
@@ -484,8 +487,8 @@ class supp_LanguageRepairs extends supp_Repairs
                           AND (ext4 LIKE '%{$oldKey}%')
                           AND ext1='{$fieldName}'";
                 $result = $GLOBALS['db']->query($sql, true, "Error updating fields_meta_data.");
-                while($hash=$GLOBALS['db']->fetchByAssoc($result)) {
-                    $sql ="UPDATE fields_meta_data
+                while ($hash = $GLOBALS['db']->fetchByAssoc($result)) {
+                    $sql = "UPDATE fields_meta_data
                            SET ext4 = REPLACE(default_value, '{$oldKey}', '{$newKey}')
                            WHERE id = '{$hash['id']}'";
                     //don't bother running the same query twice or at all if we are in testing mode
@@ -530,7 +533,7 @@ class supp_LanguageRepairs extends supp_Repairs
                             WHERE {$fieldName} LIKE '%^{$oldKey}^%' OR
                                   {$fieldName} = '{$oldKey}'";
                     $result = $GLOBALS['db']->query($sql, true, "Error updating fields_meta_data.");
-                    while($hash=$GLOBALS['db']->fetchByAssoc($result)) {
+                    while ($hash = $GLOBALS['db']->fetchByAssoc($result)) {
                         $sql = "UPDATE {$table}
                                 SET {$fieldName} = REPLACE({$fieldName}, '{$oldKey}', '{$newValue}')
                                 WHERE {$fieldName} LIKE '%^{$oldKey}^%' OR
@@ -581,19 +584,6 @@ class supp_LanguageRepairs extends supp_Repairs
 
         $this->arrayCache[$listName] = $retArray;
         return $retArray;
-    }
-
-    /**
-     * @param $oldKey
-     * @return mixed
-     */
-    public function fixIndexNames($oldKey)
-    {
-        //Now go through and remove the characters [& / - ( )] and spaces (in some cases) from array keys
-        $badChars = array(' & ', '&', ' - ', '-', ' / ', '/', '(', ')');
-        $goodChars = array('_', '_', '_', '_', '_', '_', '', '');
-        $newKey = str_replace($badChars, $goodChars, $oldKey, $count);
-        return $newKey;
     }
 
     /**

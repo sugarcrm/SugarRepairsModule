@@ -4,6 +4,7 @@ require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_LanguageRepairs.php
 
 /**
  * @group support
+ * @group language
  */
 class suppSugarRepairsLanguageRepairs extends Sugar_PHPUnit_Framework_TestCase
 {

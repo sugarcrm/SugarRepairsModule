@@ -23,6 +23,8 @@ if (isset($options['r'])) {
         $sugarRepairs->repairLanguages($options);
     } else if ($options['r'] == 'team') {
         $sugarRepairs->repairTeamSets($options);
+    }  else if ($options['r'] == 'workflow') {
+        $sugarRepairs->repairWorkflows($options);
     } else {
         echo "Invalid repair type. Please refer to the documentation.\n";
     }

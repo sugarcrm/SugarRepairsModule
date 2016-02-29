@@ -42,4 +42,14 @@ class supp_SugarRepairs extends supp_SugarRepairs_sugar
         return $teamSetRepairs->execute($args);
     }
 
+    /**
+     * Repairs workflows
+     * @param bool $isTesting
+     */
+    public function repairWorkflows(array $args)
+    {
+        $workflowRepairs = new supp_WorkflowRepairs();
+        return $workflowRepairs->execute($args);
+    }
+
 }
