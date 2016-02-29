@@ -117,7 +117,7 @@ class supp_WorkflowRepairs extends supp_Repairs
             return false;
         }
 
-        //check for testing an other reapir generic params
+        //check for testing an other repair generic params
         parent::execute($args);
 
         $stamp = time();

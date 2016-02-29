@@ -223,11 +223,9 @@ class supp_LanguageRepairs extends supp_Repairs
                                     $this->updateFieldsMetaDataTable($listNameInfo, $oldKey, $newKey);
                                     $this->scanFiles($oldKey, $newKey);
                                     $this->updateReportFilters($oldKey, $newKey);
-                                    //$this->updateWorkFlow($oldKey, $newKey);
                                 } else {
                                     $this->scanFiles($oldKey, $newKey);
                                     $this->updateReportFilters($oldKey, $newKey);
-                                    //$this->updateWorkFlow($oldKey, $newKey);
                                     $this->log("ERROR: No list name for {$tokenListName} => {$keyList[1]}.");
                                 }
                             }
@@ -295,50 +293,6 @@ class supp_LanguageRepairs extends supp_Repairs
     }
 
     /**
-     * Update workflow data, this function only updates the tables, the rebuild workflow repair run at the end
-     *   of the execute() will rebuild the files.
-     *
-     * @param $oldKey
-     * @param $newKey
-     */
-    public function updateWorkFlow($oldKey, $newKey)
-    {
-        //TriggerShells
-        $sql = "SELECT id FROM workflow_triggershells WHERE eval LIKE \"%'{$oldKey}'%\"";
-        $result = $GLOBALS['db']->query($sql);
-        while ($hash = $GLOBALS['db']->fetchByAssoc($result)) {
-            if (!$this->isBackedUpTable('workflow_triggershells')) {
-                $this->backupTable('workflow_triggershells');
-            }
-            if (!$this->isTesting) {
-                $sql = "UPDATE workflow_triggershells eval = REPLACE(eval, '{$oldKey}', '{$newKey}')
-                        WHERE id = '{$hash['id']}'";
-                $GLOBALS['db']->query($sql);
-            }
-            $this->log("-> Workflow trigger '{$hash['id']}' found with {$oldKey} in it.");
-        }
-
-        //Actions
-        $sql = "SELECT id FROM workflow_actions
-                  WHERE value = \"{$oldKey}\" OR
-                       (value LIKE \"{$oldKey}^%\" OR
-                        value LIKE \"%^{$oldKey}\" OR
-                        value LIKE \"%^{$oldKey}^%\")";
-        $result = $GLOBALS['db']->query($sql);
-        while ($hash = $GLOBALS['db']->fetchByAssoc($result)) {
-            if (!$this->isBackedUpTable('workflow_actions')) {
-                $this->backupTable('workflow_actions');
-            }
-            if (!$this->isTesting) {
-                $sql = "UPDATE workflow_actions value = REPLACE(value, '{$oldKey}', '{$newKey}')
-                            WHERE id = '{$hash['id']}'";
-                $GLOBALS['db']->query($sql);
-            }
-            $this->log("-> Workflow action '{$hash['id']}' found with {$oldKey} in it.");
-        }
-    }
-
-    /**
      * Preload the data from reports to speed up the process later
      */
     private function preLoadReportData()
@@ -395,8 +349,17 @@ class supp_LanguageRepairs extends supp_Repairs
         }
     }
 
+    /**
+     * @param $oldKey
+     * @param $newKey
+     * @param $fullPath
+     * @param $relativePath
+     * @param $fileContents
+     * @return array|mixed
+     */
     public function updateFiles($oldKey, $newKey, $fullPath, $relativePath, $fileContents)
     {
+        //todo: need to capture before/after info
         $searchString1 = "'" . trim($oldKey, "'\"") . "'";
         $searchString2 = '"' . trim($oldKey, "'\"") . '"';
 
