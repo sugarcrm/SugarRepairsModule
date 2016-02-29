@@ -97,15 +97,15 @@ class supp_WorkflowRepairs extends supp_Repairs
                             $workFlowAction->save();
                         }
 
-                        if (!empty($workFlowAction->parent_id)) {
-                            $workflowActionShell = BeanFactory::getBean('WorkFlowActionShells', $workFlowAction->parent_id);
-                            $workflowActionShell->save();
-                        }
-
-                        if (!empty($workflowActionShell->parent_id)) {
-                            $workflow = BeanFactory::getBean('WorkFlow', $workflowActionShell->parent_id);
-                            $workflow->save();
-                        }
+//                        if (!empty($workFlowAction->parent_id)) {
+//                            $workflowActionShell = BeanFactory::getBean('WorkFlowActionShells', $workFlowAction->parent_id);
+//                            $workflowActionShell->save();
+//                        }
+//
+//                        if (!empty($workflowActionShell->parent_id)) {
+//                            $workflow = BeanFactory::getBean('WorkFlow', $workflowActionShell->parent_id);
+//                            $workflow->save();
+//                        }
 
                     } else {
                         $this->log("Will update workFlowActions '{$row['workflow_actionsID']}' from: '{$from}' to: '{$to}'");
