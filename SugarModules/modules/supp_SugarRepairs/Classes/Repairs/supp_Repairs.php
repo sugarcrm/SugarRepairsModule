@@ -445,6 +445,105 @@ abstract class supp_Repairs
     }
 
     /**
+     * Disables a specific workflow
+     * @param $id
+     */
+    public function disableWorkflow($id)
+    {
+        $workflow = BeanFactory::getBean('WorkFlow', $id);
+
+        if ($workflow->status != 0) {
+
+            if (!$this->isTesting) {
+                $this->log("Disabling workflow '{$workflow->name}' ({$id})...");
+                $workflow->status = 0;
+                $workflow->save();
+            } else {
+                $this->log("Will disable workflow '{$workflow->name}' ({$id}).");
+            }
+        } else {
+            $this->log("Workflow '{$workflow->name}' ({$id}) is already disabled.");
+        }
+    }
+
+    /**
+     * Returns the field def for a specific field
+     * @param $module
+     * @param $field
+     * @return bool
+     */
+    public function getFieldDefinition($module, $field)
+    {
+        $bean = BeanFactory::getBean($module);
+
+        if (isset($bean->field_defs[$field])) {
+            return $bean->field_defs[$field];
+        } else {
+            $this->log("The field '{$field}' was not found on the '{$module}' module. It may have been deleted.");
+            return false;
+        }
+    }
+
+    /**
+     * Determines a fields type
+     * @param $module
+     * @param $field
+     */
+    public function getFieldType($module, $field)
+    {
+        $def = $this->getFieldDefinition($module, $field);
+        if ($def && isset($def['type'])) {
+            return $def['type'];
+        } else {
+            $this->log("Type definition not found for {$module} / {$field}");
+            return false;
+        }
+    }
+
+    /**
+     * Returns the option keys for a list
+     * @param $module
+     * @param $field
+     * @return array|bool
+     */
+    public function getFieldOptionKeys($module, $field)
+    {
+        $definition = $this->getFieldDefinition($module, $field);
+
+        $listName = '';
+        if ($definition && isset($definition['options'])) {
+            $listName = $definition['options'];
+        } else {
+            $this->log("No options list found for {$module} / {$field}: " . print_r($definition, true));
+            return false;
+        }
+
+        $app_list_strings = return_app_list_strings_language('en_us');
+
+        if (isset($app_list_strings[$listName])) {
+            $this->log("Found list '{$listName}' for {$module} / {$field}.");
+            $list = array_keys($app_list_strings[$listName]);
+            return $list;
+        } else {
+            $this->log("The list '{$listName}' was not found");
+        }
+    }
+
+    /**
+     * Returns valid key names give a string
+     * @param $key
+     * @return mixed
+     */
+    public function getValidLanguageKeyName($key)
+    {
+        //Now go through and remove the characters [& / - ( )] and spaces (in some cases) from array keys
+        $badChars = array(' & ', '&', ' - ', '-', ' / ', '/', '(', ')');
+        $goodChars = array('_', '_', '_', '_', '_', '_', '', '');
+        $newKey = str_replace($badChars, $goodChars, $key, $count);
+        return $newKey;
+    }
+
+    /**
      * Executes the repairs
      * @param array $args
      */
