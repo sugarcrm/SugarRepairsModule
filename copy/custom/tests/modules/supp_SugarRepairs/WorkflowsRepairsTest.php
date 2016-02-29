@@ -17,15 +17,21 @@ class suppSugarRepairsWorkflowRepairsTest extends Sugar_PHPUnit_Framework_TestCa
 
     public function tearDown()
     {
-        SugarTestTeamUtilities::removeAllCreatedAnonymousTeams();
         parent::tearDown();
     }
 
     /**
-     * Test for removing duplicates from team sets
+     * Test for disabling workflows with issues in expressions
      */
     public function testRepairWorkflowExpressions()
     {
+
+    }
+
+    private function setupTestWorkflow() {
+    }
+
+    private function teardownTestWorkflow() {
 
     }
 }
