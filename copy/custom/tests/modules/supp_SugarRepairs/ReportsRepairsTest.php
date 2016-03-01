@@ -57,7 +57,7 @@ class suppSugarRepairsReportsRepairsTest extends Sugar_PHPUnit_Framework_TestCas
     }
 
     /**
-     * Test for removing duplicates from team sets
+     * Test for detecting a deleted field in a report filter
      */
     public function testReportWithDeletedField()
     {
