@@ -263,7 +263,7 @@ abstract class supp_Repairs
     public function runQRAR()
     {
         if ($this->isTesting) {
-            return true;
+            return;
         }
 
         $this->log("Running a Quick Repair & Rebuild...");
@@ -273,12 +273,15 @@ abstract class supp_Repairs
         $RAC->repairAndClearAll($actions, array('All Modules'), false, false);
     }
 
+    /**
+     * Runs a rebuild workflow on the instance
+     */
     public function runRebuildWorkflow()
     {
         if ($this->isTesting) {
-            return true;
+            return;
         }
-        
+
         $this->log("Running a Rebuild Workflow...");
         require_once('include/workflow/plugin_utils.php');
 
