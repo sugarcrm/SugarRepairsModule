@@ -567,6 +567,51 @@ abstract class supp_Repairs
     }
 
     /**
+     * Gets all time period IDs not deleted
+     * @return array $timePeriodIds
+     */
+    public function getAllTimePeriodIds(){
+
+        $query = new SugarQuery();
+        $query->select(array(
+            'id',
+        ));
+        $query->from(BeanFactory::newBean("TimePeriods"));
+        $query->where()
+            ->equals('deleted', '0');
+        $results = $query->execute();
+
+        $timePeriodIds = array();
+
+        foreach ($results as $row) {
+            $timePeriodIds[] = $row['id'];
+        }
+        return $timePeriodIds;
+    }
+
+    /**
+     * Removes all forecast_manager_worksheets records for
+     * the specified timeperiod
+     * @param string $timeperiod_id Time Period Id to remove forecast data
+     * @return array 
+     */
+    public function clearForecastWorksheet($timeperiod_id)
+    {
+        $sql = "
+            DELETE
+            FROM forecast_manager_worksheets 
+            WHERE timeperiod_id = '$timeperiod_id'
+        ";
+        $res = $GLOBALS['db']->query($sql);
+        $affected_row_count =  $GLOBALS['db']->getAffectedRowCount($res);
+        $GLOBALS['log']->info('Deleted '.$affected_row_count.' from forecast_manager_worksheets table.');
+        return array(
+            'affected_row_count' => $affected_row_count
+            );
+    }
+
+
+    /**
      * Executes the repairs
      * @param array $args
      */
