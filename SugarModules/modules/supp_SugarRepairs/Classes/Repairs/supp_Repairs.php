@@ -198,7 +198,8 @@ abstract class supp_Repairs
         if ($result) {
             $this->log("Created {$backupTable} from {$table}.");
         } else {
-            $this->log("Could not create {$backupTable} from {$table}.");
+            $this->log("Could not create {$backupTable} from {$table}!");
+            die();
         }
 
         return $result;
@@ -261,6 +262,10 @@ abstract class supp_Repairs
      */
     public function runQRAR()
     {
+        if ($this->isTesting) {
+            return true;
+        }
+
         $this->log("Running a Quick Repair & Rebuild...");
         require_once('modules/Administration/QuickRepairAndRebuild.php');
         $RAC = new RepairAndClear();
@@ -270,6 +275,10 @@ abstract class supp_Repairs
 
     public function runRebuildWorkflow()
     {
+        if ($this->isTesting) {
+            return true;
+        }
+        
         $this->log("Running a Rebuild Workflow...");
         require_once('include/workflow/plugin_utils.php');
 
