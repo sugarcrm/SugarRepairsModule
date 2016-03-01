@@ -164,7 +164,8 @@ class supp_ReportRepairs extends supp_Repairs
         $stamp = time();
 
         if (
-        $this->backupTable('saved_reports', $stamp)
+            $this->backupTable('saved_reports', $stamp)
+            && $this->backupTable('report_cache', $stamp)
         ) {
             $this->repairReports();
         }

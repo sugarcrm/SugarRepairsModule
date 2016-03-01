@@ -42,37 +42,34 @@ class supp_LanguageRepairs extends supp_Repairs
 
         $currentFileCount = 0;
         foreach ($customLanguageFiles as $fullPath => $relativePath) {
+            $this->log("Processing {$fullPath}...");
             $currentFileCount++;
             $result = $this->testLanguageFile($fullPath);
             switch ($result) {
                 case self::TYPE_SYNTAXERROR:
-                    $this->capture('File', $relativePath, "Syntax Error in file: {$relativePath} ({$this->syntaxError})", 'Review', self::SEV_HIGH);
-                    $this->log("Syntax Error in file: {$relativePath}");
                     $this->foundIssues[$fullPath] = $fullPath;
-                    $this->log($this->syntaxError, 'FATAL');
+                    $this->log("-> File has syntax error: {$this->syntaxError}. This will need to be corrected manually.");
                     break;
                 case self::TYPE_UNREADABLE:
-                    $this->capture('File', $relativePath, "Unreadable file: {$relativePath}", 'Review', self::SEV_HIGH);
                     $this->foundIssues[$fullPath] = $fullPath;
-                    $this->log("Unreadable file: {$relativePath}");
+                    $this->log("-> File is not readable. Please correct your filesystem permissions and try again.");
                     break;
                 case self::TYPE_UNWRITABLE:
-                    $this->capture('File', $relativePath, "Unwritable file: {$relativePath}", 'Review', self::SEV_HIGH);
                     $this->foundIssues[$fullPath] = $fullPath;
-                    $this->log("Unwritable file: {$relativePath}");
+                    $this->log("-> File is not writable. Please correct your filesystem permissions and try again.");
                     break;
                 case self::TYPE_EMPTY:
-                    $this->capture('File', $relativePath, "Deleted file: {$relativePath}", 'Updated', self::SEV_HIGH, file_get_contents($fullPath));
                     $this->foundIssues[$fullPath] = $fullPath;
                     if (!$this->isTesting) {
                         unlink($fullPath);
+                        $this->log("-> Deleted the file.");
+                    } else {
+                        $this->log("-> Will delete file.");
                     }
-                    $this->log("Deleted file: {$relativePath}");
                     break;
                 case self::TYPE_DYNAMIC:
-                    $this->capture('File', $relativePath, "Dynamic file: {$relativePath}", 'Review', self::SEV_HIGH);
                     $this->foundIssues[$fullPath] = $fullPath;
-                    $this->log("Dynamic file: {$relativePath}");
+                    $this->log("-> File has code present. This will need to be corrected manually.");
                     break;
                 case self::TYPE_STATIC:
                     $this->repairStaticFile($fullPath);
@@ -89,10 +86,14 @@ class supp_LanguageRepairs extends supp_Repairs
 
         //execute the workflow repairs to correct any language updates
         $workflowRepair = new supp_WorkflowRepairs();
+        //copy cycle id
+        $workflowRepair->setCycleId($this->cycle_id);
         $workflowRepair->execute($args);
 
         //execute the report repairs to correct or notify of any language updates
         $reportRepair = new supp_ReportRepairs();
+        //copy cycle id
+        $reportRepair->setCycleId($this->cycle_id);
         $reportRepair->execute($args);
     }
 
@@ -101,21 +102,18 @@ class supp_LanguageRepairs extends supp_Repairs
      */
     private function repairStaticFile($fileName)
     {
-        $this->log("Processing {$fileName}");
-
         //Next run the file through the tests and fill the new array
         $tokensByLine = $this->processTokenList(sugar_file_get_contents($fileName));
-
 
         if ($this->changed) {
             $this->foundIssues[$fileName] = $fileName;
             if (!$this->isTesting) {
                 $this->writeNewFile($tokensByLine, $fileName);
             } else {
-                $this->log("-> Will need to rewrite {$fileName}");
+                $this->log("-> Will need to rewrite {$fileName}.");
             }
         } else {
-            $this->log("-> No Changes");
+            $this->log("-> No Changes.");
         }
     }
 
@@ -353,12 +351,15 @@ class supp_LanguageRepairs extends supp_Repairs
 
             if ($count == 0) {
                 //There were no changes so this file will have to be examined manually
-                $this->capture("File", $relativePath, "Key '{$oldKey}' found but could not be changed to '{$newKey}'.", 'Review', self::SEV_HIGH);
+                $this->log("->  Key '{$oldKey}' was found but could not be changed to '{$newKey}'. This may need to be manually corrected.");
             } else {
-                $this->capture("File", $relativePath, "Key 'Vardef file updated'.", 'Updated', self::SEV_LOW, $fileContents, $newText);
-                $this->log("-> {$oldKey} found in Vardefs file '{$relativePath}'");
+
                 if (!$this->isTesting) {
+                    $this->log("-> Updating key from '{$oldKey}' to '{$newKey}' in '{$fullPath}'");
+                    $this->capture($this->cycle_id, $this->loggerTitle, 'File', $fullPath, file_get_contents($fullPath), $newText, "Backing up '{$fullPath}'", 'Completed', 'P3');
                     sugar_file_put_contents($fullPath, $newText, LOCK_EX);
+                } else {
+                    $this->log("-> Will update key from '{$oldKey}' to '{$newKey}' in '{$fullPath}'");
                 }
             }
             return $newText;
@@ -602,28 +603,19 @@ class supp_LanguageRepairs extends supp_Repairs
         }
 
         if (!$this->isTesting) {
-            //Update the file but retain its modified and access date stamps
-            $fileAccessTime = date('U', fileatime($fileName));
-            $fileModifiedTime = date('U', filemtime($fileName));
-            sugar_file_put_contents($fileName, $assembledFile, LOCK_EX);
-            sugar_touch($fileName, $fileModifiedTime, $fileAccessTime);
+            if (is_file($fileName)) {
+                $this->capture($this->cycle_id, $this->loggerTitle, 'File', $fileName, file_get_contents($fileName), implode("\n", $assembledFile), "Backing up '{$fileName}'", 'Completed', 'P3');
+                //Update the file but retain its modified and access date stamps
+                $fileAccessTime = date('U', fileatime($fileName));
+                $fileModifiedTime = date('U', filemtime($fileName));
+                sugar_file_put_contents($fileName, $assembledFile, LOCK_EX);
+                sugar_touch($fileName, $fileModifiedTime, $fileAccessTime);
+            } else {
+                $this->capture($this->loggerTitle, 'File', 'Completed', 'P3', "Writing file '{$fileName}'", '', implode("\n", $assembledFile));
+                sugar_file_put_contents($fileName, $assembledFile, LOCK_EX);
+            }
         }
+
         return $assembledFile;
-    }
-
-    /**
-     * Logs an entry record in the Sugar Repair table
-     * @param $target_type
-     * @param $target
-     * @param $value_before
-     * @param $value_after
-     */
-    protected function capture($target_type, $target, $status, $priority, $description = '', $value_before = '', $value_after = '')
-    {
-        if ($this->isTesting) {
-            return;
-        }
-
-        parent::capture($this->cycle_id, 'Language', $target_type, $target, $value_before, $value_after, $description, $status, $priority);
     }
 }

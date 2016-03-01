@@ -4,7 +4,7 @@ require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_Repairs.php');
 
 class supp_WorkflowRepairs extends supp_Repairs
 {
-    protected $loggerTitle = "Workflow";
+    protected $loggerTitle = "Workflows";
     protected $foundExpressionIssues = array();
     protected $foundActionIssues = array();
 

@@ -17,14 +17,23 @@ abstract class supp_Repairs
     }
 
     /**
+     * Allows a user to manually set the cycle id
+     * @param $cycleId
+     */
+    public function setCycleId($cycleId)
+    {
+        $this->cycle_id = $cycleId;
+    }
+
+    /**
      * Logger for repair actions
      * @param $message
      * @param string $level
      */
-    protected function log($message, $level = 'info')
+    protected function log($message, $level = 'fatal')
     {
-        $log = "Sugar Repairs :: {$this->loggerTitle} :: {$message}";
-        $GLOBALS['log']->{$level}("Sugar Repairs :: {$this->loggerTitle} :: {$message}");
+        $log = "Sugar Repairs :: {$this->cycle_id} :: {$this->loggerTitle} :: {$message}";
+        $GLOBALS['log']->{$level}($log);
 
         if (php_sapi_name() === 'cli') {
             if (
@@ -189,7 +198,8 @@ abstract class supp_Repairs
         if ($result) {
             $this->log("Created {$backupTable} from {$table}.");
         } else {
-            $this->log("Could not create {$backupTable} from {$table}.");
+            $this->log("Could not create {$backupTable} from {$table}!");
+            die();
         }
 
         return $result;
@@ -252,6 +262,10 @@ abstract class supp_Repairs
      */
     public function runQRAR()
     {
+        if ($this->isTesting) {
+            return;
+        }
+
         $this->log("Running a Quick Repair & Rebuild...");
         require_once('modules/Administration/QuickRepairAndRebuild.php');
         $RAC = new RepairAndClear();
@@ -259,8 +273,15 @@ abstract class supp_Repairs
         $RAC->repairAndClearAll($actions, array('All Modules'), false, false);
     }
 
+    /**
+     * Runs a rebuild workflow on the instance
+     */
     public function runRebuildWorkflow()
     {
+        if ($this->isTesting) {
+            return;
+        }
+
         $this->log("Running a Rebuild Workflow...");
         require_once('include/workflow/plugin_utils.php');
 
@@ -480,6 +501,8 @@ abstract class supp_Repairs
         }
 
         $this->log("-> Update SQL: " . $sql);
+
+        $this->capture($this->cycle_id, $this->loggerTitle, 'Database', 'table', "The follow tables are backups:" . implode(',', $this->backupTables), $sql, "Capturing Update SQL'", 'Completed', 'P3');
         return $GLOBALS['db']->query($sql);
     }
 
@@ -613,12 +636,17 @@ abstract class supp_Repairs
      */
     public function clearForecastWorksheet($timeperiod_id)
     {
+        if ($this->isTesting) {
+            return;
+        }
+
         $sql = "
             DELETE
             FROM forecast_manager_worksheets 
             WHERE timeperiod_id = '$timeperiod_id'
         ";
-        $res = $GLOBALS['db']->query($sql);
+
+        $res = $this->updateQuery($sql);
         $affected_row_count =  $GLOBALS['db']->getAffectedRowCount($res);
         $GLOBALS['log']->info('Deleted '.$affected_row_count.' from forecast_manager_worksheets table.');
         return array(
