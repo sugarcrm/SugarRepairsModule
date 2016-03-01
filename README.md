@@ -3,6 +3,8 @@ This module is designed to help assist with common repair issues. You should alw
 
 All repairs currently need to be run from the command line. By default, all repairs are run in test mode until a `-t false` is added to the cli command.
 
+It is highly recommended to remove the Sugar Repairs module before upgrading.
+
 ## Language Repairs
 Corrects common language file issues. The various issues addressed are shown below:
 
