@@ -7,6 +7,7 @@ require_once('modules/Reports/Report.php');
 class supp_ReportRepairs extends supp_Repairs
 {
     protected $loggerTitle = "Reports";
+    protected $foundIssues = array();
 
     function __construct()
     {
@@ -33,6 +34,7 @@ class supp_ReportRepairs extends supp_Repairs
                         $module = $allFields[$fieldKey]['module'];
                     } else {
                         $this->log("Report '{$report->name}' ({$report->id}) has a filter with an invalid mapping key of '{$fieldKey}'. The field {$field} may have been deleted.");
+                        $this->foundIssues[$report->id] = $report->id;
                         $this->markReportBroken($report->id);
                         continue;
                     }
@@ -42,7 +44,11 @@ class supp_ReportRepairs extends supp_Repairs
 
                 if ($type) {
 
-                    if (in_array($type, array('enum', 'multienum'))) {
+                    if (
+                        in_array($type, array('enum', 'multienum'))
+                        && isset($filters[$i]['qualifier_name'])
+                        && in_array($filters[$i]['qualifier_name'], array('is', 'is_not', 'one_of', 'not_one_of'))
+                    ) {
                         $listKeys = $this->getFieldOptionKeys($module, $field);
                         $selectedKeys = unencodeMultienum($filters[$i]['input_name0']);
                         $modifiedSelectedKeys = $selectedKeys;
@@ -68,6 +74,7 @@ class supp_ReportRepairs extends supp_Repairs
                             }
                             if ($issue) {
                                 $this->log("Report '{$report->name}' ({$report->id}) has an action with an invalid key '{$selectedKey}'. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
+                                $this->foundIssues[$report->id] = $report->id;
                                 $this->markReportBroken($report->id);
                             }
                         }
@@ -79,6 +86,7 @@ class supp_ReportRepairs extends supp_Repairs
 
                 } else {
                     $this->log("Report '{$report->name}' ({$report->id}) has a filter with a deleted or missing field on {$module} / {$field}");
+                    $this->foundIssues[$report->id] = $report->id;
                     $this->markReportBroken($report->id);
                 }
             }
@@ -86,16 +94,17 @@ class supp_ReportRepairs extends supp_Repairs
     }
 
     /**
-     * Removes duplicate teams in a team set
+     * Repairs various issues in reports
      */
     public function repairReports()
     {
         $_REQUEST['module'] = 'supp_SugarRepairs'; //hack to prevent the reports module from rebuilding the language files
         $sql = "SELECT id FROM saved_reports WHERE deleted = 0";
+        //$sql = "SELECT id FROM saved_reports WHERE id = '1433867d-f97a-020e-da67-56d531e415d3' AND deleted = 0";
 
         $result = $GLOBALS['db']->query($sql);
 
-        $foundIssues = array();
+        $this->foundIssues = array();
         $jsonObj = getJSONobj();
         while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
             $savedReport = BeanFactory::getBean('Reports', $row['id']);
@@ -105,6 +114,7 @@ class supp_ReportRepairs extends supp_Repairs
             $content = $jsonObj->decode($beforeJson, false);
 
             $this->log("Processing report '{$savedReport->name}' ({$savedReport->id})...");
+            //print_r($content['filters_def']['Filter_1']);
             if (isset($content['filters_def']) && isset($content['filters_def']['Filter_1']) && !empty($content['filters_def']['Filter_1'])) {
                 $this->repairFilters($content['filters_def']['Filter_1'], $savedReport, $report->all_fields);
             } else {
@@ -115,7 +125,7 @@ class supp_ReportRepairs extends supp_Repairs
             $afterJson = $jsonObj->encode($content, false);
 
             if ($beforeJson !== $afterJson) {
-                $foundIssues[$savedReport->id] = $savedReport->id;
+                $this->foundIssues[$savedReport->id] = $savedReport->id;
                 $this->log("before " . $beforeJson);
                 $this->log("After " . $afterJson);
 
@@ -132,8 +142,8 @@ class supp_ReportRepairs extends supp_Repairs
         }
 
         unset($_REQUEST['module']); //removing hack to prevent the reports module from rebuilding the language files
-        $foundIssues = count($foundIssues);
-        $this->log("Found {$foundIssues} bad reports.");
+        $foundIssuesCount = count($this->foundIssues);
+        $this->log("Found {$foundIssuesCount} bad reports.");
     }
 
 

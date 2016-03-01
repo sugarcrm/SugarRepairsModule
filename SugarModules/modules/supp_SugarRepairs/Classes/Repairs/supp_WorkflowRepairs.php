@@ -5,6 +5,8 @@ require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_Repairs.php');
 class supp_WorkflowRepairs extends supp_Repairs
 {
     protected $loggerTitle = "Workflow";
+    protected $foundExpressionIssues = array();
+    protected $foundActionIssues = array();
 
     function __construct()
     {
@@ -25,7 +27,6 @@ class supp_WorkflowRepairs extends supp_Repairs
                 WHERE workflow.deleted=0 AND workflow_actions.deleted=0 AND workflow_actionshells.deleted=0";
         $result = $GLOBALS['db']->query($sql);
 
-        $foundIssues = 0;
         while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
             $field = $row['field'];
             $value = $row['value'];
@@ -33,13 +34,13 @@ class supp_WorkflowRepairs extends supp_Repairs
             $type = $this->getFieldType($base_module, $field);
             $seed_object = BeanFactory::getBean('WorkFlow', $row['workflow_id']);
             //For workflow actions that affect related modules
-            if(isset($row['rel_module']) && !empty($row['rel_module'])) {
+            if (isset($row['rel_module']) && !empty($row['rel_module'])) {
                 $rel_module = $seed_object->get_rel_module($row['rel_module']);
                 $base_module = $rel_module;
                 $type = $this->getFieldType($rel_module, $field);
             }
             //for workflows that create related modules
-            if(isset($row['action_module']) && !empty($row['action_module'])) {
+            if (isset($row['action_module']) && !empty($row['action_module'])) {
                 $action_module = $seed_object->get_rel_module($row['action_module']);
                 $base_module = $action_module;
                 $type = $this->getFieldType($action_module, $field);
@@ -47,7 +48,9 @@ class supp_WorkflowRepairs extends supp_Repairs
 
             if ($type == false) {
                 $this->log("Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an action ({$row['workflow_actionsID']}) with a deleted or missing field on {$base_module} / {$field}");
+                $this->foundActionIssues[$row['workflow_actionsID']] = $row['workflow_actionsID'];
                 $this->disableWorkflow($row['workflow_id']);
+                continue;
             }
 
             if (in_array($type, array('enum', 'multienum'))) {
@@ -58,7 +61,7 @@ class supp_WorkflowRepairs extends supp_Repairs
                 foreach ($selectedKeys as $id => $selectedKey) {
                     $issue = false;
                     if (!in_array($selectedKey, $listKeys)) {
-                        $foundIssues++;
+                        $this->foundActionIssues[$row['workflow_actionsID']] = $row['workflow_actionsID'];
                         $issue = true;
                     }
 
@@ -80,6 +83,7 @@ class supp_WorkflowRepairs extends supp_Repairs
 
                     if ($issue) {
                         $this->log("Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an action ({$row['workflow_actionsID']}) with an invalid key '{$selectedKey}'. Allowed keys for {$base_module} / {$field} are: " . print_r($listKeys, true));
+                        $this->foundActionIssues[$row['workflow_actionsID']] = $row['workflow_actionsID'];
                         $this->disableWorkflow($row['workflow_id']);
                     }
                 }
@@ -99,12 +103,12 @@ class supp_WorkflowRepairs extends supp_Repairs
                     } else {
                         $this->log("Will update workFlowActions '{$row['workflow_actionsID']}' from: '{$from}' to: '{$to}'");
                     }
-
                 }
             }
         }
 
-        $this->log("Found {$foundIssues} bad workflow actions.");
+        $foundIssuesCount = count($this->foundActionIssues);
+        $this->log("Found {$foundIssuesCount} bad workflow actions.");
     }
 
     /**
@@ -116,7 +120,6 @@ class supp_WorkflowRepairs extends supp_Repairs
 
         $result = $GLOBALS['db']->query($sql);
 
-        $foundIssues = 0;
         while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
             $leftModule = $row['lhs_module'];
             $leftField = $row['lhs_field'];
@@ -125,13 +128,18 @@ class supp_WorkflowRepairs extends supp_Repairs
 
             if ($type == false) {
                 $this->log("Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an expression ({$row['expression_id']}) with a deleted or missing field on {$leftModule} / {$leftField}");
+                $this->foundExpressionIssues[$row['expression_id']] = $row['expression_id'];
                 $this->disableWorkflow($row['workflow_id']);
+                continue;
             }
 
-            if ($type && $type !== $row['exp_type']) {
-                $this->log("Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an expression ({$row['expression_id']}) that has a mismatched field type of {$row['exp_type']} / {$type} for {$leftModule} / {$leftField}");
-                $this->disableWorkflow($row['workflow_id']);
-            }
+            //ignoring type matches for now
+//            if ($type && $type !== $row['exp_type']) {
+//                $this->log("Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an expression ({$row['expression_id']}) that has a mismatched field type of {$row['exp_type']} / {$type} for {$leftModule} / {$leftField}");
+//                $this->foundExpressionIssues[$row['expression_id']] = $row['expression_id'];
+//                $this->disableWorkflow($row['workflow_id']);
+//                continue;
+//            }
 
             if (in_array($row['exp_type'], array('enum', 'multienum')) && in_array($type, array('enum', 'multienum'))) {
                 $listKeys = $this->getFieldOptionKeys($leftModule, $leftField);
@@ -141,7 +149,7 @@ class supp_WorkflowRepairs extends supp_Repairs
                 foreach ($selectedKeys as $id => $selectedKey) {
                     $issue = false;
                     if (!in_array($selectedKey, $listKeys)) {
-                        $foundIssues++;
+                        $this->foundExpressionIssues[$row['expression_id']] = $row['expression_id'];
                         $issue = true;
                     }
 
@@ -163,6 +171,7 @@ class supp_WorkflowRepairs extends supp_Repairs
 
                     if ($issue) {
                         $this->log("Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an expression ({$row['expression_id']}) with an invalid key '{$selectedKey}'. Allowed keys for {$leftModule} / {$leftField} are: " . print_r($listKeys, true));
+                        $this->foundExpressionIssues[$row['expression_id']] = $row['expression_id'];
                         $this->disableWorkflow($row['workflow_id']);
                     }
                 }
@@ -193,12 +202,12 @@ class supp_WorkflowRepairs extends supp_Repairs
                     } else {
                         $this->log("Will update expression '{$row['expression_id']}' from: '{$from}' to: '{$to}'");
                     }
-
                 }
             }
         }
 
-        $this->log("Found {$foundIssues} bad workflow expressions.");
+        $foundIssuesCount = count($this->foundExpressionIssues);
+        $this->log("Found {$foundIssuesCount} bad workflow expressions.");
     }
 
     /**

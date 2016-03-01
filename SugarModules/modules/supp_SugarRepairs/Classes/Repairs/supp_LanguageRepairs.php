@@ -23,13 +23,12 @@ class supp_LanguageRepairs extends supp_Repairs
     private $tokenList = array();
     public $changed;
     private $syntaxError;
-    public $reportKeys = array();
     protected $loggerTitle = "Language";
+    protected $foundIssues = array();
 
     function __construct()
     {
         parent::__construct();
-        $this->preLoadReportData();
     }
 
     /**
@@ -48,19 +47,23 @@ class supp_LanguageRepairs extends supp_Repairs
             switch ($result) {
                 case self::TYPE_SYNTAXERROR:
                     $this->capture('File', $relativePath, "Syntax Error in file: {$relativePath} ({$this->syntaxError})", 'Review', self::SEV_HIGH);
-                    $this->log("Syntax Error in file: {$relativePath}", 'FATAL');
+                    $this->log("Syntax Error in file: {$relativePath}");
+                    $this->foundIssues[$fullPath] = $fullPath;
                     $this->log($this->syntaxError, 'FATAL');
                     break;
                 case self::TYPE_UNREADABLE:
                     $this->capture('File', $relativePath, "Unreadable file: {$relativePath}", 'Review', self::SEV_HIGH);
+                    $this->foundIssues[$fullPath] = $fullPath;
                     $this->log("Unreadable file: {$relativePath}");
                     break;
                 case self::TYPE_UNWRITABLE:
                     $this->capture('File', $relativePath, "Unwritable file: {$relativePath}", 'Review', self::SEV_HIGH);
+                    $this->foundIssues[$fullPath] = $fullPath;
                     $this->log("Unwritable file: {$relativePath}");
                     break;
                 case self::TYPE_EMPTY:
                     $this->capture('File', $relativePath, "Deleted file: {$relativePath}", 'Updated', self::SEV_HIGH, file_get_contents($fullPath));
+                    $this->foundIssues[$fullPath] = $fullPath;
                     if (!$this->isTesting) {
                         unlink($fullPath);
                     }
@@ -68,6 +71,7 @@ class supp_LanguageRepairs extends supp_Repairs
                     break;
                 case self::TYPE_DYNAMIC:
                     $this->capture('File', $relativePath, "Dynamic file: {$relativePath}", 'Review', self::SEV_HIGH);
+                    $this->foundIssues[$fullPath] = $fullPath;
                     $this->log("Dynamic file: {$relativePath}");
                     break;
                 case self::TYPE_STATIC:
@@ -75,6 +79,9 @@ class supp_LanguageRepairs extends supp_Repairs
                     break;
             }
         }
+
+        $foundIssuesCount = count($this->foundIssues);
+        $this->log("Found {$foundIssuesCount} bad language files.");
 
         if (!$this->isTesting) {
             $this->runQRAR();
@@ -101,10 +108,11 @@ class supp_LanguageRepairs extends supp_Repairs
 
 
         if ($this->changed) {
+            $this->foundIssues[$fileName] = $fileName;
             if (!$this->isTesting) {
                 $this->writeNewFile($tokensByLine, $fileName);
             } else {
-                $this->log("Will need to rewrite {$fileName}");
+                $this->log("-> Will need to rewrite {$fileName}");
             }
         } else {
             $this->log("-> No Changes");
@@ -226,11 +234,9 @@ class supp_LanguageRepairs extends supp_Repairs
                                     $this->updateDatabase($listNameInfo, $oldKey, $newKey);
                                     $this->updateFieldsMetaDataTable($listNameInfo, $oldKey, $newKey);
                                     $this->scanFiles($oldKey, $newKey);
-                                    //$this->updateReportFilters($oldKey, $newKey);
                                 } else {
+                                    //just scan files and dont update fields
                                     $this->scanFiles($oldKey, $newKey);
-                                    //$this->updateReportFilters($oldKey, $newKey);
-                                    $this->log("ERROR: No list name for {$tokenListName} => {$keyList[1]}.");
                                 }
                             }
                         }
@@ -244,39 +250,6 @@ class supp_LanguageRepairs extends supp_Repairs
         }
         return $tokensByLine;
     }
-
-//    /**
-//     * @param $oldKey
-//     * @param $newKey
-//     * @return array|mixed - Only used in unit tests
-//     */
-//    private function updateReportFilters($oldKey, $newKey)
-//    {
-//        //todo: need to capture before/after info
-//        $jsonObj = getJSONobj();
-//        $newReportContent = array();
-//        foreach ($this->reportKeys as $reportID => $filterKeys) {
-//            if ($this->recursiveValueSearch($oldKey, $filterKeys) !== false) {
-//                $savedReport = BeanFactory::getBean('Reports', $reportID);
-//                $reportContent = $jsonObj->decode(html_entity_decode($savedReport->content, ENT_COMPAT | ENT_HTML401, 'UTF-8'));
-//                //do a global search and replace for the old key
-//                $newReportContent = $this->recursive_array_replace($oldKey, $newKey, $reportContent);
-//                //re-encode the Content
-//                $encodedContent = $jsonObj->encode(htmlentities($newReportContent, ENT_COMPAT | ENT_HTML401, 'UTF-8'));
-//                $savedReport->content = $encodedContent;
-//                //back up the database table if it has not been backed up yet unless we are testing
-//                if (!$this->isTesting && !$this->isBackedUpTable('saved_reports')) {
-//                    $this->backupTable('saved_reports');
-//                }
-//                if (!$this->isTesting) {
-//                    //now save the record
-//                    $savedReport->save(false);
-//                }
-//                $this->log("-> Report {$savedReport->name} was found to have a filter with {$oldKey} in it");
-//            }
-//        }
-//        return $newReportContent;
-//    }
 
     /**
      * @param $find - What to find
@@ -294,24 +267,6 @@ class supp_LanguageRepairs extends supp_Repairs
             $newArray[$key] = $this->recursive_array_replace($find, $replace, $value);
         }
         return $newArray;
-    }
-
-    /**
-     * Preload the data from reports to speed up the process later
-     */
-    private function preLoadReportData()
-    {
-        $jsonObj = getJSONobj();
-        $this->log("Preloading data from Reports module.");
-        $sql = "SELECT id,name FROM saved_reports WHERE deleted=0";
-        $result = $GLOBALS['db']->query($sql);
-        while ($hash = $GLOBALS['db']->fetchByAssoc($result, false)) {
-            $savedReport = BeanFactory::getBean('Reports', $hash['id']);
-            $reportContent = $jsonObj->decode(html_entity_decode($savedReport->content, ENT_COMPAT | ENT_HTML401, 'UTF-8'));
-            if (array_key_exists('filters_def', $reportContent)) {
-                $this->reportKeys[$hash['id']] = $reportContent['filters_def'];
-            }
-        }
     }
 
     /**
@@ -443,7 +398,7 @@ class supp_LanguageRepairs extends supp_Repairs
                            WHERE id = '{$hash['id']}'";
                     //don't bother running the same query twice or at all if we are in testing mode
                     if (!in_array($sql, $this->queryCache) && !$this->isTesting) {
-                        $GLOBALS['db']->query($sql);
+                        $this->updateQuery($sql);
                     }
                     $this->queryCache[] = $sql;
                 }
@@ -460,7 +415,7 @@ class supp_LanguageRepairs extends supp_Repairs
                            WHERE id = '{$hash['id']}'";
                     //don't bother running the same query twice or at all if we are in testing mode
                     if (!in_array($sql, $this->queryCache) && !$this->isTesting) {
-                        $GLOBALS['db']->query($sql);
+                        $this->updateQuery($sql);
                     }
                     $this->queryCache[] = $sql;
                 }
@@ -507,7 +462,7 @@ class supp_LanguageRepairs extends supp_Repairs
                                   {$fieldName} = '{$oldKey}'";
                         //don't bother running the same query twice or at all if we are in testing mode
                         if (!in_array($sql, $this->queryCache) && !$this->isTesting) {
-                            $GLOBALS['db']->query($sql);
+                            $this->updateQuery($sql);
                         }
                         $this->queryCache[] = $sql;
                     }
@@ -543,8 +498,7 @@ class supp_LanguageRepairs extends supp_Repairs
         }
 
         if (empty($retArray)) {
-            $this->log("-> Could not locate {$listName}, it appears not to be used as a dropdown list.");
-            $this->log("     This is just a warning and this list will simply be ignored by SugarCRM");
+            $this->log("-> The list {$listName} is not used by any fields. This is just for informational purposes.");
         } else {
             $this->log("-> Found {$listName} in bean '{$bean} in field '{$fieldName}'");
         }
@@ -630,6 +584,7 @@ class supp_LanguageRepairs extends supp_Repairs
      */
     private function writeNewFile($tokenList, $fileName)
     {
+        $this->log("-> Writing file '{$fileName}'");
         $assembledFile = array();
         foreach ($tokenList as $lineNumber => $contents) {
             $assembledFile[$lineNumber] = "";
