@@ -252,6 +252,7 @@ abstract class supp_Repairs
      */
     public function runQRAR()
     {
+        $this->log("Running a Quick Repair & Rebuild...");
         require_once('modules/Administration/QuickRepairAndRebuild.php');
         $RAC = new RepairAndClear();
         $actions = array('clearAll');
@@ -260,6 +261,7 @@ abstract class supp_Repairs
 
     public function runRebuildWorkflow()
     {
+        $this->log("Running a Rebuild Workflow...");
         require_once('include/workflow/plugin_utils.php');
 
         global $beanFiles;
@@ -456,15 +458,29 @@ abstract class supp_Repairs
 
         if (!$this->isTesting) {
             if (substr($savedReport->name, 0, strlen($message)) !== $message) {
-                $this->log("Marking report '{$savedReport->name}' ({$savedReport->id}) as broken.");
+                $this->log("-> Marking report '{$savedReport->name}' ({$savedReport->id}) as broken.");
                 $savedReport->name = $message . $savedReport->name;
                 $savedReport->save();
             } else {
-                $this->log("Report '{$savedReport->name}' ({$savedReport->id}) is already marked as broken.");
+                $this->log("-> Report '{$savedReport->name}' ({$savedReport->id}) is already marked as broken.");
             }
         } else {
-            $this->log("Will mark report '{$savedReport->name}' ({$savedReport->id}) as broken.");
+            $this->log("-> Will mark report '{$savedReport->name}' ({$savedReport->id}) as broken.");
         }
+    }
+
+    /**
+     * Should be used anytime an update query is being ran
+     * @param $sql
+     */
+    public function updateQuery($sql)
+    {
+        if ($this->isTesting) {
+            return true;
+        }
+
+        $this->log("-> Update SQL: " . $sql);
+        return $GLOBALS['db']->query($sql);
     }
 
     /**
@@ -482,10 +498,10 @@ abstract class supp_Repairs
                 $workflow->status = 0;
                 $workflow->save();
             } else {
-                $this->log("Will disable workflow '{$workflow->name}' ({$id}).");
+                $this->log("-> Will disable workflow '{$workflow->name}' ({$id}).");
             }
         } else {
-            $this->log("Workflow '{$workflow->name}' ({$id}) is already disabled.");
+            $this->log("-> Workflow '{$workflow->name}' ({$id}) is already disabled.");
         }
     }
 
@@ -502,7 +518,7 @@ abstract class supp_Repairs
         if (isset($bean->field_defs[$field])) {
             return $bean->field_defs[$field];
         } else {
-            $this->log("The field '{$field}' was not found on the '{$module}' module. It may have been deleted.");
+            $this->log("-> The field '{$field}' was not found on the '{$module}' module. It may have been deleted.");
             return false;
         }
     }
@@ -518,7 +534,7 @@ abstract class supp_Repairs
         if ($def && isset($def['type'])) {
             return $def['type'];
         } else {
-            $this->log("Type definition not found for {$module} / {$field}");
+            $this->log("-> Type definition not found for {$module} / {$field}");
             return false;
         }
     }
@@ -537,18 +553,18 @@ abstract class supp_Repairs
         if ($definition && isset($definition['options'])) {
             $listName = $definition['options'];
         } else {
-            $this->log("No options list found for {$module} / {$field}: " . print_r($definition, true));
+            $this->log("-> No options list found for {$module} / {$field}: " . print_r($definition, true));
             return false;
         }
 
         $app_list_strings = return_app_list_strings_language('en_us');
 
         if (isset($app_list_strings[$listName])) {
-            $this->log("Found list '{$listName}' for {$module} / {$field}.");
+            $this->log("-> {$module} / {$field} is using the list '{$listName}'.");
             $list = array_keys($app_list_strings[$listName]);
             return $list;
         } else {
-            $this->log("The list '{$listName}' was not found");
+            $this->log("-> The list '{$listName}' was not found.");
         }
     }
 
@@ -593,7 +609,7 @@ abstract class supp_Repairs
      * Removes all forecast_manager_worksheets records for
      * the specified timeperiod
      * @param string $timeperiod_id Time Period Id to remove forecast data
-     * @return array 
+     * @return array
      */
     public function clearForecastWorksheet($timeperiod_id)
     {
@@ -607,7 +623,7 @@ abstract class supp_Repairs
         $GLOBALS['log']->info('Deleted '.$affected_row_count.' from forecast_manager_worksheets table.');
         return array(
             'affected_row_count' => $affected_row_count
-            );
+        );
     }
 
 
