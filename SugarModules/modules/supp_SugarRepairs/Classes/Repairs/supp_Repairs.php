@@ -21,10 +21,10 @@ abstract class supp_Repairs
      * @param $message
      * @param string $level
      */
-    protected function log($message, $level = 'info')
+    protected function log($message, $level = 'fatal')
     {
-        $log = "Sugar Repairs :: {$this->loggerTitle} :: {$message}";
-        $GLOBALS['log']->{$level}("Sugar Repairs :: {$this->loggerTitle} :: {$message}");
+        $log = "Sugar Repairs :: {$this->cycle_id} :: {$this->loggerTitle} :: {$message}";
+        $GLOBALS['log']->{$level}($log);
 
         if (php_sapi_name() === 'cli') {
             if (
@@ -480,6 +480,8 @@ abstract class supp_Repairs
         }
 
         $this->log("-> Update SQL: " . $sql);
+
+        $this->capture($this->cycle_id, $this->loggerTitle, 'Database', 'table', "The follow tables are backups:" . implode(',', $this->backupTables), $sql, "Capturing Update SQL'", 'Completed', 'P3');
         return $GLOBALS['db']->query($sql);
     }
 
@@ -613,12 +615,17 @@ abstract class supp_Repairs
      */
     public function clearForecastWorksheet($timeperiod_id)
     {
+        if ($this->isTesting) {
+            return;
+        }
+
         $sql = "
             DELETE
             FROM forecast_manager_worksheets 
             WHERE timeperiod_id = '$timeperiod_id'
         ";
-        $res = $GLOBALS['db']->query($sql);
+
+        $res = $this->updateQuery($sql);
         $affected_row_count =  $GLOBALS['db']->getAffectedRowCount($res);
         $GLOBALS['log']->info('Deleted '.$affected_row_count.' from forecast_manager_worksheets table.');
         return array(
