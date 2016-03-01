@@ -347,15 +347,15 @@ class supp_LanguageRepairs extends supp_Repairs
 
             if ($count == 0) {
                 //There were no changes so this file will have to be examined manually
-                $this->log("-> Vardef key '{$oldKey}' was found but could not be changed to '{$newKey}'. This may need to be manually corrected.");
+                $this->log("->  Key '{$oldKey}' was found but could not be changed to '{$newKey}'. This may need to be manually corrected.");
             } else {
 
                 if (!$this->isTesting) {
-                    $this->log("-> Updating vardef key from '{$oldKey}' to {$newKey} in '{$fullPath}'");
+                    $this->log("-> Updating key from '{$oldKey}' to '{$newKey}' in '{$fullPath}'");
                     $this->capture($this->cycle_id, $this->loggerTitle, 'File', $fullPath, file_get_contents($fullPath), $newText, "Backing up '{$fullPath}'", 'Completed', 'P3');
                     sugar_file_put_contents($fullPath, $newText, LOCK_EX);
                 } else {
-                    $this->log("-> Will update vardef key from '{$oldKey}' to {$newKey} in '{$fullPath}'");
+                    $this->log("-> Will update key from '{$oldKey}' to '{$newKey}' in '{$fullPath}'");
                 }
             }
             return $newText;
