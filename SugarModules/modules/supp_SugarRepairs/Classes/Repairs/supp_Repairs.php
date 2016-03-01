@@ -536,6 +536,15 @@ abstract class supp_Repairs
      */
     public function getFieldDefinition($module, $field)
     {
+        global $beanList;
+
+        //workaround for dictionary files
+        $key = array_search($module, $beanList);
+
+        if ($key) {
+            $module = $key;
+        }
+
         $bean = BeanFactory::getBean($module);
 
         if (isset($bean->field_defs[$field])) {

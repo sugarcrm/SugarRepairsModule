@@ -27,6 +27,8 @@ if (isset($options['r'])) {
         $sugarRepairs->repairWorkflows($options);
     } else if ($options['r'] == 'report') {
         $sugarRepairs->repairReports($options);
+    } else if ($options['r'] == 'vardef') {
+        $sugarRepairs->repairVardefs($options);
     } else {
         echo "Invalid repair type. Please refer to the documentation.\n";
     }

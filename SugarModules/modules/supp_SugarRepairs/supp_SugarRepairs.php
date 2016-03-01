@@ -5,7 +5,7 @@ require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_LanguageRepairs.php
 require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_TeamSetRepairs.php');
 require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_WorkflowRepairs.php');
 require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_ReportRepairs.php');
-
+require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_VarfdefRepairs.php');
 class supp_SugarRepairs extends supp_SugarRepairs_sugar
 {
     /**
@@ -64,5 +64,16 @@ class supp_SugarRepairs extends supp_SugarRepairs_sugar
     {
         $workflowRepairs = new supp_ReportRepairs();
         return $workflowRepairs->execute($args);
+    }
+
+    /**
+     * Repairs vardefs
+     * @param array $args
+     * @return bool|void
+     */
+    public function repairVardefs(array $args)
+    {
+        $vardefRepairs = new supp_VardefRepairs();
+        return $vardefRepairs->execute($args);
     }
 }
