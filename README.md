@@ -138,3 +138,4 @@ phpunit -v --debug --group support --stop-on-failure
 
 [Jerry Clark](https://github.com/geraldclark)
 
+[Mark Everidge](https://github.com/meveridge)
