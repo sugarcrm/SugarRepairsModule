@@ -31,7 +31,7 @@ class supp_WorkflowRepairs extends supp_Repairs
             $value = $row['value'];
             $base_module = $row['base_module'];
             $type = $this->getFieldType($base_module, $field);
-            $seed_object = BeanFactory::getBean('WorkFlow', $row['WorkFlow']);
+            $seed_object = BeanFactory::getBean('WorkFlow', $row['workflow_id']);
             //For workflow actions that affect related modules
             if(isset($row['rel_module']) && !empty($row['rel_module'])) {
                 $rel_module = $seed_object->get_rel_module($row['rel_module']);
