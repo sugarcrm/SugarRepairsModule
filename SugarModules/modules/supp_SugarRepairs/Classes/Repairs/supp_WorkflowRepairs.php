@@ -5,7 +5,6 @@ require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_Repairs.php');
 class supp_WorkflowRepairs extends supp_Repairs
 {
     protected $loggerTitle = "Workflow";
-    protected $changedWorkflows = array();
 
     function __construct()
     {
@@ -32,13 +31,14 @@ class supp_WorkflowRepairs extends supp_Repairs
             $value = $row['value'];
             $base_module = $row['base_module'];
             $type = $this->getFieldType($base_module, $field);
-            $seed_object = new WorkFlow();
-            $seed_object->retrieve($row['workflow_id']);
+            $seed_object = BeanFactory::getBean('WorkFlow', $row['WorkFlow']);
+            //For workflow actions that affect related modules
             if(isset($row['rel_module']) && !empty($row['rel_module'])) {
                 $rel_module = $seed_object->get_rel_module($row['rel_module']);
                 $base_module = $rel_module;
                 $type = $this->getFieldType($rel_module, $field);
             }
+            //for workflows that create related modules
             if(isset($row['action_module']) && !empty($row['action_module'])) {
                 $action_module = $seed_object->get_rel_module($row['action_module']);
                 $base_module = $action_module;
@@ -96,17 +96,6 @@ class supp_WorkflowRepairs extends supp_Repairs
                             $workFlowAction->value = $to;
                             $workFlowAction->save();
                         }
-
-//                        if (!empty($workFlowAction->parent_id)) {
-//                            $workflowActionShell = BeanFactory::getBean('WorkFlowActionShells', $workFlowAction->parent_id);
-//                            $workflowActionShell->save();
-//                        }
-//
-//                        if (!empty($workflowActionShell->parent_id)) {
-//                            $workflow = BeanFactory::getBean('WorkFlow', $workflowActionShell->parent_id);
-//                            $workflow->save();
-//                        }
-
                     } else {
                         $this->log("Will update workFlowActions '{$row['workflow_actionsID']}' from: '{$from}' to: '{$to}'");
                     }
