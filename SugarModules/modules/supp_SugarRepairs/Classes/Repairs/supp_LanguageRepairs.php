@@ -86,10 +86,14 @@ class supp_LanguageRepairs extends supp_Repairs
 
         //execute the workflow repairs to correct any language updates
         $workflowRepair = new supp_WorkflowRepairs();
+        //copy cycle id
+        $workflowRepair->setCycleId($this->cycle_id);
         $workflowRepair->execute($args);
 
         //execute the report repairs to correct or notify of any language updates
         $reportRepair = new supp_ReportRepairs();
+        //copy cycle id
+        $reportRepair->setCycleId($this->cycle_id);
         $reportRepair->execute($args);
     }
 

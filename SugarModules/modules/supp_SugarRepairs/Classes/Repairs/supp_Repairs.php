@@ -17,6 +17,15 @@ abstract class supp_Repairs
     }
 
     /**
+     * Allows a user to manually set the cycle id
+     * @param $cycleId
+     */
+    public function setCycleId($cycleId)
+    {
+        $this->cycle_id = $cycleId;
+    }
+
+    /**
      * Logger for repair actions
      * @param $message
      * @param string $level
