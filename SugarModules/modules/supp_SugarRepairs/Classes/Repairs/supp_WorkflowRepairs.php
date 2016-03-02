@@ -49,7 +49,7 @@ class supp_WorkflowRepairs extends supp_Repairs
             }
 
             if ($type == false) {
-                $this->log("-> Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an action ({$row['workflow_actionsID']}) with a deleted or missing field on {$base_module} / {$field}");
+                $this->logAction("-> Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an action ({$row['workflow_actionsID']}) with a deleted or missing field on {$base_module} / {$field}. You should review this workflow.");
                 $this->foundActionIssues[$row['workflow_actionsID']] = $row['workflow_actionsID'];
                 $this->disableWorkflow($row['workflow_id']);
                 continue;
@@ -75,16 +75,16 @@ class supp_WorkflowRepairs extends supp_Repairs
                                 $issue = false;
                                 $modifiedSelectedKeys[$id] = $testKey;
                                 if (!$this->isTesting) {
-                                    $this->log("-> Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an action ({$row['workflow_actionsID']}) with an invalid key '{$selectedKey}' that was updated to '{$testKey}'. Allowed keys for {$base_module} / {$field} are: " . print_r($listKeys, true));
+                                    $this->logChange("-> Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an action ({$row['workflow_actionsID']}) with an invalid key '{$selectedKey}' that was updated to '{$testKey}'. Allowed keys for {$base_module} / {$field} are: " . print_r($listKeys, true));
                                 } else {
-                                    $this->log("-> Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an action ({$row['workflow_actionsID']}) with an invalid key '{$selectedKey}' that will be updated to '{$testKey}'. Allowed keys for {$base_module} / {$field} are: " . print_r($listKeys, true));
+                                    $this->logChange("-> Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an action ({$row['workflow_actionsID']}) with an invalid key '{$selectedKey}' that will be updated to '{$testKey}'. Allowed keys for {$base_module} / {$field} are: " . print_r($listKeys, true));
                                 }
                             }
                         }
                     }
 
                     if ($issue) {
-                        $this->log("-> Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an action ({$row['workflow_actionsID']}) with an invalid key '{$selectedKey}'. Allowed keys for {$base_module} / {$field} are: " . print_r($listKeys, true));
+                        $this->logAction("-> Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an action ({$row['workflow_actionsID']}) with an invalid key '{$selectedKey}'. . You should review this workflow. Allowed keys for {$base_module} / {$field} are: " . print_r($listKeys, true));
                         $this->foundActionIssues[$row['workflow_actionsID']] = $row['workflow_actionsID'];
                         $this->disableWorkflow($row['workflow_id']);
                     }
@@ -96,13 +96,14 @@ class supp_WorkflowRepairs extends supp_Repairs
                     $from = implode('^,^', $selectedKeys);
                     $to = implode('^,^', $modifiedSelectedKeys);
                     if (!$this->isTesting) {
+                        $this->logChange("-> Updating workFlowActions '{$row['workflow_actionsID']}' from: '{$from}' to: '{$to}'");
                         $workFlowAction = BeanFactory::getBean('WorkFlowActions', $row['workflow_actionsID']);
                         if ($workFlowAction) {
                             $workFlowAction->value = $to;
                             $workFlowAction->save();
                         }
                     } else {
-                        $this->log("-> Will update workFlowActions '{$row['workflow_actionsID']}' from: '{$from}' to: '{$to}'");
+                        $this->logChange("-> Will update workFlowActions '{$row['workflow_actionsID']}' from: '{$from}' to: '{$to}'");
                     }
                 }
             }
@@ -129,19 +130,11 @@ class supp_WorkflowRepairs extends supp_Repairs
             $type = $this->getFieldType($leftModule, $leftField);
 
             if ($type == false) {
-                $this->log("-> Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an expression ({$row['expression_id']}) with a deleted or missing field on {$leftModule} / {$leftField}");
+                $this->logAction("-> Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an expression ({$row['expression_id']}) with a deleted or missing field on {$leftModule} / {$leftField}. You should review this workflow.");
                 $this->foundExpressionIssues[$row['expression_id']] = $row['expression_id'];
                 $this->disableWorkflow($row['workflow_id']);
                 continue;
             }
-
-            //ignoring type matches for now
-//            if ($type && $type !== $row['exp_type']) {
-//                $this->log("Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an expression ({$row['expression_id']}) that has a mismatched field type of {$row['exp_type']} / {$type} for {$leftModule} / {$leftField}");
-//                $this->foundExpressionIssues[$row['expression_id']] = $row['expression_id'];
-//                $this->disableWorkflow($row['workflow_id']);
-//                continue;
-//            }
 
             if (in_array($row['exp_type'], array('enum', 'multienum')) && in_array($type, array('enum', 'multienum'))) {
                 $listKeys = $this->getFieldOptionKeys($leftModule, $leftField);
@@ -163,16 +156,16 @@ class supp_WorkflowRepairs extends supp_Repairs
                                 $issue = false;
                                 $modifiedSelectedKeys[$id] = $testKey;
                                 if (!$this->isTesting) {
-                                    $this->log("-> Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an expression ({$row['expression_id']}) with an invalid key '{$selectedKey}' that was updated to '{$testKey}'. Allowed keys for {$leftModule} / {$leftField} are: " . print_r($listKeys, true));
+                                    $this->logChange("-> Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an expression ({$row['expression_id']}) with an invalid key '{$selectedKey}' that was updated to '{$testKey}'. Allowed keys for {$leftModule} / {$leftField} are: " . print_r($listKeys, true));
                                 } else {
-                                    $this->log("-> Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an expression ({$row['expression_id']}) with an invalid key '{$selectedKey}' that will be updated to '{$testKey}'. Allowed keys for {$leftModule} / {$leftField} are: " . print_r($listKeys, true));
+                                    $this->logChange("-> Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an expression ({$row['expression_id']}) with an invalid key '{$selectedKey}' that will be updated to '{$testKey}'. Allowed keys for {$leftModule} / {$leftField} are: " . print_r($listKeys, true));
                                 }
                             }
                         }
                     }
 
                     if ($issue) {
-                        $this->log("-> Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an expression ({$row['expression_id']}) with an invalid key '{$selectedKey}'. Allowed keys for {$leftModule} / {$leftField} are: " . print_r($listKeys, true));
+                        $this->logAction("-> Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an expression ({$row['expression_id']}) with an invalid key '{$selectedKey}'. You should review this workflow. Allowed keys for {$leftModule} / {$leftField} are: " . print_r($listKeys, true));
                         $this->foundExpressionIssues[$row['expression_id']] = $row['expression_id'];
                         $this->disableWorkflow($row['workflow_id']);
                     }
@@ -184,6 +177,8 @@ class supp_WorkflowRepairs extends supp_Repairs
                     $from = implode('^,^', $selectedKeys);
                     $to = implode('^,^', $modifiedSelectedKeys);
                     if (!$this->isTesting) {
+
+                        $this->logChange("-> Updating expression '{$row['expression_id']}' from: '{$from}' to: '{$to}'");
                         $expression = BeanFactory::getBean('Expressions', $row['expression_id']);
 
                         if ($expression) {
@@ -192,7 +187,7 @@ class supp_WorkflowRepairs extends supp_Repairs
                         }
 
                     } else {
-                        $this->log("Will update expression '{$row['expression_id']}' from: '{$from}' to: '{$to}'");
+                        $this->logChange("-> Will update expression '{$row['expression_id']}' from: '{$from}' to: '{$to}'");
                     }
                 }
             }

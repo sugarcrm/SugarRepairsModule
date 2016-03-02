@@ -48,28 +48,28 @@ class supp_LanguageRepairs extends supp_Repairs
             switch ($result) {
                 case self::TYPE_SYNTAXERROR:
                     $this->foundIssues[$fullPath] = $fullPath;
-                    $this->log("-> File has syntax error: {$this->syntaxError}. This will need to be corrected manually.");
+                    $this->logAction("-> File has syntax error: {$this->syntaxError}. This will need to be corrected manually.");
                     break;
                 case self::TYPE_UNREADABLE:
                     $this->foundIssues[$fullPath] = $fullPath;
-                    $this->log("-> File is not readable. Please correct your filesystem permissions and try again.");
+                    $this->logAction("-> File is not readable. Please correct your filesystem permissions and try again.");
                     break;
                 case self::TYPE_UNWRITABLE:
                     $this->foundIssues[$fullPath] = $fullPath;
-                    $this->log("-> File is not writable. Please correct your filesystem permissions and try again.");
+                    $this->logAction("-> File is not writable. Please correct your filesystem permissions and try again.");
                     break;
                 case self::TYPE_EMPTY:
                     $this->foundIssues[$fullPath] = $fullPath;
                     if (!$this->isTesting) {
                         unlink($fullPath);
-                        $this->log("-> Deleted the file.");
+                        $this->logChange("-> Deleted the file.");
                     } else {
-                        $this->log("-> Will delete file.");
+                        $this->logChange("-> Will delete file.");
                     }
                     break;
                 case self::TYPE_DYNAMIC:
                     $this->foundIssues[$fullPath] = $fullPath;
-                    $this->log("-> File has code present. This will need to be corrected manually.");
+                    $this->logAction("-> File has code present. This will need to be corrected manually.");
                     break;
                 case self::TYPE_STATIC:
                     $this->repairStaticFile($fullPath);
@@ -109,7 +109,7 @@ class supp_LanguageRepairs extends supp_Repairs
     private function repairStaticFile($fileName)
     {
         //Next run the file through the tests and fill the new array
-        $tokensByLine = $this->processTokenList(sugar_file_get_contents($fileName));
+        $tokensByLine = $this->processTokenList(sugar_file_get_contents($fileName), $fileName);
 
         if ($this->changed) {
             $this->foundIssues[$fileName] = $fileName;
@@ -133,7 +133,7 @@ class supp_LanguageRepairs extends supp_Repairs
                 $assembledFile = implode('', $assembledFile);
                 $this->writeFile($fileName, $assembledFile);
             } else {
-                $this->log("-> Will need to rewrite {$fileName}.");
+                $this->logChange("-> Will need to rewrite {$fileName}.");
             }
         } else {
             $this->log("-> No Changes.");
@@ -225,7 +225,7 @@ class supp_LanguageRepairs extends supp_Repairs
      * @param $fileContents
      * @return array
      */
-    public function processTokenList($fileContents)
+    public function processTokenList($fileContents, $fileName = '')
     {
         $this->changed = false;
         $tokensByLine = array();
@@ -242,22 +242,28 @@ class supp_LanguageRepairs extends supp_Repairs
                         break;
                     case 'T_ARRAY_KEY':
                         $oldKey = $keyList[1];
-                        $keyList[1] = $this->getValidLanguageKeyName($keyList[1]);
-                        if ($oldKey != $keyList[1]) {
-                            //OK a key has changed, now we need to update everything
-                            $this->changed = true;
-                            //Sometimes the values come though as 'value', we need to get rid of the tick marks
-                            $oldKey = trim($oldKey, "'\"");
-                            $newKey = trim($keyList[1], "'\"");
-                            if (!empty($tokenListName)) {
-                                $listNameInfo = $this->findListField($tokenListName);
-                                if (!empty($listNameInfo)) {
-                                    $this->updateDatabase($listNameInfo, $oldKey, $newKey);
-                                    //$this->updateFieldsMetaDataTable($listNameInfo, $oldKey, $newKey);
-                                    //$this->scanFiles($oldKey, $newKey);
-                                } else {
-                                    //just scan files and dont update fields
-                                    //$this->scanFiles($oldKey, $newKey);
+                        $testKey = $this->getValidLanguageKeyName($keyList[1]);
+                        $cleanOldKey = trim(trim($oldKey, "'"), '"');
+                        $cleanTestKey = trim(trim($testKey, "'"), '"');
+
+                        $tokenListName = trim(trim($tokenListName, "'"), '"');
+                        $currentOptions = $this->getListOptions($tokenListName);
+
+                        if ($testKey !== $oldKey && in_array($cleanTestKey, $currentOptions)) {
+                            $this->logAction("-> The key '{$cleanOldKey}' in '{$fileName}' cannot be updated as '{$cleanTestKey}' already exists in the list '{$tokenListName}'. This will need to be manually corrected. List options are" . print_r($currentOptions, true));
+                        } else {
+                            $keyList[1] = $testKey;
+                            if ($oldKey != $keyList[1]) {
+                                //OK a key has changed, now we need to update everything
+                                $this->changed = true;
+                                //Sometimes the values come though as 'value', we need to get rid of the tick marks
+                                $oldKey = trim($oldKey, "'\"");
+                                $newKey = trim($keyList[1], "'\"");
+                                if (!empty($tokenListName)) {
+                                    $listNameInfo = $this->findListField($tokenListName);
+                                    if (!empty($listNameInfo)) {
+                                        $this->updateDatabase($listNameInfo, $oldKey, $newKey);
+                                    }
                                 }
                             }
                         }
@@ -308,144 +314,6 @@ class supp_LanguageRepairs extends supp_Repairs
             }
         }
         return false;
-    }
-
-    /**
-     * Processes Vardef files looking for the keys that need changing
-     *
-     * @param string $searchString
-     * @param string $oldKey
-     * @param bool $testData
-     */
-//    private function scanFiles($oldKey, $newKey)
-//    {
-//        //We only need to get this list once, it wont change
-//        if (empty($this->customOtherFileList)) {
-//            $this->customOtherFileList = $this->getCustomVardefFiles();
-//        }
-//
-//        foreach ($this->customOtherFileList as $fullPath => $relativePath) {
-//            $this->updateFiles($oldKey, $newKey, $fullPath, $relativePath, sugar_file_get_contents($fullPath));
-//        }
-//    }
-
-    /**
-     * @param $oldKey
-     * @param $newKey
-     * @param $fullPath
-     * @param $relativePath
-     * @param $fileContents
-     * @return array|mixed
-     */
-//    public function updateFiles($oldKey, $newKey, $fullPath, $relativePath, $fileContents)
-//    {
-//        //todo: need to capture before/after info
-//        $searchString1 = "'" . trim($oldKey, "'\"") . "'";
-//        $searchString2 = '"' . trim($oldKey, "'\"") . '"';
-//
-//        //TODO: Convert this to regex
-//
-//        if (strpos($fileContents, $searchString1) !== false ||
-//            strpos($fileContents, $searchString2) !== false
-//        ) {
-//            $oldText = array(
-//                "=> '{$oldKey}'",
-//                "=> \"{$oldKey}\"",
-//                "=>'{$oldKey}'",
-//                "=>\"{$oldKey}\"",
-//                "= '{$oldKey}'",
-//                "= \"{$oldKey}\"",
-//                "='{$oldKey}'",
-//                "=\"{$oldKey}\""
-//            );
-//            $newText = array(
-//                "=> '{$newKey}'",
-//                "=> \"{$newKey}\"",
-//                "=>'{$newKey}'",
-//                "=>\"{$newKey}\"",
-//                "= '{$newKey}'",
-//                "= \"{$newKey}\"",
-//                "='{$newKey}'",
-//                "=\"{$newKey}\""
-//
-//            );
-//
-//            $newText = str_replace($oldText, $newText, $fileContents, $count);
-//
-//            if ($count == 0) {
-//                //There were no changes so this file will have to be examined manually
-//                $this->log("->  Key '{$oldKey}' was found but could not be changed to '{$newKey}'. This may need to be manually corrected. \n{$fileContents}");
-//            } else {
-//
-//                if (!$this->isTesting) {
-//                    $this->log("-> Updating key from '{$oldKey}' to '{$newKey}' in '{$fullPath}'");
-//                    $this->capture($this->cycle_id, $this->loggerTitle, 'File', $fullPath, file_get_contents($fullPath), $newText, "Backing up '{$fullPath}'", 'Completed', 'P3');
-//                    sugar_file_put_contents($fullPath, $newText, LOCK_EX);
-//                } else {
-//                    $this->log("-> Will update key from '{$oldKey}' to '{$newKey}' in '{$fullPath}'");
-//                }
-//            }
-//            return $newText;
-//        } else {
-//            return $fileContents;
-//        }
-//    }
-
-    /**
-     * This function updated the fields_meta_data table looking for default values that need changing
-     *
-     * @param $fieldData
-     * @param $newKey
-     * @param $oldKey
-     */
-    public function updateFieldsMetaDataTable($fieldData, $oldKey, $newKey)
-    {
-        $hash = $GLOBALS['db']->fetchOne("SELECT * FROM fields_meta_data
-                                          WHERE default_value LIKE '%^{$oldKey}^%' OR
-                                                default_value = '{$oldKey}' OR
-                                                ext4 LIKE '%{$oldKey}%'");
-        if ($hash != false) {
-            //back up the database table if it has not been backed up yet.
-            if (!$this->isBackedUpTable('fields_meta_data')) {
-                $this->backupTable('fields_meta_data');
-            }
-
-            foreach ($fieldData as $moduleName => $fieldName) {
-                $sql = "SELECT id FROM fields_meta_data
-                        WHERE custom_module='{$moduleName}'
-                          AND (default_value LIKE '%^{$oldKey}^%' OR default_value = '{$oldKey}')
-                          AND ext1='{$fieldName}'";
-                $result = $GLOBALS['db']->query($sql, true, "Error updating fields_meta_data.");
-                while ($hash = $GLOBALS['db']->fetchByAssoc($result)) {
-                    $sql = "UPDATE fields_meta_data
-                           SET default_value = REPLACE(default_value, '{$oldKey}', '{$newKey}')
-                           WHERE id = '{$hash['id']}'";
-                    //don't bother running the same query twice or at all if we are in testing mode
-                    if (!in_array($sql, $this->queryCache) && !$this->isTesting) {
-                        $this->updateQuery($sql);
-                    }
-                    $this->queryCache[] = $sql;
-                }
-
-                //catch new dependencies
-                $sql = "SELECT id FROM fields_meta_data
-                        WHERE custom_module='{$moduleName}'
-                          AND (ext4 LIKE '%{$oldKey}%')
-                          AND ext1='{$fieldName}'";
-                $result = $GLOBALS['db']->query($sql, true, "Error updating fields_meta_data.");
-                while ($hash = $GLOBALS['db']->fetchByAssoc($result)) {
-                    $sql = "UPDATE fields_meta_data
-                           SET ext4 = REPLACE(default_value, '{$oldKey}', '{$newKey}')
-                           WHERE id = '{$hash['id']}'";
-                    //don't bother running the same query twice or at all if we are in testing mode
-                    if (!in_array($sql, $this->queryCache) && !$this->isTesting) {
-                        $this->updateQuery($sql);
-                    }
-                    $this->queryCache[] = $sql;
-                }
-            }
-            $this->log("-> {$oldKey} found as a default value or in a dependency in fields_meta_data table.");
-        }
     }
 
     /**

@@ -34,12 +34,12 @@ class supp_TeamSetRepairs extends supp_Repairs
         while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
             $foundIssues++;
             if (!$this->isTesting) {
-                $this->log("Updating team set teams for {$row['team_set_id']}");
+                $this->logChange("Updating team set teams for {$row['team_set_id']}");
                 $teamSetBean->id = $row['team_set_id'];
                 $teamSetBean->removeTeamFromSet($row['team_id']);
                 $teamSetBean->addTeamToSet($row['team_id']);
             } else {
-                $this->log("Found duplicate team set: " . $row['id']);
+                $this->logChange("-> Will update duplicate team set: " . $row['id']);
             }
         }
 
@@ -69,11 +69,11 @@ class supp_TeamSetRepairs extends supp_Repairs
             $foundIssues++;
 
             if (!$this->isTesting) {
-                $this->log("Updating team set " . $row['id']);
+                $this->logChange("Updating team set " . $row['id']);
                 $teamSetBean->id = $row['id'];
                 $teams = $teamSetBean->fixTeamCount($row['id']);
             } else {
-                $this->log("Found invalid team set: " . $row['id']);
+                $this->logChange("-> Will update invalid team set: " . $row['id']);
             }
         }
 

@@ -26,14 +26,39 @@ abstract class supp_Repairs
     }
 
     /**
+     * Logs a change for the user to view
+     * @param $message
+     */
+    protected function logChange($message)
+    {
+        $this->log($message, "[Sugar Repairs][{$this->cycle_id}][{$this->loggerTitle}][Change] ");
+    }
+
+    /**
+     * Logs an action the user will have to do
+     * @param $message
+     */
+    protected function logAction($message)
+    {
+        $this->log($message, "[Sugar Repairs][{$this->cycle_id}][{$this->loggerTitle}][Action] ");
+    }
+
+    /**
      * Logger for repair actions
      * @param $message
      * @param string $level
      */
-    protected function log($message, $level = 'fatal')
+    protected function log($message, $prefix='')
     {
-        $log = "Sugar Repairs :: {$this->cycle_id} :: {$this->loggerTitle} :: {$message}";
-        $GLOBALS['log']->{$level}($log);
+        if (empty($prefix)) {
+            $log = "[Sugar Repairs][{$this->cycle_id}][{$this->loggerTitle}] ";
+        } else {
+            $log = $prefix;
+        }
+
+        $log .= $message;
+
+        $GLOBALS['log']->fatal($log);
 
         if (php_sapi_name() === 'cli') {
             if (
@@ -190,7 +215,7 @@ abstract class supp_Repairs
         }
 
         $this->log("Backing up {$table}...");
-        $backupTable = preg_replace('{/$}', '', "{$table}_{$stamp}");
+        $backupTable = preg_replace('{/$}', '', "{$table}_srm_{$stamp}");
 
         global $sugar_config;
 
@@ -236,7 +261,7 @@ abstract class supp_Repairs
 
         $result = $GLOBALS['db']->tableExists($backupTable);
         if ($result) {
-            $this->log("Created {$backupTable} from {$table}.");
+            $this->logChange("Created {$backupTable} from {$table}.");
         } else {
             $this->log("Could not create {$backupTable} from {$table}!");
             die();
@@ -519,14 +544,14 @@ abstract class supp_Repairs
 
         if (!$this->isTesting) {
             if (substr($savedReport->name, 0, strlen($message)) !== $message) {
-                $this->log("-> Marking report '{$savedReport->name}' ({$savedReport->id}) as broken.");
+                $this->logChange("-> Marking report '{$savedReport->name}' ({$savedReport->id}) as broken.");
                 $savedReport->name = $message . $savedReport->name;
                 $savedReport->save();
             } else {
                 $this->log("-> Report '{$savedReport->name}' ({$savedReport->id}) is already marked as broken.");
             }
         } else {
-            $this->log("-> Will mark report '{$savedReport->name}' ({$savedReport->id}) as broken.");
+            $this->logChange("-> Will mark report '{$savedReport->name}' ({$savedReport->id}) as broken.");
         }
     }
 
@@ -540,7 +565,7 @@ abstract class supp_Repairs
             return true;
         }
 
-        $this->log("-> Update SQL: " . $sql);
+        $this->logChange("-> Update SQL: " . $sql);
 
         $this->capture($this->cycle_id, $this->loggerTitle, 'Database', 'table', "The follow tables are backups:" . implode(',', $this->backupTables), $sql, "Capturing Update SQL'", 'Completed', 'P3');
         return $GLOBALS['db']->query($sql);
@@ -557,11 +582,11 @@ abstract class supp_Repairs
         if ($workflow->status != 0) {
 
             if (!$this->isTesting) {
-                $this->log("Disabling workflow '{$workflow->name}' ({$id})...");
+                $this->logChange("Disabling workflow '{$workflow->name}' ({$id})...");
                 $workflow->status = 0;
                 $workflow->save();
             } else {
-                $this->log("-> Will disable workflow '{$workflow->name}' ({$id}).");
+                $this->logChange("-> Will disable workflow '{$workflow->name}' ({$id}).");
             }
         } else {
             $this->log("-> Workflow '{$workflow->name}' ({$id}) is already disabled.");
@@ -628,7 +653,7 @@ abstract class supp_Repairs
      */
     protected function writeDictionaryFile($objectName, $field, $array, $fullPath)
     {
-        $this->log("-> Writing variable file '{$fullPath}'");
+        $this->logChange("-> Writing variable file '{$fullPath}'");
         if (!$this->isTesting) {
 
             $out =  "<?php\n // created: " . date('Y-m-d H:i:s') . "\n";
@@ -663,7 +688,7 @@ abstract class supp_Repairs
      */
     protected function writeFile($file, $contents)
     {
-        $this->log("-> Writing file '{$file}'");
+        $this->logChange("-> Writing file '{$file}'");
         if (!$this->isTesting) {
             if (is_file($file)) {
                 $this->capture($this->cycle_id, $this->loggerTitle, 'File', $file, file_get_contents($file), $contents, "Backing up '{$file}'", 'Completed', 'P3');
@@ -676,6 +701,24 @@ abstract class supp_Repairs
                 $this->capture($this->loggerTitle, 'File', 'Completed', 'P3', "Writing file '{$file}'", '', implode("\n", $contents));
                 sugar_file_put_contents($file, $contents, LOCK_EX);
             }
+        }
+    }
+
+    /**
+     * Returns the keys for a list
+     * @param $listName
+     * @return array|bool
+     */
+    public function getListOptions($listName)
+    {
+        $app_list_strings = return_app_list_strings_language('en_us');
+
+        if (isset($app_list_strings[$listName])) {
+            $list = array_keys($app_list_strings[$listName]);
+            return $list;
+        } else {
+            $this->log("-> The list '{$listName}' was not found.");
+            return false;
         }
     }
 
@@ -697,15 +740,13 @@ abstract class supp_Repairs
             return false;
         }
 
-        $app_list_strings = return_app_list_strings_language('en_us');
+        $list = $this->getListOptions($listName);
 
-        if (isset($app_list_strings[$listName])) {
+        if ($list) {
             $this->log("-> {$module} / {$field} is using the list '{$listName}'.");
-            $list = array_keys($app_list_strings[$listName]);
-            return $list;
-        } else {
-            $this->log("-> The list '{$listName}' was not found.");
         }
+
+        return $list;
     }
 
     /**
@@ -784,7 +825,7 @@ abstract class supp_Repairs
         }
 
         if ($this->isTesting) {
-            $this->log("Running in test mode.");
+            $this->log("Running in test mode.", true);
         }
     }
 }
