@@ -126,7 +126,7 @@ To setup you environment for unit tests, you will need to do the following:
 * Install the Sugar Repairs module to a new Sugar 7.6.1.0 instance. 7.6.1.0 is required as it has published unit tests.
 * in the root of the instance, install composer. `composer install`
 * Download the 7.6.1.0 unit tests from: https://github.com/sugarcrm/unit-tests/releases
-* Extract the content of the tests folder from the zip that are applicable to your edition into `./tests/`.
+* Extract the content of the tests folder from the zip that are applicable to your edition `<test folder>/<edition>/tests/` into `./tests/`.
 * Create your new unit test in `./custom/tests/modules/supp_SugarRepairs/` and make sure to add it to the `@group support` in the header comment:
 ```
 /**

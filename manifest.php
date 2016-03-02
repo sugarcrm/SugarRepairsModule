@@ -12,7 +12,6 @@ $manifest = array(
         ),
     ),
     'acceptable_sugar_flavors' => array(
-        0 => 'CE',
         1 => 'PRO',
         2 => 'CORP',
         3 => 'ENT',

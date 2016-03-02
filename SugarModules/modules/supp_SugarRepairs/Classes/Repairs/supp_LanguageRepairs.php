@@ -19,7 +19,7 @@ class supp_LanguageRepairs extends supp_Repairs
 
     private $dynamicTokens = array('T_OBJECT_OPERATOR', 'T_DOUBLE_COLON', 'T_CONCAT');
     private $arrayCache = array();
-    private $sqlCache = array();
+    private $queryCache = array();
     private $tokenList = array();
     public $changed;
     private $syntaxError;
