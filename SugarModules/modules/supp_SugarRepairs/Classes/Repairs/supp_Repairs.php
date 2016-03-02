@@ -650,8 +650,8 @@ abstract class supp_Repairs
                 sugar_touch($fileName, $fileModifiedTime, $fileAccessTime);
 
             } else {
-                $this->log("'{$fileName}' is not a file name!\nA text file was written to {$fileName}/DictionaryFile.txt with the contents.",'fatal');
-                sugar_file_put_contents($fileName.'/DictionaryFile.txt', $out, LOCK_EX);
+                $this->capture($this->cycle_id, $this->loggerTitle, 'File', $fileName, null, $out, "Writing new '{$fileName}'", 'Completed', 'P3');
+                sugar_file_put_contents($fileName, $out, LOCK_EX);
             }
         }
     }
@@ -673,8 +673,8 @@ abstract class supp_Repairs
                 sugar_file_put_contents($fileName, $contents, LOCK_EX);
                 sugar_touch($fileName, $fileModifiedTime, $fileAccessTime);
             } else {
-                $this->log("'{$fileName}' is not a file name!\nA text file was written to {$fileName}/VardefFile.txt with the contents.",'fatal');
-                sugar_file_put_contents($fileName.'/VardefFileFile.txt', $contents, LOCK_EX);
+                $this->capture($this->cycle_id, $this->loggerTitle, 'File', $fileName, null, $contents, "Writing new '{$fileName}'", 'Completed', 'P3');
+                sugar_file_put_contents($fileName, $contents, LOCK_EX);
             }
         }
     }
