@@ -653,11 +653,7 @@ abstract class supp_Repairs
      */
     protected function writeDictionaryFile($objectName, $field, $array, $fileName)
     {
-<<<<<<< HEAD
-        $this->log("-> Writing variable file '{$fileName}'");
-=======
-        $this->logChange("-> Writing variable file '{$fullPath}'");
->>>>>>> upstream/master
+        $this->logchange("-> Writing variable file '{$fileName}'");
         if (!$this->isTesting) {
 
             $out =  "<?php\n // created: " . date('Y-m-d H:i:s') . "\n";
@@ -692,11 +688,7 @@ abstract class supp_Repairs
      */
     protected function writeFile($fileName, $contents)
     {
-<<<<<<< HEAD
-        $this->log("-> Writing file '{$fileName}'");
-=======
-        $this->logChange("-> Writing file '{$file}'");
->>>>>>> upstream/master
+        $this->logchange("-> Writing file '{$fileName}'");
         if (!$this->isTesting) {
             if (is_file($fileName)) {
                 $this->capture($this->cycle_id, $this->loggerTitle, 'File', $fileName, file_get_contents($fileName), $contents, "Backing up '{$fileName}'", 'Completed', 'P3');
