@@ -286,7 +286,7 @@ class supp_VardefRepairs extends supp_Repairs
                 }
             }
 
-            if ($storedDictionary !== $dictionary) {
+            if (!$this->isTesting && $storedDictionary !== $dictionary) {
                 $this->writeDictionaryFile($objectName, $field, $dictionary[$objectName]['fields'][$field], $fullPath);
             }
         }
