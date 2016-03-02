@@ -62,34 +62,6 @@ class suppSugarRepairsLanguageRepairs extends Sugar_PHPUnit_Framework_TestCase
         $this->assertTrue($tokenList[10][0][1] == "'oneone'");
     }
 
-//    /**
-//     * This test see if the verdefs is updated to one_one and that one&one has been removed
-//     */
-//    public function testupdateFiles()
-//    {
-//        $newRepairTest = new supp_LanguageRepairs();
-//        $testFile = "<?php\n\$dictionary['Account']['fields']['account_type']['default']='one&one';";
-//        $testData = $newRepairTest->updateFiles('one&one', 'one_one', null, null, $testFile);
-//        $this->assertTrue(strstr($testData, 'one_one') !== false);
-//        $this->assertTrue(strstr($testData, 'one&one') === false);
-//    }
-//
-//    /**
-//     * This test makes sure that both the default_value and the dependencies of a custom field are updated.
-//     */
-//    public function testupdateFieldsMetaDataTable()
-//    {
-//        $newRepairTest = new supp_LanguageRepairs();
-//        $fieldData=array('Accounts'=>'test_list');
-//        $newRepairTest->updateFieldsMetaDataTable($fieldData, "one&one", "one_one", true);
-//        $sql = "SELECT default_value,ext4 FROM fields_meta_data WHERE id='TEST3'";
-//        $hash = $GLOBALS['db']->fetchOne($sql);
-//        $this->assertTrue(strstr($hash['default_value'], 'one_one') !== false);
-//        $this->assertTrue(strstr($hash['default_value'], 'one&one') === false);
-//        $this->assertTrue(strstr($hash['ext4'], 'one_one') !== false);
-//        $this->assertTrue(strstr($hash['ext4'], 'one&one') === false);
-//    }
-
     /**
      * This test see if the correct value is updated in the correct table for the supplied metadata
      */

@@ -82,7 +82,7 @@ class suppSugarRepairsWorkflowRepairsTest extends Sugar_PHPUnit_Framework_TestCa
                 'action_type' => 'update',
                 'result' => 'disabled'
             ),
-            'Expression_Test2' => array(
+            'Expression_Test3' => array(
                 'id' => 'WF3',
                 'name' => 'Deleted Field Test 1',
                 'expression_value' => 'Education',

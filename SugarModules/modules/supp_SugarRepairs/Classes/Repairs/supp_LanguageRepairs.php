@@ -253,11 +253,6 @@ class supp_LanguageRepairs extends supp_Repairs
                                 $listNameInfo = $this->findListField($tokenListName);
                                 if (!empty($listNameInfo)) {
                                     $this->updateDatabase($listNameInfo, $oldKey, $newKey);
-                                    //$this->updateFieldsMetaDataTable($listNameInfo, $oldKey, $newKey);
-                                    //$this->scanFiles($oldKey, $newKey);
-                                } else {
-                                    //just scan files and dont update fields
-                                    //$this->scanFiles($oldKey, $newKey);
                                 }
                             }
                         }
@@ -309,87 +304,6 @@ class supp_LanguageRepairs extends supp_Repairs
         }
         return false;
     }
-
-    /**
-     * Processes Vardef files looking for the keys that need changing
-     *
-     * @param string $searchString
-     * @param string $oldKey
-     * @param bool $testData
-     */
-//    private function scanFiles($oldKey, $newKey)
-//    {
-//        //We only need to get this list once, it wont change
-//        if (empty($this->customOtherFileList)) {
-//            $this->customOtherFileList = $this->getCustomVardefFiles();
-//        }
-//
-//        foreach ($this->customOtherFileList as $fullPath => $relativePath) {
-//            $this->updateFiles($oldKey, $newKey, $fullPath, $relativePath, sugar_file_get_contents($fullPath));
-//        }
-//    }
-
-    /**
-     * @param $oldKey
-     * @param $newKey
-     * @param $fullPath
-     * @param $relativePath
-     * @param $fileContents
-     * @return array|mixed
-     */
-//    public function updateFiles($oldKey, $newKey, $fullPath, $relativePath, $fileContents)
-//    {
-//        //todo: need to capture before/after info
-//        $searchString1 = "'" . trim($oldKey, "'\"") . "'";
-//        $searchString2 = '"' . trim($oldKey, "'\"") . '"';
-//
-//        //TODO: Convert this to regex
-//
-//        if (strpos($fileContents, $searchString1) !== false ||
-//            strpos($fileContents, $searchString2) !== false
-//        ) {
-//            $oldText = array(
-//                "=> '{$oldKey}'",
-//                "=> \"{$oldKey}\"",
-//                "=>'{$oldKey}'",
-//                "=>\"{$oldKey}\"",
-//                "= '{$oldKey}'",
-//                "= \"{$oldKey}\"",
-//                "='{$oldKey}'",
-//                "=\"{$oldKey}\""
-//            );
-//            $newText = array(
-//                "=> '{$newKey}'",
-//                "=> \"{$newKey}\"",
-//                "=>'{$newKey}'",
-//                "=>\"{$newKey}\"",
-//                "= '{$newKey}'",
-//                "= \"{$newKey}\"",
-//                "='{$newKey}'",
-//                "=\"{$newKey}\""
-//
-//            );
-//
-//            $newText = str_replace($oldText, $newText, $fileContents, $count);
-//
-//            if ($count == 0) {
-//                //There were no changes so this file will have to be examined manually
-//                $this->log("->  Key '{$oldKey}' was found but could not be changed to '{$newKey}'. This may need to be manually corrected. \n{$fileContents}");
-//            } else {
-//
-//                if (!$this->isTesting) {
-//                    $this->log("-> Updating key from '{$oldKey}' to '{$newKey}' in '{$fullPath}'");
-//                    $this->capture($this->cycle_id, $this->loggerTitle, 'File', $fullPath, file_get_contents($fullPath), $newText, "Backing up '{$fullPath}'", 'Completed', 'P3');
-//                    sugar_file_put_contents($fullPath, $newText, LOCK_EX);
-//                } else {
-//                    $this->log("-> Will update key from '{$oldKey}' to '{$newKey}' in '{$fullPath}'");
-//                }
-//            }
-//            return $newText;
-//        } else {
-//            return $fileContents;
-//        }
-//    }
 
     /**
      * This function updated the fields_meta_data table looking for default values that need changing
