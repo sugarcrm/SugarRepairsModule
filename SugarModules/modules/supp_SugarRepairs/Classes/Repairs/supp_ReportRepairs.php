@@ -126,13 +126,14 @@ class supp_ReportRepairs extends supp_Repairs
 
             if ($beforeJson !== $afterJson) {
                 $this->foundIssues[$savedReport->id] = $savedReport->id;
-                $this->log("before " . $beforeJson);
-                $this->log("After " . $afterJson);
 
                 if (!$this->isTesting) {
                     $this->log("Updating report '{$savedReport->name}' ({$savedReport->id}).");
                     $savedReport->content = $afterJson;
                     $savedReport->save();
+
+                    //remove report cache filters
+                    $this->updateQuery("DELETE FROM report_cache WHERE id = '{$savedReport->id}'");
                 } else {
                     $this->log("Will update '{$savedReport->name}' ({$savedReport->id}).");
                 }
