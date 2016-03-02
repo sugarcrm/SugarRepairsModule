@@ -19,6 +19,7 @@ class suppSugarRepairsWorkflowRepairsTest extends Sugar_PHPUnit_Framework_TestCa
 
     public function tearDown()
     {
+        $this->teardownTestWorkflow();
         parent::tearDown();
     }
 
@@ -30,6 +31,7 @@ class suppSugarRepairsWorkflowRepairsTest extends Sugar_PHPUnit_Framework_TestCa
         $this->setupTestWorkflow();
         $workflowRepairs = new supp_WorkflowRepairs();
         $workflowRepairs->execute(array('t' => false));
+
         foreach ($this->workflowData as $index => $data) {
             if (stristr($index, "Expression_Test") !== false) {
                 switch ($data['result']) {
@@ -48,7 +50,7 @@ class suppSugarRepairsWorkflowRepairsTest extends Sugar_PHPUnit_Framework_TestCa
                 switch ($data['result']) {
                     case 'changed':
                         $workFlowAction = BeanFactory::getBean('WorkFlowActions', $data['id'] . 'wfa1');
-                        $this->assertEquals($data['result_value'], $workFlowAction->value, $workFlowAction->id);
+                        $this->assertEquals($data['result_value'], $workFlowAction->value, 'Record: '.$workFlowAction->id);
                         break;
                     case 'disabled':
                         $workflow = BeanFactory::getBean('WorkFlow', $data['id']);
@@ -216,7 +218,7 @@ class suppSugarRepairsWorkflowRepairsTest extends Sugar_PHPUnit_Framework_TestCa
                     $workflow_actions->field = $data['expression_field'];
                     $workflow_actions->value = $data['expression_value'];
                     $workflow_actions->set_type = 'Basic';
-                    $workflow_actions->parent_id = 'rwfut1wfas1';
+                    $workflow_actions->parent_id = $data['id'].'wfas1';
                     $workflow_actions->save();
                     break;
                 case 'related':

@@ -302,7 +302,7 @@ class supp_VardefRepairs extends supp_Repairs
      */
     public function execute(array $args)
     {
-        //kbrill: I think thee do apply to CE
+        //kbrill: I think this does apply to CE
 //        if ($this->isCE()) {
 //            $this->log('Repair ignored as it does not apply to CE');
 //            return false;
