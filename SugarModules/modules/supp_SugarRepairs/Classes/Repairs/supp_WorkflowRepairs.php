@@ -97,7 +97,6 @@ class supp_WorkflowRepairs extends supp_Repairs
                     $to = implode('^,^', $modifiedSelectedKeys);
                     if (!$this->isTesting) {
                         $workFlowAction = BeanFactory::getBean('WorkFlowActions', $row['workflow_actionsID']);
-                        print_r($workFlowAction->id);
                         if ($workFlowAction) {
                             $workFlowAction->value = $to;
                             $workFlowAction->save();

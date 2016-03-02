@@ -27,7 +27,7 @@ class supp_VardefRepairs extends supp_Repairs
             $type = $row['type'];
             $module = $row['custom_module'];
             $field = $row['name'];
-            $this->log("Processing fields metadata for '$defKey'...'");
+            $this->log("Processing fields metadata for '{$defKey}'...'");
             $listKeys = $this->getFieldOptionKeys($module, $field);
             $selectedKeys = unencodeMultienum($row['default_value']);
 
