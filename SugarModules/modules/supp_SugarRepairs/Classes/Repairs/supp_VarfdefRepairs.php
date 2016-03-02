@@ -135,7 +135,7 @@ class supp_VardefRepairs extends supp_Repairs
                 foreach ($modDefs['fields'] as $field => $fieldDefs) {
 
                     $defKey = "{$module} / {$field}";
-                    $this->log("-> Looking at {$defKey}...");
+                    $this->log("-> Looking at '{$defKey}'...");
 
                     $type = $this->getFieldType($module, $field);
 
