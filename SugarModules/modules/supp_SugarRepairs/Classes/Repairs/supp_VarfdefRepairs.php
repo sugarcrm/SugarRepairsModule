@@ -124,7 +124,12 @@ class supp_VardefRepairs extends supp_Repairs
 
             $dictionary = array();
             require($fullPath);
+            $storedDictionary = $dictionary;
             foreach ($dictionary as $objectName => $modDefs) {
+
+                if (!isset($modDefs['fields'])) {
+                    continue;
+                }
 
                 $module = $this->getModuleName($objectName);
                 foreach ($modDefs['fields'] as $field => $fieldDefs) {
@@ -136,15 +141,6 @@ class supp_VardefRepairs extends supp_Repairs
 
                     //check for invalid default values
                     if ($type && isset($fieldDefs['default'])) {
-//                        if ($type == 'multienum') {
-//                            if (!$this->isTesting) {
-//                                //multienum is stored in the db and this is unused
-//                                $this->log("-> Vardef '{$defKey}' is a multienum and should not have a default value in the vardef file. Index was removed.");
-//                                unset($dictionary[$module]['fields'][$field]['default']);
-//                            } else {
-//                                $this->log("-> Vardef '{$defKey}' is a multienum and should not have a default value in the vardef file. The default index will be removed.");
-//                            }
-//                        } else
                         if (in_array($type, array('enum', 'multienum'))) {
                             $listKeys = $this->getFieldOptionKeys($module, $field);
                             $selectedKeys = unencodeMultienum($fieldDefs['default']);
@@ -197,16 +193,101 @@ class supp_VardefRepairs extends supp_Repairs
                                 if (!$this->isTesting) {
                                     $dictionary[$objectName]['fields'][$field]['default'] = $default_value;
                                     $this->log("-> Vardef '{$defKey}' has an invalid default value '{$fieldDefs['default']}' that was updated to '{$default_value}'. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
-
-                                    $this->writeDictionaryFile($objectName, $field, $dictionary[$objectName]['fields'][$field], $fullPath);
-
                                 } else {
                                     $this->log("-> Vardef '{$defKey}' has an invalid default value '{$fieldDefs['default']}' that will be updated to '{$default_value}'. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
                                 }
                             }
                         }
                     }
+
+                    if (in_array($type, array('enum', 'multienum')) && isset($fieldDefs['visibility_grid']) && isset($fieldDefs['visibility_grid']['values']) && isset($fieldDefs['visibility_grid']['trigger']) && !empty($fieldDefs['visibility_grid']['trigger'])) {
+
+                        $triggerField = $fieldDefs['visibility_grid']['trigger'];
+                        $triggerType = $this->getFieldType($module, $triggerField);
+                        if (in_array($triggerType, array('enum', 'multienum'))) {
+                            $triggerListKeys = $this->getFieldOptionKeys($module, $triggerField);
+                            $gridListKeys = $this->getFieldOptionKeys($module, $field);
+
+                            foreach ($fieldDefs['visibility_grid']['values'] as $key => $values) {
+
+                                foreach ($values as $gridIndex => $gridkey) {
+                                    //$this->log("Checking visibility_grid '{$gridIndex} / {$gridkey}'...");
+                                    $gridIssue = false;
+                                    if (!in_array($gridkey, $gridListKeys)) {
+                                        $gridIssue = true;
+                                        $this->foundVardefIssues[$defKey] = $defKey;
+                                    }
+
+                                    if ($gridIssue) {
+                                        $testGridKey = $this->getValidLanguageKeyName($gridkey);
+                                        //try to fix the key if it was updated in the lang repair script
+                                        if ($testGridKey !== $gridkey) {
+                                            if (in_array($testGridKey, $gridListKeys)) {
+                                                $gridIssue = false;
+                                                $this->log("-> Vardef '{$defKey}' has an issue with the visibility_grid. The mapping '{$key} / {$gridkey}' uses the grid key '{$gridkey}' which will be updated to '{$testGridKey}'. Available keys in list: " . print_r($gridListKeys, true));
+
+                                                if (!$this->isTesting) {
+                                                    $dictionary[$objectName]['fields'][$field]['visibility_grid']['values'][$key][$gridIndex] = $testGridKey;
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    if ($gridIssue) {
+                                        $this->log("-> Vardef '{$defKey}' has an issue with the visibility_grid. The mapping '{$key} / {$gridkey}' uses the grid key '{$gridkey}' which will be removed. Key does not exist in list: " . print_r($gridListKeys, true));
+                                        if (!$this->isTesting) {
+                                            $this->foundVardefIssues[$defKey] = $defKey;
+                                            if (isset($dictionary[$objectName]['fields'][$field]['visibility_grid']['values'][$key][$gridIndex])) {
+                                                unset($dictionary[$objectName]['fields'][$field]['visibility_grid']['values'][$key][$gridIndex]);
+                                            }
+                                        }
+                                    }
+                                }
+
+                                $triggerIssue = false;
+                                if (!in_array($key, $triggerListKeys)) {
+                                    $triggerIssue = true;
+                                    $this->foundVardefIssues[$defKey] = $defKey;
+                                }
+
+                                if ($triggerIssue) {
+                                    $testKey = $this->getValidLanguageKeyName($key);
+                                    //try to fix the key if it was updated in the lang repair script
+                                    if ($testKey !== $key) {
+                                        if (in_array($testKey, $triggerListKeys)) {
+                                            $triggerIssue = false;
+                                            $this->log("-> Vardef '{$defKey}' has an issue with the visibility_grid. The field '{$triggerField}' uses the key '{$key}' which will be updated with '{$testKey}'. Available keys in list: " . print_r($triggerListKeys, true));
+
+                                            if (!$this->isTesting) {
+                                                $dictionary[$objectName]['fields'][$field]['visibility_grid']['values'][$testKey] = $dictionary[$objectName]['fields'][$field]['visibility_grid']['values'][$key];
+                                                unset($dictionary[$objectName]['fields'][$field]['visibility_grid']['values'][$key]);
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if ($triggerIssue) {
+                                    $this->log("-> Vardef '{$defKey}' has an issue with the visibility_grid. The field '{$triggerField}' uses the key '{$key}' which will be removed. Key does not exist in list: " . print_r($triggerListKeys, true));
+                                    if (!$this->isTesting) {
+                                        $this->foundVardefIssues[$defKey] = $defKey;
+                                        if ($dictionary[$objectName]['fields'][$field]['visibility_grid']['values'][$key]) {
+                                            unset($dictionary[$objectName]['fields'][$field]['visibility_grid']['values'][$key]);
+                                        }
+                                    }
+                                }
+                            }
+
+
+                        } else {
+                            $this->log("-> Vardef '{$defKey}' has an issue with the visibility_grid. The trigger field '{$triggerField}' does not have a valid type ({$triggerType}).");
+                        }
+
+                    }
                 }
+            }
+
+            if ($storedDictionary !== $dictionary) {
+                $this->writeDictionaryFile($objectName, $field, $dictionary[$objectName]['fields'][$field], $fullPath);
             }
         }
 
