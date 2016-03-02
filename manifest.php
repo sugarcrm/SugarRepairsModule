@@ -12,7 +12,6 @@ $manifest = array(
         ),
     ),
     'acceptable_sugar_flavors' => array(
-        0 => 'CE',
         1 => 'PRO',
         2 => 'CORP',
         3 => 'ENT',
@@ -33,42 +32,37 @@ $manifest = array(
 
 $installdefs = array(
     'id' => 'Repairs',
-    'beans' =>
-        array(
-            0 =>
-                array(
-                    'module' => 'supp_SugarRepairs',
-                    'class' => 'supp_SugarRepairs',
-                    'path' => 'modules/supp_SugarRepairs/supp_SugarRepairs.php',
-                    'tab' => true,
-                ),
+    'beans' => array(
+        0 => array(
+            'module' => 'supp_SugarRepairs',
+            'class' => 'supp_SugarRepairs',
+            'path' => 'modules/supp_SugarRepairs/supp_SugarRepairs.php',
+            'tab' => true,
         ),
-    'layoutdefs' =>
-        array(),
-    'relationships' =>
-        array(),
+    ),
+    'layoutdefs' => array(),
+    'relationships' => array(),
     'image_dir' => '<basepath>/icons',
-    'copy' =>
-        array(
-            0 =>
-                array(
-                    'from' => '<basepath>/SugarModules/modules/supp_SugarRepairs',
-                    'to' => 'modules/supp_SugarRepairs',
-                ),
-            1 =>
-                array(
-                    'from' => '<basepath>/copy/custom/tests/modules/supp_SugarRepairs',
-                    'to' => 'custom/tests/modules/supp_SugarRepairs',
-                ),
+    'copy' => array(
+        0 => array(
+            'from' => '<basepath>/SugarModules/modules/supp_SugarRepairs',
+            'to' => 'modules/supp_SugarRepairs',
         ),
-    'language' =>
-        array(
-            0 =>
-                array(
-                    'from' => '<basepath>/SugarModules/language/application/en_us.lang.php',
-                    'to_module' => 'application',
-                    'language' => 'en_us',
-                ),
+        1 => array(
+            'from' => '<basepath>/copy/custom/tests/modules/supp_SugarRepairs',
+            'to' => 'custom/tests/modules/supp_SugarRepairs',
         ),
+    ),
+    'language' => array(
+        0 => array(
+            'from' => '<basepath>/SugarModules/language/application/en_us.lang.php',
+            'to_module' => 'application',
+            'language' => 'en_us',
+        ),
+    ),
+    'post_execute' => array(
+        0 => '<basepath>/post_execute/0.php',
+    ),
 );
+
 ?>

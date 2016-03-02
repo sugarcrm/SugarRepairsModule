@@ -5,16 +5,16 @@ All repairs currently need to be run from the command line. By default, all repa
 
 It is highly recommended to remove the Sugar Repairs module before upgrading.
 
-## Language Repairs
+# Language Repairs
 Corrects common language file issues. The various issues addressed are shown below:
 
-###Testing Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php -r workflow`
+##Testing Command:
+`cd "modules/supp_SugarRepairs/" && php cli.php -r lang`
 
-###Execute Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php -r workflow -t false`
+##Execute Command:
+`cd "modules/supp_SugarRepairs/" && php cli.php -r lang -t false`
 
-###Issues Addressed
+##Issues Addressed
 * Health Check Errors:
 
 >[Health Check Error: Bad vardefs - key] (https://support.sugarcrm.com/Knowledge_Base/Administration/Install/Troubleshooting_Health_Check_Output/Health_Check_Error_Bad_Vardefs_Key/)
@@ -57,47 +57,55 @@ $app_list_strings['moduleList']['module2'] = 'Module 2';
 * Other custom PHP files
 >If a file contains a string of characters that matches a key that needs to be changed it will be flagged for possible Manual updating in the log. 
  
-Data tables in the Database
-            The script automatically figures out what column in what table needs updating and then runs an update that works for both Enum and MultiEnum fields.
- 
-The fields_meta_data table
-            The fields_meta_data table is updated if there is a key that needs to be changed in the ‘default value’ column.
- 
-Reports
-            Report definitions are updated if a key that needs to be change appears in a report filter.
- 
+* Updates the database keys for enum/multienum fields when a correction is made.
+* Runs the vardef repair.
+* Runs the workflow repair.
+* Runs the report repair.
 
-##Team Set Repairs
+#Team Set Repairs
 Corrects common issues with team sets.
 
-###Testing Command:
+##Testing Command:
 `cd "modules/supp_SugarRepairs/" && php cli.php -r team`
 
-###Execute Command:
+##Execute Command:
 `cd "modules/supp_SugarRepairs/" && php cli.php -r team -t false`
 
-###Issues Addressed
+##Issues Addressed
 * Duplicate teams in a team set
 > Removes any duplicate team relationships to a team set.
        
 * Incorrect team counts on team sets
 > Correct any team sets with invalid team counts and relationships.
     
-##Workflow Repairs
+#Workflow Repairs
 Corrects common issues with workflows.
 
-###Testing Command:
+##Testing Command:
 `cd "modules/supp_SugarRepairs/" && php cli.php -r workflow`
 
-###Execute Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php -r team -t workflow`
+##Execute Command:
+`cd "modules/supp_SugarRepairs/" && php cli.php -r workflow -t false`
 
-###Issues Addressed
+##Issues Addressed
 * Workflows with invalid fields
 > Disables any workflows with missing or invalid fields
+
+#Vardef Repairs
+Corrects common issues with vardefs.
+
+##Testing Command:
+`cd "modules/supp_SugarRepairs/" && php cli.php -r vardef`
+
+##Execute Command:
+`cd "modules/supp_SugarRepairs/" && php cli.php -r vardef -t false`
+
+##Issues Addressed
+* Enum/Multienum fields with invalid default values.
+> Attempts to find a valid default value key. If no value is found, field is left alone.
        
-* Workflows with invalid list selections
-> Attempts to find a valid key. If no key is found, the workflow is disabled.
+* Enum/Multienum fields with invalid visibility gird.
+> Attempts to find a valid key. If no key is found, the grid is removed.
        
 # Adding New Repair Actions
 * All repair actions should be located in `./modules/supp_SugarRepairs/Classes/Repairs/` and extend the abstract class `supp_Repairs`. 
@@ -118,7 +126,7 @@ To setup you environment for unit tests, you will need to do the following:
 * Install the Sugar Repairs module to a new Sugar 7.6.1.0 instance. 7.6.1.0 is required as it has published unit tests.
 * in the root of the instance, install composer. `composer install`
 * Download the 7.6.1.0 unit tests from: https://github.com/sugarcrm/unit-tests/releases
-* Extract the tests from the zip that are applicable to your edition into `./tests/`.
+* Extract the content of the tests folder from the zip that are applicable to your edition `<test folder>/<edition>/tests/` into `./tests/`.
 * Create your new unit test in `./custom/tests/modules/supp_SugarRepairs/` and make sure to add it to the `@group support` in the header comment:
 ```
 /**
@@ -140,3 +148,4 @@ phpunit -v --debug --group support --stop-on-failure
 
 [Jerry Clark](https://github.com/geraldclark)
 
+[Mark Everidge](https://github.com/meveridge)

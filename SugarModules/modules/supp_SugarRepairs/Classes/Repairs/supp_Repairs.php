@@ -112,13 +112,53 @@ abstract class supp_Repairs
             //module extensions
             '(\\/|\\\)custom(\\/|\\\)Extension(\\/|\\\)modules(\\/|\\\)(.*?)(\\/|\\\)Ext(\\/|\\\)Vardefs(\\/|\\\)(.*?)\.php$',
             //module builder application
-            '(\\/|\\\)custom(\\/|\\\)modulebuilder(\\/|\\\)packages(\\/|\\\)(.*?)(\\/|\\\)modules(\\/|\\\)(.*?)(\\/|\\\)vardefs.php$',
+            //disabling for now as the variables are $vardefs and not $dictionary
+            //'(\\/|\\\)custom(\\/|\\\)modulebuilder(\\/|\\\)packages(\\/|\\\)(.*?)(\\/|\\\)modules(\\/|\\\)(.*?)(\\/|\\\)vardefs.php$',
             //custom modules
             '(\\/|\\\)custom(\\/|\\\)modules(\\/|\\\)(.*?)(\\/|\\\)vardefs.php$',
         );
 
-
         return '/(' . implode(')|(', $langRegexes) . ')/';
+    }
+
+    /**
+     * Returns the list of variables in a file
+     * @param $file
+     * @return array
+     */
+    public function getVariablesInFile($file)
+    {
+        $vars = array();
+        $results = array_filter(
+            token_get_all(file_get_contents($file)),
+            function($t) { return $t[0] == T_VARIABLE; }
+        );
+
+        foreach ($results as $result)
+        {
+            if (isset($result[1])) {
+                $vars[$result[1]] = $result[1];
+            }
+        }
+
+        return $vars;
+    }
+
+    /**
+     * Returns the fields metadata from the database
+     * @param $module
+     * @param $field
+     * @return bool
+     */
+    public function getFieldsMetadata($module, $field)
+    {
+        $sql = "SELECT * FROM fields_meta_data WHERE deleted = 0 AND custom_module = '{$module}' AND name = '{$field}'";
+        $result = $GLOBALS['db']->query($sql);
+        while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
+            return $row;
+        }
+
+        return false;
     }
 
     /**
@@ -529,6 +569,24 @@ abstract class supp_Repairs
     }
 
     /**
+     * Used to fetch module name from object name
+     * @param $objectName
+     * @return mixed
+     */
+    public function getModuleName($objectName)
+    {
+        global $beanList;
+
+        $module = array_search($objectName, $beanList);
+
+        if (!$module) {
+            $module = $objectName;
+        }
+
+        return $module;
+    }
+
+    /**
      * Returns the field def for a specific field
      * @param $module
      * @param $field
@@ -536,15 +594,6 @@ abstract class supp_Repairs
      */
     public function getFieldDefinition($module, $field)
     {
-        global $beanList;
-
-        //workaround for dictionary files
-        $key = array_search($module, $beanList);
-
-        if ($key) {
-            $module = $key;
-        }
-
         $bean = BeanFactory::getBean($module);
 
         if (isset($bean->field_defs[$field])) {
@@ -568,6 +617,65 @@ abstract class supp_Repairs
         } else {
             $this->log("-> Type definition not found for {$module} / {$field}");
             return false;
+        }
+    }
+
+    /**
+     * writes a variable file
+     * @param $variable
+     * @param $array
+     * @param $fullPath
+     */
+    protected function writeDictionaryFile($objectName, $field, $array, $fullPath)
+    {
+        $this->log("-> Writing variable file '{$fullPath}'");
+        if (!$this->isTesting) {
+
+            $out =  "<?php\n // created: " . date('Y-m-d H:i:s') . "\n";
+            foreach ($array as $property => $val)
+            {
+                $out .= override_value_to_string_recursive(array($objectName, "fields", $field, $property), 'dictionary', $val) . "\n";
+            }
+
+            $out .= "\n ?>";
+
+            if (is_file($fullPath)) {
+                $beforeContents = file_get_contents($fullPath);
+                $fileAccessTime = date('U', fileatime($fullPath));
+                $fileModifiedTime = date('U', filemtime($fullPath));
+
+                $this->capture($this->cycle_id, $this->loggerTitle, 'File', $fullPath, $beforeContents, $out, "Backing up '{$fullPath}'", 'Completed', 'P3');
+
+                sugar_file_put_contents($fullPath, $out, LOCK_EX);
+                sugar_touch($fullPath, $fileModifiedTime, $fileAccessTime);
+
+            } else {
+                $this->capture($this->loggerTitle, 'File', 'Completed', 'P3', "Writing file '{$fullPath}'", '', $out);
+                sugar_file_put_contents($fullPath, $out, LOCK_EX);
+            }
+        }
+    }
+
+    /**
+     * Allows the writing of a new file
+     * @param $file
+     * @param $contents
+     */
+    protected function writeFile($file, $contents)
+    {
+        $this->log("-> Writing file '{$file}'");
+        if (!$this->isTesting) {
+            if (is_file($file)) {
+                $this->capture($this->cycle_id, $this->loggerTitle, 'File', $file, file_get_contents($file), $contents, "Backing up '{$file}'", 'Completed', 'P3');
+                //Update the file but retain its modified and access date stamps
+                $fileAccessTime = date('U', fileatime($file));
+                $fileModifiedTime = date('U', filemtime($file));
+                sugar_file_put_contents($file, $contents, LOCK_EX);
+                sugar_touch($file, $fileModifiedTime, $fileAccessTime);
+            } else {
+                $this->capture($this->loggerTitle, 'File', 'Completed', 'P3', "Writing file '{$file}'", '', implode("\n", $contents));
+                sugar_file_put_contents($file, $contents, LOCK_EX);
+            }
         }
     }
 
@@ -618,7 +726,8 @@ abstract class supp_Repairs
      * Gets all time period IDs not deleted
      * @return array $timePeriodIds
      */
-    public function getAllTimePeriodIds(){
+    public function getAllTimePeriodIds()
+    {
 
         $query = new SugarQuery();
         $query->select(array(
@@ -651,13 +760,13 @@ abstract class supp_Repairs
 
         $sql = "
             DELETE
-            FROM forecast_manager_worksheets 
+            FROM forecast_manager_worksheets
             WHERE timeperiod_id = '$timeperiod_id'
         ";
 
         $res = $this->updateQuery($sql);
-        $affected_row_count =  $GLOBALS['db']->getAffectedRowCount($res);
-        $GLOBALS['log']->info('Deleted '.$affected_row_count.' from forecast_manager_worksheets table.');
+        $affected_row_count = $GLOBALS['db']->getAffectedRowCount($res);
+        $GLOBALS['log']->info('Deleted ' . $affected_row_count . ' from forecast_manager_worksheets table.');
         return array(
             'affected_row_count' => $affected_row_count
         );

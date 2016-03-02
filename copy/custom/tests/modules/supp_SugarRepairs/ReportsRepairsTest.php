@@ -20,6 +20,10 @@ class suppSugarRepairsReportsRepairsTest extends Sugar_PHPUnit_Framework_TestCas
     public function tearDown()
     {
         parent::tearDown();
+
+        foreach ($this->reportIDs as $reportId) {
+            $GLOBALS['db']->query("DELETE FROM saved_reports WHERE id = '{$reportId}'");
+        }
     }
 
     /**
@@ -42,18 +46,19 @@ class suppSugarRepairsReportsRepairsTest extends Sugar_PHPUnit_Framework_TestCas
         $this->reportIDs[]=$reportID;
 
         $reportTest = new supp_ReportRepairs();
-        $reportTest->repairReports();
+        $reportTest->execute(array('t' => false));
 
         $savedReport = BeanFactory::getBean('Reports', $reportID);
         $beforeJson = html_entity_decode($savedReport->content);
         $content = $jsonObj->decode($beforeJson, false);
         $newFilter = $content['filters_def']['Filter_1'];
 
-        $this->assertTrue($newFilter[0][1][0]['input_name0'][0] == 'one&one');
-        $this->assertTrue($newFilter[0][1][1]['input_name0'][0] == 'six_six');
-        $this->assertTrue($newFilter[1][0]['input_name0'][0] == 'two_two');
-        $this->assertTrue($newFilter[1][1]['input_name0'][0] == 'one_one');
-        $this->assertTrue($newFilter[1][1]['input_name0'][1] == 'six_six');
+        //print_r($newFilter);
+        $this->assertEquals($newFilter[0][1][0]['input_name0'][0], 'Banking');
+        $this->assertEquals($newFilter[0][1][1]['input_name0'][0], 'Banking');
+        $this->assertEquals($newFilter[1][0]['input_name0'][0], 'Banking');
+        $this->assertEquals($newFilter[1][1]['input_name0'][0], 'Banking');
+        $this->assertEquals($newFilter[1][1]['input_name0'][1], 'Education');
     }
 
     /**
@@ -76,11 +81,12 @@ class suppSugarRepairsReportsRepairsTest extends Sugar_PHPUnit_Framework_TestCas
         $this->reportIDs[] = $reportID;
 
         $reportTest = new supp_ReportRepairs();
-        $reportTest->repairReports();
+        $reportTest->setTesting(false);
+        $reportTest->execute(array('t' => false));
 
         $savedReport = BeanFactory::getBean('Reports', $reportID);
         $message = "Broken: ";
-        $this->assertTrue(substr($savedReport->name, 0, strlen($message)) == $message);
+        $this->assertEquals($message, substr($savedReport->name, 0, strlen($message)));
     }
 
 
@@ -194,22 +200,22 @@ class suppSugarRepairsReportsRepairsTest extends Sugar_PHPUnit_Framework_TestCas
                                             'operator' => 'AND',
                                             0 =>
                                                 array(
-                                                    'name' => 'testdropdown_c',
+                                                    'name' => 'industry',
                                                     'table_key' => 'self',
                                                     'qualifier_name' => 'is',
                                                     'input_name0' =>
                                                         array(
-                                                            0 => 'one&one',
+                                                            0 => '(Banking)',
                                                         ),
                                                 ),
                                             1 =>
                                                 array(
-                                                    'name' => 'testmultiselect_c',
+                                                    'name' => 'industry',
                                                     'table_key' => 'self',
                                                     'qualifier_name' => 'is',
                                                     'input_name0' =>
                                                         array(
-                                                            0 => 'six & six',
+                                                            0 => '(Banking)',
                                                         ),
                                                 ),
                                         ),
@@ -219,31 +225,29 @@ class suppSugarRepairsReportsRepairsTest extends Sugar_PHPUnit_Framework_TestCas
                                     'operator' => 'OR',
                                     0 =>
                                         array(
-                                            'name' => 'testmultiselect_c',
+                                            'name' => 'industry',
                                             'table_key' => 'self',
                                             'qualifier_name' => 'is',
                                             'input_name0' =>
                                                 array(
-                                                    0 => 'two-two',
+                                                    0 => '(Banking)',
                                                 ),
                                         ),
                                     1 =>
                                         array(
-                                            'name' => 'testdropdown_c',
+                                            'name' => 'industry',
                                             'table_key' => 'self',
                                             'qualifier_name' => 'one_of',
                                             'input_name0' =>
                                                 array(
-                                                    0 => 'one&one',
-                                                    1 => 'six & six',
+                                                    0 => '(Banking)',
+                                                    1 => '(Education)',
                                                 ),
                                         ),
                                 ),
                         ),
                 ),
         );
-
-
     }
 
     private function deletedFieldFilter()
@@ -259,7 +263,7 @@ class suppSugarRepairsReportsRepairsTest extends Sugar_PHPUnit_Framework_TestCas
                         ),
                     1 =>
                         array(
-                            'name' => 'deleted_field',
+                            'name' => 'billing_address_city',
                             'label' => 'Billing City',
                             'table_key' => 'self',
                         ),
@@ -335,8 +339,75 @@ class suppSugarRepairsReportsRepairsTest extends Sugar_PHPUnit_Framework_TestCas
                                 array(),
                         ),
                 ),
+            'filters_def' =>
+                array(
+                    'Filter_1' =>
+                        array(
+                            'operator' => 'OR',
+                            0 =>
+                                array(
+                                    'operator' => 'AND',
+                                    0 =>
+                                        array(
+                                            'name' => 'deleted_field',
+                                            'table_key' => 'self',
+                                            'qualifier_name' => 'tp_this_year',
+                                            'input_name0' => 'tp_this_year',
+                                            'input_name1' => 'on',
+                                        ),
+                                    1 =>
+                                        array(
+                                            'operator' => 'AND',
+                                            0 =>
+                                                array(
+                                                    'name' => 'industry',
+                                                    'table_key' => 'self',
+                                                    'qualifier_name' => 'is',
+                                                    'input_name0' =>
+                                                        array(
+                                                            0 => '(Banking)',
+                                                        ),
+                                                ),
+                                            1 =>
+                                                array(
+                                                    'name' => 'industry',
+                                                    'table_key' => 'self',
+                                                    'qualifier_name' => 'is',
+                                                    'input_name0' =>
+                                                        array(
+                                                            0 => '(Banking)',
+                                                        ),
+                                                ),
+                                        ),
+                                ),
+                            1 =>
+                                array(
+                                    'operator' => 'OR',
+                                    0 =>
+                                        array(
+                                            'name' => 'industry',
+                                            'table_key' => 'self',
+                                            'qualifier_name' => 'is',
+                                            'input_name0' =>
+                                                array(
+                                                    0 => '(Banking)',
+                                                ),
+                                        ),
+                                    1 =>
+                                        array(
+                                            'name' => 'industry',
+                                            'table_key' => 'self',
+                                            'qualifier_name' => 'one_of',
+                                            'input_name0' =>
+                                                array(
+                                                    0 => '(Banking)',
+                                                    1 => '(Education)',
+                                                ),
+                                        ),
+                                ),
+                        ),
+                ),
         );
-
-
     }
+
 }
