@@ -24,7 +24,6 @@ class supp_ReportRepairs extends supp_Repairs
             if (isset($filters[$i]['operator'])) {
                 $this->repairFilters($filters[$i], $report, $allFields);
             } else {
-
                 $module = $report->module;
                 $field = $filters[$i]['name'];
                 if (isset($filters[$i]['table_key']) && $filters[$i]['table_key'] !== 'self') {
@@ -33,7 +32,7 @@ class supp_ReportRepairs extends supp_Repairs
                     if (isset($allFields[$fieldKey]['module'])) {
                         $module = $allFields[$fieldKey]['module'];
                     } else {
-                        $this->log("Report '{$report->name}' ({$report->id}) has a filter with an invalid mapping key of '{$fieldKey}'. The field {$field} may have been deleted.");
+                        $this->log("-> Report '{$report->name}' ({$report->id}) has a filter with an invalid mapping key of '{$fieldKey}'. The field {$field} may have been deleted.");
                         $this->foundIssues[$report->id] = $report->id;
                         $this->markReportBroken($report->id);
                         continue;
@@ -65,9 +64,9 @@ class supp_ReportRepairs extends supp_Repairs
                                         $issue = false;
                                         $modifiedSelectedKeys[$id] = $testKey;
                                         if (!$this->isTesting) {
-                                            $this->log("Report '{$report->name}' ({$report->id}) has an invalid key '{$selectedKey}' that was updated to '{$testKey}'. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
+                                            $this->log("-> Report '{$report->name}' ({$report->id}) has an invalid key '{$selectedKey}' that was updated to '{$testKey}'. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
                                         } else {
-                                            $this->log("Report '{$report->name}' ({$report->id}) has an invalid key '{$selectedKey}' that will be updated to '{$testKey}'. Allowed keys for {$report->name} / {$field} are: " . print_r($listKeys, true));
+                                            $this->log("-> Report '{$report->name}' ({$report->id}) has an invalid key '{$selectedKey}' that will be updated to '{$testKey}'. Allowed keys for {$report->name} / {$field} are: " . print_r($listKeys, true));
                                         }
                                     }
                                 }
@@ -85,10 +84,78 @@ class supp_ReportRepairs extends supp_Repairs
 
 
                 } else {
-                    $this->log("Report '{$report->name}' ({$report->id}) has a filter with a deleted or missing field on {$module} / {$field}");
+                    $this->log("-> Report '{$report->name}' ({$report->id}) has a filter with a deleted or missing field on {$module} / {$field}");
                     $this->foundIssues[$report->id] = $report->id;
                     $this->markReportBroken($report->id);
                 }
+            }
+        }
+    }
+
+    /**
+     * Repairs summary columns
+     * @param $columns
+     * @param $report
+     * @param $all_fields
+     */
+    public function repairSummaryColumns(&$columns, $report, $allFields)
+    {
+        foreach ($columns as $column) {
+            $module = $report->module;
+            $field = $column['name'];
+            if (isset($column['table_key']) && $column['table_key'] !== 'self') {
+
+                $fieldKey = $column['table_key'] . ":" . $field;
+                if (isset($allFields[$fieldKey]['module'])) {
+                    $module = $allFields[$fieldKey]['module'];
+                } else {
+                    $this->log("-> Report '{$report->name}' ({$report->id}) has a summary column with an invalid mapping key of '{$fieldKey}'. The field {$field} may have been deleted.");
+                    $this->foundIssues[$report->id] = $report->id;
+                    $this->markReportBroken($report->id);
+                    continue;
+                }
+            }
+
+            $type = $this->getFieldType($module, $field);
+
+            if (!$type) {
+                $this->log("-> Report '{$report->name}' ({$report->id}) has a summary column with a deleted or missing field on {$module} / {$field}");
+                $this->foundIssues[$report->id] = $report->id;
+                $this->markReportBroken($report->id);
+            }
+        }
+    }
+
+    /**
+     * Repairs display columns
+     * @param $columns
+     * @param $report
+     * @param $allFields
+     */
+    public function repairDisplayColumns(&$columns, $report, $allFields)
+    {
+        foreach ($columns as $column) {
+            $module = $report->module;
+            $field = $column['name'];
+            if (isset($column['table_key']) && $column['table_key'] !== 'self') {
+
+                $fieldKey = $column['table_key'] . ":" . $field;
+                if (isset($allFields[$fieldKey]['module'])) {
+                    $module = $allFields[$fieldKey]['module'];
+                } else {
+                    $this->log("-> Report '{$report->name}' ({$report->id}) has a display column with an invalid mapping key of '{$fieldKey}'. The field {$field} may have been deleted.");
+                    $this->foundIssues[$report->id] = $report->id;
+                    $this->markReportBroken($report->id);
+                    continue;
+                }
+            }
+
+            $type = $this->getFieldType($module, $field);
+
+            if (!$type) {
+                $this->log("-> Report '{$report->name}' ({$report->id}) has a display column with a deleted or missing field on {$module} / {$field}");
+                $this->foundIssues[$report->id] = $report->id;
+                $this->markReportBroken($report->id);
             }
         }
     }
@@ -99,8 +166,11 @@ class supp_ReportRepairs extends supp_Repairs
     public function repairReports()
     {
         $_REQUEST['module'] = 'supp_SugarRepairs'; //hack to prevent the reports module from rebuilding the language files
+
+        //remove report cache filters
+        $this->updateQuery("DELETE FROM report_cache");
         $sql = "SELECT id FROM saved_reports WHERE deleted = 0";
-        //$sql = "SELECT id FROM saved_reports WHERE id = '1433867d-f97a-020e-da67-56d531e415d3' AND deleted = 0";
+        //$sql = "SELECT id FROM saved_reports WHERE id = '82351cce-773c-0c66-1035-541701decda6' AND deleted = 0";
 
         $result = $GLOBALS['db']->query($sql);
 
@@ -114,13 +184,25 @@ class supp_ReportRepairs extends supp_Repairs
             $content = $jsonObj->decode($beforeJson, false);
 
             $this->log("Processing report '{$savedReport->name}' ({$savedReport->id})...");
-            //print_r($content['filters_def']['Filter_1']);
+
+            //print_r($content);
             if (isset($content['filters_def']) && isset($content['filters_def']['Filter_1']) && !empty($content['filters_def']['Filter_1'])) {
                 $this->repairFilters($content['filters_def']['Filter_1'], $savedReport, $report->all_fields);
+            } else if (isset($content['filters_def']) && !empty($content['filters_def'])) {
+                $this->repairFilters($content['filters_def'], $savedReport, $report->all_fields);
             } else {
                 $this->log("-> Skipping filter repair as no filter def was found.");
                 continue;
             }
+
+            //leaving out for now
+//            if (isset($content['summary_columns'])) {
+//                $this->repairSummaryColumns($content['summary_columns'], $savedReport, $report->all_fields);
+//            }
+//
+//            if (isset($content['display_columns'])) {
+//                $this->repairDisplayColumns($content['display_columns'], $savedReport, $report->all_fields);
+//            }
 
             $afterJson = $jsonObj->encode($content, false);
 
@@ -131,9 +213,6 @@ class supp_ReportRepairs extends supp_Repairs
                     $this->log("Updating report '{$savedReport->name}' ({$savedReport->id}).");
                     $savedReport->content = $afterJson;
                     $savedReport->save();
-
-                    //remove report cache filters
-                    $this->updateQuery("DELETE FROM report_cache WHERE id = '{$savedReport->id}'");
                 } else {
                     $this->log("Will update '{$savedReport->name}' ({$savedReport->id}).");
                 }
