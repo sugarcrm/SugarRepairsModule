@@ -32,7 +32,7 @@ class supp_ReportRepairs extends supp_Repairs
                     if (isset($allFields[$fieldKey]['module'])) {
                         $module = $allFields[$fieldKey]['module'];
                     } else {
-                        $this->log("-> Report '{$report->name}' ({$report->id}) has a filter with an invalid mapping key of '{$fieldKey}'. The field {$field} may have been deleted.");
+                        $this->logAction("-> Report '{$report->name}' ({$report->id}) has a filter with an invalid mapping key of '{$fieldKey}'. The field {$field} may have been deleted. You should review this report.");
                         $this->foundIssues[$report->id] = $report->id;
                         $this->markReportBroken($report->id);
                         continue;
@@ -64,15 +64,15 @@ class supp_ReportRepairs extends supp_Repairs
                                         $issue = false;
                                         $modifiedSelectedKeys[$id] = $testKey;
                                         if (!$this->isTesting) {
-                                            $this->log("-> Report '{$report->name}' ({$report->id}) has an invalid key '{$selectedKey}' that was updated to '{$testKey}'. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
+                                            $this->logChange("-> Report '{$report->name}' ({$report->id}) has an invalid key '{$selectedKey}' that was updated to '{$testKey}'. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
                                         } else {
-                                            $this->log("-> Report '{$report->name}' ({$report->id}) has an invalid key '{$selectedKey}' that will be updated to '{$testKey}'. Allowed keys for {$report->name} / {$field} are: " . print_r($listKeys, true));
+                                            $this->logChange("-> Report '{$report->name}' ({$report->id}) has an invalid key '{$selectedKey}' that will be updated to '{$testKey}'. Allowed keys for {$report->name} / {$field} are: " . print_r($listKeys, true));
                                         }
                                     }
                                 }
                             }
                             if ($issue) {
-                                $this->log("Report '{$report->name}' ({$report->id}) has an action with an invalid key '{$selectedKey}'. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
+                                $this->logAction("Report '{$report->name}' ({$report->id}) has an action with an invalid key '{$selectedKey}'. You should review this report. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
                                 $this->foundIssues[$report->id] = $report->id;
                                 $this->markReportBroken($report->id);
                             }
@@ -84,7 +84,7 @@ class supp_ReportRepairs extends supp_Repairs
 
 
                 } else {
-                    $this->log("-> Report '{$report->name}' ({$report->id}) has a filter with a deleted or missing field on {$module} / {$field}");
+                    $this->logAction("-> Report '{$report->name}' ({$report->id}) has a filter with a deleted or missing field on {$module} / {$field}. You should review this report.");
                     $this->foundIssues[$report->id] = $report->id;
                     $this->markReportBroken($report->id);
                 }
@@ -109,7 +109,7 @@ class supp_ReportRepairs extends supp_Repairs
                 if (isset($allFields[$fieldKey]['module'])) {
                     $module = $allFields[$fieldKey]['module'];
                 } else {
-                    $this->log("-> Report '{$report->name}' ({$report->id}) has a summary column with an invalid mapping key of '{$fieldKey}'. The field {$field} may have been deleted.");
+                    $this->logAction("-> Report '{$report->name}' ({$report->id}) has a summary column with an invalid mapping key of '{$fieldKey}'. The field {$field} may have been deleted. You should review this report.");
                     $this->foundIssues[$report->id] = $report->id;
                     $this->markReportBroken($report->id);
                     continue;
@@ -119,7 +119,7 @@ class supp_ReportRepairs extends supp_Repairs
             $type = $this->getFieldType($module, $field);
 
             if (!$type) {
-                $this->log("-> Report '{$report->name}' ({$report->id}) has a summary column with a deleted or missing field on {$module} / {$field}");
+                $this->logAction("-> Report '{$report->name}' ({$report->id}) has a summary column with a deleted or missing field on {$module} / {$field}. You should review this report.");
                 $this->foundIssues[$report->id] = $report->id;
                 $this->markReportBroken($report->id);
             }
@@ -143,7 +143,7 @@ class supp_ReportRepairs extends supp_Repairs
                 if (isset($allFields[$fieldKey]['module'])) {
                     $module = $allFields[$fieldKey]['module'];
                 } else {
-                    $this->log("-> Report '{$report->name}' ({$report->id}) has a display column with an invalid mapping key of '{$fieldKey}'. The field {$field} may have been deleted.");
+                    $this->logAction("-> Report '{$report->name}' ({$report->id}) has a display column with an invalid mapping key of '{$fieldKey}'. The field {$field} may have been deleted. You should review this report.");
                     $this->foundIssues[$report->id] = $report->id;
                     $this->markReportBroken($report->id);
                     continue;
@@ -153,7 +153,7 @@ class supp_ReportRepairs extends supp_Repairs
             $type = $this->getFieldType($module, $field);
 
             if (!$type) {
-                $this->log("-> Report '{$report->name}' ({$report->id}) has a display column with a deleted or missing field on {$module} / {$field}");
+                $this->logAction("-> Report '{$report->name}' ({$report->id}) has a display column with a deleted or missing field on {$module} / {$field}. You should review this report.");
                 $this->foundIssues[$report->id] = $report->id;
                 $this->markReportBroken($report->id);
             }
@@ -195,26 +195,17 @@ class supp_ReportRepairs extends supp_Repairs
                 continue;
             }
 
-            //leaving out for now
-//            if (isset($content['summary_columns'])) {
-//                $this->repairSummaryColumns($content['summary_columns'], $savedReport, $report->all_fields);
-//            }
-//
-//            if (isset($content['display_columns'])) {
-//                $this->repairDisplayColumns($content['display_columns'], $savedReport, $report->all_fields);
-//            }
-
             $afterJson = $jsonObj->encode($content, false);
 
             if ($beforeJson !== $afterJson) {
                 $this->foundIssues[$savedReport->id] = $savedReport->id;
 
                 if (!$this->isTesting) {
-                    $this->log("Updating report '{$savedReport->name}' ({$savedReport->id}).");
+                    $this->logChange("Updating report '{$savedReport->name}' ({$savedReport->id}).");
                     $savedReport->content = $afterJson;
                     $savedReport->save();
                 } else {
-                    $this->log("Will update '{$savedReport->name}' ({$savedReport->id}).");
+                    $this->logChange("Will update '{$savedReport->name}' ({$savedReport->id}).");
                 }
             }
 

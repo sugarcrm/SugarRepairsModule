@@ -48,28 +48,28 @@ class supp_LanguageRepairs extends supp_Repairs
             switch ($result) {
                 case self::TYPE_SYNTAXERROR:
                     $this->foundIssues[$fullPath] = $fullPath;
-                    $this->log("-> File has syntax error: {$this->syntaxError}. This will need to be corrected manually.");
+                    $this->logAction("-> File has syntax error: {$this->syntaxError}. This will need to be corrected manually.");
                     break;
                 case self::TYPE_UNREADABLE:
                     $this->foundIssues[$fullPath] = $fullPath;
-                    $this->log("-> File is not readable. Please correct your filesystem permissions and try again.");
+                    $this->logAction("-> File is not readable. Please correct your filesystem permissions and try again.");
                     break;
                 case self::TYPE_UNWRITABLE:
                     $this->foundIssues[$fullPath] = $fullPath;
-                    $this->log("-> File is not writable. Please correct your filesystem permissions and try again.");
+                    $this->logAction("-> File is not writable. Please correct your filesystem permissions and try again.");
                     break;
                 case self::TYPE_EMPTY:
                     $this->foundIssues[$fullPath] = $fullPath;
                     if (!$this->isTesting) {
                         unlink($fullPath);
-                        $this->log("-> Deleted the file.");
+                        $this->logChange("-> Deleted the file.");
                     } else {
-                        $this->log("-> Will delete file.");
+                        $this->logChange("-> Will delete file.");
                     }
                     break;
                 case self::TYPE_DYNAMIC:
                     $this->foundIssues[$fullPath] = $fullPath;
-                    $this->log("-> File has code present. This will need to be corrected manually.");
+                    $this->logAction("-> File has code present. This will need to be corrected manually.");
                     break;
                 case self::TYPE_STATIC:
                     $this->repairStaticFile($fullPath);
@@ -109,7 +109,7 @@ class supp_LanguageRepairs extends supp_Repairs
     private function repairStaticFile($fileName)
     {
         //Next run the file through the tests and fill the new array
-        $tokensByLine = $this->processTokenList(sugar_file_get_contents($fileName));
+        $tokensByLine = $this->processTokenList(sugar_file_get_contents($fileName), $fileName);
 
         if ($this->changed) {
             $this->foundIssues[$fileName] = $fileName;
@@ -133,7 +133,7 @@ class supp_LanguageRepairs extends supp_Repairs
                 $assembledFile = implode('', $assembledFile);
                 $this->writeFile($fileName, $assembledFile);
             } else {
-                $this->log("-> Will need to rewrite {$fileName}.");
+                $this->logChange("-> Will need to rewrite {$fileName}.");
             }
         } else {
             $this->log("-> No Changes.");
@@ -225,7 +225,7 @@ class supp_LanguageRepairs extends supp_Repairs
      * @param $fileContents
      * @return array
      */
-    public function processTokenList($fileContents)
+    public function processTokenList($fileContents, $fileName = '')
     {
         $this->changed = false;
         $tokensByLine = array();
@@ -242,6 +242,7 @@ class supp_LanguageRepairs extends supp_Repairs
                         break;
                     case 'T_ARRAY_KEY':
                         $oldKey = $keyList[1];
+<<<<<<< HEAD
                         $keyList[1] = $this->getValidLanguageKeyName($keyList[1]);
                         if ($oldKey != $keyList[1]) {
                             //OK a key has changed, now we need to update everything
@@ -253,6 +254,30 @@ class supp_LanguageRepairs extends supp_Repairs
                                 $listNameInfo = $this->findListField($tokenListName);
                                 if (!empty($listNameInfo)) {
                                     $this->updateDatabase($listNameInfo, $oldKey, $newKey);
+=======
+                        $testKey = $this->getValidLanguageKeyName($keyList[1]);
+                        $cleanOldKey = trim(trim($oldKey, "'"), '"');
+                        $cleanTestKey = trim(trim($testKey, "'"), '"');
+
+                        $tokenListName = trim(trim($tokenListName, "'"), '"');
+                        $currentOptions = $this->getListOptions($tokenListName);
+
+                        if ($testKey !== $oldKey && in_array($cleanTestKey, $currentOptions)) {
+                            $this->logAction("-> The key '{$cleanOldKey}' in '{$fileName}' cannot be updated as '{$cleanTestKey}' already exists in the list '{$tokenListName}'. This will need to be manually corrected. List options are" . print_r($currentOptions, true));
+                        } else {
+                            $keyList[1] = $testKey;
+                            if ($oldKey != $keyList[1]) {
+                                //OK a key has changed, now we need to update everything
+                                $this->changed = true;
+                                //Sometimes the values come though as 'value', we need to get rid of the tick marks
+                                $oldKey = trim($oldKey, "'\"");
+                                $newKey = trim($keyList[1], "'\"");
+                                if (!empty($tokenListName)) {
+                                    $listNameInfo = $this->findListField($tokenListName);
+                                    if (!empty($listNameInfo)) {
+                                        $this->updateDatabase($listNameInfo, $oldKey, $newKey);
+                                    }
+>>>>>>> upstream/master
                                 }
                             }
                         }
@@ -306,6 +331,7 @@ class supp_LanguageRepairs extends supp_Repairs
     }
 
     /**
+<<<<<<< HEAD
      * This function updated the fields_meta_data table looking for default values that need changing
      *
      * @param $fieldData
@@ -363,6 +389,8 @@ class supp_LanguageRepairs extends supp_Repairs
     }
 
     /**
+=======
+>>>>>>> upstream/master
      * This updates the tables in the database, it automatically detects if it is in the stock table or the custom table
      *
      * @param array $fieldData

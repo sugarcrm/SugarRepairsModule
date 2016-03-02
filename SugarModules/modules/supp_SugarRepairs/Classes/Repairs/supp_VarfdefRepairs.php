@@ -64,7 +64,7 @@ class supp_VardefRepairs extends supp_Repairs
                 }
 
                 if ($issue) {
-                    $this->log("-> Metadata '{$defKey}' has an invalid default value '{$selectedKey}'. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
+                    $this->logAction("-> Metadata '{$defKey}' has an invalid default value '{$selectedKey}'. This can be corrected by resaving the field in studio. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
                     $this->foundMetadataIssues[$defKey] = $defKey;
                     //dont disable - just alert
                 }
@@ -84,10 +84,10 @@ class supp_VardefRepairs extends supp_Repairs
                 }
 
                 if (!$this->isTesting) {
-                    $this->log("-> Metadata '{$defKey}' has an invalid default value '{$row['default_value']}' that was updated to '{$default_value}'. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
+                    $this->logChange("-> Metadata '{$defKey}' has an invalid default value '{$row['default_value']}' that was updated to '{$default_value}'. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
                     $this->updateQuery("UPDATE fields_meta_data SET default_value = '{$default_value}' WHERE deleted = 0 AND custom_module = '{$module}' AND name = '{$field}'");
                 } else {
-                    $this->log("-> Metadata '{$defKey}' has an invalid default value '{$row['default_value']}' that will be updated to '{$default_value}'. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
+                    $this->logChange("-> Metadata '{$defKey}' has an invalid default value '{$row['default_value']}' that will be updated to '{$default_value}'. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
                 }
             }
         }
@@ -111,14 +111,14 @@ class supp_VardefRepairs extends supp_Repairs
             if (count($variables) == 1 && isset($variables['$dictionary'])) {
                 //proceed
             } else if (count($variables) > 1 && isset($variables['$dictionary'])) {
-                $this->log("-> File contains multiple variables. This will need to be manually corrected. Variables present are: " . print_r($variables));
+                $this->logAction("-> File contains multiple variables. This will need to be manually corrected. Variables present are: " . print_r($variables));
                 continue;
             } else {
                 $append = '';
                 if (!empty($variables)) {
                     $append = " This will need to be manually corrected. Variables present are: " . print_r($variables);
                 }
-                $this->log("-> No \$dictionary variables are present.{$append}");
+                $this->logAction("-> No \$dictionary variables are present.{$append}");
                 continue;
             }
 
@@ -173,7 +173,7 @@ class supp_VardefRepairs extends supp_Repairs
                                 }
 
                                 if ($issue) {
-                                    $this->log("-> Vardef '{$defKey}' has an invalid key '{$selectedKey}'. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
+                                    $this->logAction("-> Vardef '{$defKey}' has an invalid key '{$selectedKey}' in '{$fullPath}'. This will need to manually corrected. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
                                     $this->foundVardefIssues[$defKey] = $defKey;
                                     //dont disable - just alert
                                 }
@@ -192,9 +192,9 @@ class supp_VardefRepairs extends supp_Repairs
 
                                 if (!$this->isTesting) {
                                     $dictionary[$objectName]['fields'][$field]['default'] = $default_value;
-                                    $this->log("-> Vardef '{$defKey}' has an invalid default value '{$fieldDefs['default']}' that was updated to '{$default_value}'. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
+                                    $this->logChange("-> Vardef '{$defKey}' has an invalid default value '{$fieldDefs['default']}' that was updated to '{$default_value}'. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
                                 } else {
-                                    $this->log("-> Vardef '{$defKey}' has an invalid default value '{$fieldDefs['default']}' that will be updated to '{$default_value}'. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
+                                    $this->logChange("-> Vardef '{$defKey}' has an invalid default value '{$fieldDefs['default']}' that will be updated to '{$default_value}'. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
                                 }
                             }
                         }
@@ -224,7 +224,7 @@ class supp_VardefRepairs extends supp_Repairs
                                         if ($testGridKey !== $gridkey) {
                                             if (in_array($testGridKey, $gridListKeys)) {
                                                 $gridIssue = false;
-                                                $this->log("-> Vardef '{$defKey}' has an issue with the visibility_grid. The mapping '{$key} / {$gridkey}' uses the grid key '{$gridkey}' which will be updated to '{$testGridKey}'. Available keys in list: " . print_r($gridListKeys, true));
+                                                $this->logChange("-> Vardef '{$defKey}' has an issue with the visibility_grid. The mapping '{$key} / {$gridkey}' uses the grid key '{$gridkey}' which will be updated to '{$testGridKey}'. Available keys in list: " . print_r($gridListKeys, true));
 
                                                 if (!$this->isTesting) {
                                                     $dictionary[$objectName]['fields'][$field]['visibility_grid']['values'][$key][$gridIndex] = $testGridKey;
@@ -234,7 +234,7 @@ class supp_VardefRepairs extends supp_Repairs
                                     }
 
                                     if ($gridIssue) {
-                                        $this->log("-> Vardef '{$defKey}' has an issue with the visibility_grid. The mapping '{$key} / {$gridkey}' uses the grid key '{$gridkey}' which will be removed. Key does not exist in list: " . print_r($gridListKeys, true));
+                                        $this->logAction("-> Vardef '{$defKey}' has an issue with the visibility_grid. The mapping '{$key} / {$gridkey}' uses the grid key '{$gridkey}' which will be removed. Key does not exist in list: " . print_r($gridListKeys, true));
                                         if (!$this->isTesting) {
                                             $this->foundVardefIssues[$defKey] = $defKey;
                                             if (isset($dictionary[$objectName]['fields'][$field]['visibility_grid']['values'][$key][$gridIndex])) {
@@ -256,7 +256,7 @@ class supp_VardefRepairs extends supp_Repairs
                                     if ($testKey !== $key) {
                                         if (in_array($testKey, $triggerListKeys)) {
                                             $triggerIssue = false;
-                                            $this->log("-> Vardef '{$defKey}' has an issue with the visibility_grid. The field '{$triggerField}' uses the key '{$key}' which will be updated with '{$testKey}'. Available keys in list: " . print_r($triggerListKeys, true));
+                                            $this->logChange("-> Vardef '{$defKey}' has an issue with the visibility_grid. The field '{$triggerField}' uses the key '{$key}' which will be updated with '{$testKey}'. Available keys in list: " . print_r($triggerListKeys, true));
 
                                             if (!$this->isTesting) {
                                                 $dictionary[$objectName]['fields'][$field]['visibility_grid']['values'][$testKey] = $dictionary[$objectName]['fields'][$field]['visibility_grid']['values'][$key];
@@ -267,7 +267,7 @@ class supp_VardefRepairs extends supp_Repairs
                                 }
 
                                 if ($triggerIssue) {
-                                    $this->log("-> Vardef '{$defKey}' has an issue with the visibility_grid. The field '{$triggerField}' uses the key '{$key}' which will be removed. Key does not exist in list: " . print_r($triggerListKeys, true));
+                                    $this->logChange("-> Vardef '{$defKey}' has an issue with the visibility_grid. The field '{$triggerField}' uses the key '{$key}' which will be removed. Key does not exist in list: " . print_r($triggerListKeys, true));
                                     if (!$this->isTesting) {
                                         $this->foundVardefIssues[$defKey] = $defKey;
                                         if ($dictionary[$objectName]['fields'][$field]['visibility_grid']['values'][$key]) {
@@ -279,7 +279,7 @@ class supp_VardefRepairs extends supp_Repairs
 
 
                         } else {
-                            $this->log("-> Vardef '{$defKey}' has an issue with the visibility_grid. The trigger field '{$triggerField}' does not have a valid type ({$triggerType}).");
+                            $this->logAction("-> Vardef '{$defKey}' has an issue with the visibility_grid in '{$fullPath}'. This will need to manually corrected. The trigger field '{$triggerField}' does not have a valid type ({$triggerType}).");
                         }
 
                     }

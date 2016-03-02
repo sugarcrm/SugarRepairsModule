@@ -183,7 +183,7 @@ $dictionary['supp_SugarRepairs'] = array(
     ),
     'acls' =>
         array(
-            'SugarACLAdministration' => true,
+            'SugarACLAdminOnly' => true,
         ),
     'relationships' => array(),
     'optimistic_locking' => true,
