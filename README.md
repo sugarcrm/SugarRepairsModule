@@ -5,16 +5,16 @@ All repairs currently need to be run from the command line. By default, all repa
 
 It is highly recommended to remove the Sugar Repairs module before upgrading.
 
-## Language Repairs
+# Language Repairs
 Corrects common language file issues. The various issues addressed are shown below:
 
-###Testing Command:
+##Testing Command:
 `cd "modules/supp_SugarRepairs/" && php cli.php -r lang`
 
-###Execute Command:
+##Execute Command:
 `cd "modules/supp_SugarRepairs/" && php cli.php -r lang -t false`
 
-###Issues Addressed
+##Issues Addressed
 * Health Check Errors:
 
 >[Health Check Error: Bad vardefs - key] (https://support.sugarcrm.com/Knowledge_Base/Administration/Install/Troubleshooting_Health_Check_Output/Health_Check_Error_Bad_Vardefs_Key/)
@@ -62,45 +62,45 @@ $app_list_strings['moduleList']['module2'] = 'Module 2';
 * Runs the workflow repair.
 * Runs the report repair.
 
-##Team Set Repairs
+#Team Set Repairs
 Corrects common issues with team sets.
 
-###Testing Command:
+##Testing Command:
 `cd "modules/supp_SugarRepairs/" && php cli.php -r team`
 
-###Execute Command:
+##Execute Command:
 `cd "modules/supp_SugarRepairs/" && php cli.php -r team -t false`
 
-###Issues Addressed
+##Issues Addressed
 * Duplicate teams in a team set
 > Removes any duplicate team relationships to a team set.
        
 * Incorrect team counts on team sets
 > Correct any team sets with invalid team counts and relationships.
     
-##Workflow Repairs
+#Workflow Repairs
 Corrects common issues with workflows.
 
-###Testing Command:
+##Testing Command:
 `cd "modules/supp_SugarRepairs/" && php cli.php -r workflow`
 
-###Execute Command:
+##Execute Command:
 `cd "modules/supp_SugarRepairs/" && php cli.php -r workflow -t false`
 
-###Issues Addressed
+##Issues Addressed
 * Workflows with invalid fields
 > Disables any workflows with missing or invalid fields
 
-##Vardef Repairs
+#Vardef Repairs
 Corrects common issues with vardefs.
 
-###Testing Command:
+##Testing Command:
 `cd "modules/supp_SugarRepairs/" && php cli.php -r vardef`
 
-###Execute Command:
+##Execute Command:
 `cd "modules/supp_SugarRepairs/" && php cli.php -r vardef -t false`
 
-###Issues Addressed
+##Issues Addressed
 * Enum/Multienum fields with invalid default values.
 > Attempts to find a valid default value key. If no value is found, field is left alone.
        
