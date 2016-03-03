@@ -230,6 +230,7 @@ class supp_LanguageRepairs extends supp_Repairs
         $this->changed = false;
         $tokensByLine = array();
         $lineNumber = 0;
+        $tokenListName="";
 
         $this->tokenList = $this->getAnnotatedTokenList($fileContents);
 
@@ -238,7 +239,7 @@ class supp_LanguageRepairs extends supp_Repairs
                 $lineNumber = $keyList[2];
                 switch ($keyList['TOKEN_NAME']) {
                     case 'T_ARRAY_NAME':
-                        $tokenListName = $keyList[1];
+                        $tokenListName = trim($keyList[1],"'\"");
                         break;
                     case 'T_ARRAY_KEY':
                         $oldKey = $keyList[1];
@@ -246,10 +247,9 @@ class supp_LanguageRepairs extends supp_Repairs
                         $cleanOldKey = trim(trim($oldKey, "'"), '"');
                         $cleanTestKey = trim(trim($testKey, "'"), '"');
 
-                        $tokenListName = trim(trim($tokenListName, "'"), '"');
                         $currentOptions = $this->getListOptions($tokenListName);
 
-                        if ($testKey !== $oldKey && in_array($cleanTestKey, $currentOptions)) {
+                        if (is_array($currentOptions) && $testKey !== $oldKey && in_array($cleanTestKey, $currentOptions)) {
                             $this->logAction("-> The key '{$cleanOldKey}' in '{$fileName}' cannot be updated as '{$cleanTestKey}' already exists in the list '{$tokenListName}'. This will need to be manually corrected. List options are" . print_r($currentOptions, true));
                         } else {
                             $keyList[1] = $testKey;
@@ -260,7 +260,7 @@ class supp_LanguageRepairs extends supp_Repairs
                                 $oldKey = trim($oldKey, "'\"");
                                 $newKey = trim($keyList[1], "'\"");
                                 if (!empty($tokenListName)) {
-                                    $listNameInfo = $this->findListField($tokenListName);
+                                    $listNameInfo = $this->findListField(trim($tokenListName, "'\""));
                                     if (!empty($listNameInfo)) {
                                         $this->updateDatabase($listNameInfo, $oldKey, $newKey);
                                     }
@@ -324,44 +324,46 @@ class supp_LanguageRepairs extends supp_Repairs
      * @param string $newValue
      * @return array
      */
-    public function updateDatabase($fieldData, $oldKey, $newValue)
+    public function updateDatabase($fieldData, $oldKey, $newKey)
     {
         if (!empty($fieldData)) {
-            foreach ($fieldData as $module => $fieldName) {
+            foreach ($fieldData as $module => $fieldNames) {
                 $id_field_name = 'id';
                 $bean = BeanFactory::getBean($module);
-                $fieldDef = $bean->field_defs[$fieldName];
-                if (array_key_exists('source', $fieldDef) && $fieldDef['source'] == 'custom_fields') {
-                    $table = $bean->table_name . '_cstm';
-                    $id_field_name='id_c';
-                } else {
-                    $table = $bean->table_name;
-                }
-
-                $hash = $GLOBALS['db']->fetchOne("SELECT * FROM {$table} WHERE {$fieldName} LIKE '%^{$oldKey}^%' OR {$fieldName} = '{$oldKey}'");
-                if ($hash != false) {
-                    if($this->isTesting) {
-                        $this->log("Found the key '{$oldKey}' will be updated in '{$table}'.",'info');
-                    }
-                    //back up the database table if it has not been backed up yet.
-                    if (!$this->isBackedUpTable($table)) {
-                        $this->backupTable($table);
+                foreach ($fieldNames as $fieldName) {
+                    $fieldDef = $bean->field_defs[$fieldName];
+                    if (array_key_exists('source', $fieldDef) && $fieldDef['source'] == 'custom_fields') {
+                        $table = $bean->table_name . '_cstm';
+                        $id_field_name = 'id_c';
+                    } else {
+                        $table = $bean->table_name;
                     }
 
-                    $sql = "SELECT {$id_field_name} FROM {$table}
+                    $hash = $GLOBALS['db']->fetchOne("SELECT * FROM {$table} WHERE {$fieldName} LIKE '%^{$oldKey}^%' OR {$fieldName} = '{$oldKey}'");
+                    if ($hash != false) {
+                        if ($this->isTesting) {
+                            $this->log("Found the key '{$oldKey}' in '{$table}', it will be updated.", 'info');
+                        }
+                        //back up the database table if it has not been backed up yet.
+                        if (!$this->isBackedUpTable($table)) {
+                            $this->backupTable($table);
+                        }
+
+                        $sql = "SELECT {$id_field_name} FROM {$table}
                             WHERE {$fieldName} LIKE '%^{$oldKey}^%' OR
                                   {$fieldName} = '{$oldKey}'";
-                    $result = $GLOBALS['db']->query($sql, true, "Error updating fields_meta_data.");
-                    while ($hash = $GLOBALS['db']->fetchByAssoc($result)) {
-                        $sql = "UPDATE {$table}
-                                SET {$fieldName} = REPLACE({$fieldName}, '{$oldKey}', '{$newValue}')
-                                WHERE {$fieldName} LIKE '%^{$oldKey}^%' OR
-                                  {$fieldName} = '{$oldKey}'";
-                        //don't bother running the same query twice or at all if we are in testing mode
-                        if (!in_array($sql, $this->queryCache) && !$this->isTesting) {
-                            $this->updateQuery($sql);
+                        $result = $GLOBALS['db']->query($sql, true, "Error updating {$table}.");
+                        while ($hash = $GLOBALS['db']->fetchByAssoc($result)) {
+                            $id = $hash[$id_field_name];
+                            $sql = "UPDATE {$table}
+                                SET {$fieldName} = REPLACE({$fieldName}, '{$oldKey}', '{$newKey}')
+                                WHERE {$id_field_name} = '{$id}'";
+                            //don't bother running the same query twice or at all if we are in testing mode
+                            if (!in_array($sql, $this->queryCache) && !$this->isTesting) {
+                                $this->updateQuery($sql);
+                            }
+                            $this->queryCache[] = $sql;
                         }
-                        $this->queryCache[] = $sql;
                     }
                 }
             }
@@ -387,8 +389,7 @@ class supp_LanguageRepairs extends supp_Repairs
             if (isset($focus->field_defs) && !empty($focus->field_defs)) {
                 foreach ($focus->field_defs as $fieldName => $definitions) {
                     if (array_key_exists('options', $definitions) && $definitions['options'] == $listName) {
-                        $retArray[$bean] = $fieldName;
-                        break;
+                        $retArray[$bean][] = $fieldName;
                     }
                 }
             }
