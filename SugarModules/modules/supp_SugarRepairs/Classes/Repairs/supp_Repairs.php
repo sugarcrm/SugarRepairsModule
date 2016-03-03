@@ -765,9 +765,9 @@ abstract class supp_Repairs
      */
     public function getValidLanguageKeyName($key)
     {
-        //Now go through and remove the characters [& / - ( )] and spaces (in some cases) from array keys
-        $badChars = array(' & ', '&', ' - ', '-', ' / ', '/', '(', ')');
-        $goodChars = array('_', '_', '_', '_', '_', '_', '', '');
+        //Now go through and remove the characters [+ & / - ( )] and spaces (in some cases) from array keys
+        $badChars = array(' + ', '+',' & ', '&', ' - ', '-', ' / ', '/', '(', ')');
+        $goodChars = array('_', '_','_', '_', '_', '_', '_', '_', '', '');
         $newKey = str_replace($badChars, $goodChars, $key, $count);
         return $newKey;
     }
