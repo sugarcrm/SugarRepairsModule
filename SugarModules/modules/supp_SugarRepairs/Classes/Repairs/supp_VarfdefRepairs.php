@@ -118,17 +118,28 @@ class supp_VardefRepairs extends supp_Repairs
                 if (!empty($variables)) {
                     $append = " This will need to be manually corrected. Variables present are: " . print_r($variables);
                 }
-                $this->logAction("-> No \$dictionary variables are present.{$append}");
+                $this->log("-> No \$dictionary variables are present.{$append}");
                 continue;
             }
 
             $dictionary = array();
             require($fullPath);
+
+            $multipleDictionaryIndexes = false;
+
             $storedDictionary = $dictionary;
             foreach ($dictionary as $objectName => $modDefs) {
 
                 if (!isset($modDefs['fields'])) {
                     continue;
+                }
+
+                //check if we have other indexes specified
+                $modDefTest = $modDefs;
+                unset($modDefTest['fields']);
+
+                if (!empty($modDefTest)) {
+                    $multipleDictionaryIndexes = true;
                 }
 
                 $module = $this->getModuleName($objectName);
@@ -173,7 +184,7 @@ class supp_VardefRepairs extends supp_Repairs
                                 }
 
                                 if ($issue) {
-                                    $this->logAction("-> Vardef '{$defKey}' has an invalid key '{$selectedKey}' in '{$fullPath}'. This will need to manually corrected. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
+                                    $this->logAction("-> Vardef '{$defKey}' has an invalid key '{$selectedKey}' in '{$fullPath}'. This will need to be manually corrected. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
                                     $this->foundVardefIssues[$defKey] = $defKey;
                                     //dont disable - just alert
                                 }
@@ -190,11 +201,17 @@ class supp_VardefRepairs extends supp_Repairs
                                     $default_value = encodeMultienumValue($modifiedSelectedKeys);
                                 }
 
-                                if (!$this->isTesting) {
-                                    $dictionary[$objectName]['fields'][$field]['default'] = $default_value;
-                                    $this->logChange("-> Vardef '{$defKey}' has an invalid default value '{$fieldDefs['default']}' that was updated to '{$default_value}'. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
+                                if ($multipleDictionaryIndexes) {
+                                    $this->foundVardefIssues[$defKey] = $defKey;
+                                    $this->logAction("-> Vardef '{$fullPath}' has indexes aside from fields. To avoid any issues, this file should be corrected manually. '{$defKey}' should have a default value of '{$default_value}'. " . print_r($dictionary, true));
+                                    break;
                                 } else {
-                                    $this->logChange("-> Vardef '{$defKey}' has an invalid default value '{$fieldDefs['default']}' that will be updated to '{$default_value}'. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
+                                    if (!$this->isTesting) {
+                                        $dictionary[$objectName]['fields'][$field]['default'] = $default_value;
+                                        $this->logChange("-> Vardef '{$defKey}' has an invalid default value '{$fieldDefs['default']}' that was updated to '{$default_value}'. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
+                                    } else {
+                                        $this->logChange("-> Vardef '{$defKey}' has an invalid default value '{$fieldDefs['default']}' that will be updated to '{$default_value}'. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
+                                    }
                                 }
                             }
                         }
@@ -234,7 +251,7 @@ class supp_VardefRepairs extends supp_Repairs
                                     }
 
                                     if ($gridIssue) {
-                                        $this->logAction("-> Vardef '{$defKey}' has an issue with the visibility_grid. The mapping '{$key} / {$gridkey}' uses the grid key '{$gridkey}' which will be removed. Key does not exist in list: " . print_r($gridListKeys, true));
+                                        $this->logChange("-> Vardef '{$defKey}' has an issue with the visibility_grid. The mapping '{$key} / {$gridkey}' uses the grid key '{$gridkey}' which will be removed. Key does not exist in list: " . print_r($gridListKeys, true));
                                         if (!$this->isTesting) {
                                             $this->foundVardefIssues[$defKey] = $defKey;
                                             if (isset($dictionary[$objectName]['fields'][$field]['visibility_grid']['values'][$key][$gridIndex])) {
@@ -287,7 +304,7 @@ class supp_VardefRepairs extends supp_Repairs
             }
 
             if (!$this->isTesting && $storedDictionary !== $dictionary) {
-                $this->writeDictionaryFile($objectName, $field, $dictionary[$objectName]['fields'][$field], $fullPath);
+                $this->writeDictionaryFile($dictionary, $fullPath);
             }
         }
 
