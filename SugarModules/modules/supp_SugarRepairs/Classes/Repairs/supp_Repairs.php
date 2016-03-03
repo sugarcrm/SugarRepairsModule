@@ -646,37 +646,46 @@ abstract class supp_Repairs
     }
 
     /**
-     * writes a variable file
-     * @param $variable
+     * Writes a dictionary variable file
+     * @param $objectName
+     * @param $field
      * @param $array
      * @param $fileName
      */
-    protected function writeDictionaryFile($objectName, $field, $array, $fileName)
+    protected function writeDictionaryFile($dictionary, $fileName)
     {
-        $this->logchange("-> Writing variable file '{$fileName}'");
+        $this->logchange("-> Writing dictionary variable file '{$fileName}'");
         if (!$this->isTesting) {
 
-            $out =  "<?php\n // created: " . date('Y-m-d H:i:s') . "\n";
-            foreach ($array as $property => $val)
-            {
-                $out .= override_value_to_string_recursive(array($objectName, "fields", $field, $property), 'dictionary', $val) . "\n";
+            $content = "<?php\n // created: " . date('Y-m-d H:i:s') . "\n";
+            foreach ($dictionary as $objectName => $modDefs) {
+                foreach ($modDefs as $section => $sectionDefs) {
+                    if (is_array($sectionDefs)) {
+                        foreach ($sectionDefs as $item => $itemDefs) {
+                            if (is_array($itemDefs)) {
+                                foreach ($itemDefs as $property => $value) {
+                                    $content .= override_value_to_string_recursive(array($objectName, $section, $item, $property), 'dictionary', $value) . "\n";
+                                }
+                            } else {
+                                $content .= override_value_to_string_recursive(array($objectName, $section, $item), 'dictionary', $itemDefs) . "\n";
+                            }
+                        }
+                    } else {
+                        $content .= override_value_to_string_recursive(array($objectName, $section), 'dictionary', $sectionDefs) . "\n";
+                    }
+                }
             }
-
-            $out .= "\n ?>";
 
             if (is_file($fileName)) {
                 $beforeContents = file_get_contents($fileName);
                 $fileAccessTime = date('U', fileatime($fileName));
                 $fileModifiedTime = date('U', filemtime($fileName));
-
-                $this->capture($this->cycle_id, $this->loggerTitle, 'File', $fileName, $beforeContents, $out, "Backing up '{$fileName}'", 'Completed', 'P3');
-
-                sugar_file_put_contents($fileName, $out, LOCK_EX);
+                $this->capture($this->cycle_id, $this->loggerTitle, 'File', $fileName, $beforeContents, $content, "Backing up '{$fileName}'", 'Completed', 'P3');
+                sugar_file_put_contents($fileName, $content, LOCK_EX);
                 sugar_touch($fileName, $fileModifiedTime, $fileAccessTime);
-
             } else {
-                $this->capture($this->cycle_id, $this->loggerTitle, 'File', $fileName, null, $out, "Writing new '{$fileName}'", 'Completed', 'P3');
-                sugar_file_put_contents($fileName, $out, LOCK_EX);
+                $this->capture($this->cycle_id, $this->loggerTitle, 'File', $fileName, null, $content, "Writing new '{$fileName}'", 'Completed', 'P3');
+                sugar_file_put_contents($fileName, $content, LOCK_EX);
             }
         }
     }
