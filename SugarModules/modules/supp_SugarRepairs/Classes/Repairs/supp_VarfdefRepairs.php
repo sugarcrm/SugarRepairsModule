@@ -97,7 +97,7 @@ class supp_VardefRepairs extends supp_Repairs
     }
 
     /**
-     * Repairs any broken default values in vardefd
+     * Repairs any broken default values in vardefs
      */
     public function repairDefs()
     {
@@ -319,10 +319,11 @@ class supp_VardefRepairs extends supp_Repairs
      */
     public function execute(array $args)
     {
-        if ($this->isCE()) {
-            $this->log('Repair ignored as it does not apply to CE');
-            return false;
-        }
+        //kbrill: I think this does apply to CE
+//        if ($this->isCE()) {
+//            $this->log('Repair ignored as it does not apply to CE');
+//            return false;
+//        }
 
         //check for testing an other repair generic params
         parent::execute($args);

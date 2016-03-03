@@ -649,11 +649,11 @@ abstract class supp_Repairs
      * writes a variable file
      * @param $variable
      * @param $array
-     * @param $fullPath
+     * @param $fileName
      */
-    protected function writeDictionaryFile($objectName, $field, $array, $fullPath)
+    protected function writeDictionaryFile($objectName, $field, $array, $fileName)
     {
-        $this->logChange("-> Writing variable file '{$fullPath}'");
+        $this->logchange("-> Writing variable file '{$fileName}'");
         if (!$this->isTesting) {
 
             $out =  "<?php\n // created: " . date('Y-m-d H:i:s') . "\n";
@@ -664,19 +664,19 @@ abstract class supp_Repairs
 
             $out .= "\n ?>";
 
-            if (is_file($fullPath)) {
-                $beforeContents = file_get_contents($fullPath);
-                $fileAccessTime = date('U', fileatime($fullPath));
-                $fileModifiedTime = date('U', filemtime($fullPath));
+            if (is_file($fileName)) {
+                $beforeContents = file_get_contents($fileName);
+                $fileAccessTime = date('U', fileatime($fileName));
+                $fileModifiedTime = date('U', filemtime($fileName));
 
-                $this->capture($this->cycle_id, $this->loggerTitle, 'File', $fullPath, $beforeContents, $out, "Backing up '{$fullPath}'", 'Completed', 'P3');
+                $this->capture($this->cycle_id, $this->loggerTitle, 'File', $fileName, $beforeContents, $out, "Backing up '{$fileName}'", 'Completed', 'P3');
 
-                sugar_file_put_contents($fullPath, $out, LOCK_EX);
-                sugar_touch($fullPath, $fileModifiedTime, $fileAccessTime);
+                sugar_file_put_contents($fileName, $out, LOCK_EX);
+                sugar_touch($fileName, $fileModifiedTime, $fileAccessTime);
 
             } else {
-                $this->capture($this->loggerTitle, 'File', 'Completed', 'P3', "Writing file '{$fullPath}'", '', $out);
-                sugar_file_put_contents($fullPath, $out, LOCK_EX);
+                $this->capture($this->cycle_id, $this->loggerTitle, 'File', $fileName, null, $out, "Writing new '{$fileName}'", 'Completed', 'P3');
+                sugar_file_put_contents($fileName, $out, LOCK_EX);
             }
         }
     }
@@ -686,20 +686,20 @@ abstract class supp_Repairs
      * @param $file
      * @param $contents
      */
-    protected function writeFile($file, $contents)
+    protected function writeFile($fileName, $contents)
     {
-        $this->logChange("-> Writing file '{$file}'");
+        $this->logchange("-> Writing file '{$fileName}'");
         if (!$this->isTesting) {
-            if (is_file($file)) {
-                $this->capture($this->cycle_id, $this->loggerTitle, 'File', $file, file_get_contents($file), $contents, "Backing up '{$file}'", 'Completed', 'P3');
+            if (is_file($fileName)) {
+                $this->capture($this->cycle_id, $this->loggerTitle, 'File', $fileName, file_get_contents($fileName), $contents, "Backing up '{$fileName}'", 'Completed', 'P3');
                 //Update the file but retain its modified and access date stamps
-                $fileAccessTime = date('U', fileatime($file));
-                $fileModifiedTime = date('U', filemtime($file));
-                sugar_file_put_contents($file, $contents, LOCK_EX);
-                sugar_touch($file, $fileModifiedTime, $fileAccessTime);
+                $fileAccessTime = date('U', fileatime($fileName));
+                $fileModifiedTime = date('U', filemtime($fileName));
+                sugar_file_put_contents($fileName, $contents, LOCK_EX);
+                sugar_touch($fileName, $fileModifiedTime, $fileAccessTime);
             } else {
-                $this->capture($this->loggerTitle, 'File', 'Completed', 'P3', "Writing file '{$file}'", '', implode("\n", $contents));
-                sugar_file_put_contents($file, $contents, LOCK_EX);
+                $this->capture($this->cycle_id, $this->loggerTitle, 'File', $fileName, null, $contents, "Writing new '{$fileName}'", 'Completed', 'P3');
+                sugar_file_put_contents($fileName, $contents, LOCK_EX);
             }
         }
     }
