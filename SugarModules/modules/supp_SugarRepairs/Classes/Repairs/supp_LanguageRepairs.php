@@ -328,22 +328,27 @@ class supp_LanguageRepairs extends supp_Repairs
     {
         if (!empty($fieldData)) {
             foreach ($fieldData as $module => $fieldName) {
+                $id_field_name = 'id';
                 $bean = BeanFactory::getBean($module);
                 $fieldDef = $bean->field_defs[$fieldName];
                 if (array_key_exists('source', $fieldDef) && $fieldDef['source'] == 'custom_fields') {
                     $table = $bean->table_name . '_cstm';
+                    $id_field_name='id_c';
                 } else {
                     $table = $bean->table_name;
                 }
 
                 $hash = $GLOBALS['db']->fetchOne("SELECT * FROM {$table} WHERE {$fieldName} LIKE '%^{$oldKey}^%' OR {$fieldName} = '{$oldKey}'");
                 if ($hash != false) {
+                    if($this->isTesting) {
+                        $this->log("Found the key '{$oldKey}' will be updated in '{$table}'.",'info');
+                    }
                     //back up the database table if it has not been backed up yet.
                     if (!$this->isBackedUpTable($table)) {
                         $this->backupTable($table);
                     }
 
-                    $sql = "SELECT id FROM {$table}
+                    $sql = "SELECT {$id_field_name} FROM {$table}
                             WHERE {$fieldName} LIKE '%^{$oldKey}^%' OR
                                   {$fieldName} = '{$oldKey}'";
                     $result = $GLOBALS['db']->query($sql, true, "Error updating fields_meta_data.");
