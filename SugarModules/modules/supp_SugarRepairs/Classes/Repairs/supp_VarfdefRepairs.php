@@ -34,7 +34,7 @@ class supp_VardefRepairs extends supp_Repairs
             $modifiedSelectedKeys = $selectedKeys;
             foreach ($selectedKeys as $id => $selectedKey) {
                 $issue = false;
-                if ($listKeys!=false && !in_array($selectedKey, $listKeys)) {
+                if ($listKeys != false && !in_array($selectedKey, $listKeys)) {
                     $this->foundMetadataIssues[$defKey] = $defKey;
                     $issue = true;
                 }
@@ -43,7 +43,7 @@ class supp_VardefRepairs extends supp_Repairs
                     $testKey = $this->getValidLanguageKeyName($selectedKey);
                     //try to fix the key if it was updated in the lang repair script
                     if ($testKey !== $selectedKey) {
-                        if ($listKeys!=false && in_array($testKey, $listKeys)) {
+                        if ($listKeys != false && in_array($testKey, $listKeys)) {
                             $issue = false;
                             $modifiedSelectedKeys[$id] = $testKey;
                         }
@@ -51,7 +51,7 @@ class supp_VardefRepairs extends supp_Repairs
                 }
 
                 if ($issue && $type == 'enum' && count($selectedKeys) == 1 && isset($selectedKeys[0]) && empty($selectedKeys[0])) {
-                    if ($listKeys!=false && isset($listKeys[0])) {
+                    if ($listKeys != false && isset($listKeys[0])) {
                         $issue = false;
                         //set default value to first item in list
                         $modifiedSelectedKeys[0] = $listKeys[0];
@@ -159,7 +159,7 @@ class supp_VardefRepairs extends supp_Repairs
                             $modifiedSelectedKeys = $selectedKeys;
                             foreach ($selectedKeys as $id => $selectedKey) {
                                 $issue = false;
-                                if ($listKeys!=false && !in_array($selectedKey, $listKeys)) {
+                                if ($listKeys != false && !in_array($selectedKey, $listKeys)) {
                                     $this->foundVardefIssues[$defKey] = $defKey;
                                     $issue = true;
                                 }
@@ -168,7 +168,7 @@ class supp_VardefRepairs extends supp_Repairs
                                     $testKey = $this->getValidLanguageKeyName($selectedKey);
                                     //try to fix the key if it was updated in the lang repair script
                                     if ($testKey !== $selectedKey) {
-                                        if ($listKeys!=false && in_array($testKey, $listKeys)) {
+                                        if ($listKeys != false && in_array($testKey, $listKeys)) {
                                             $issue = false;
                                             $modifiedSelectedKeys[$id] = $testKey;
                                         }
@@ -176,7 +176,7 @@ class supp_VardefRepairs extends supp_Repairs
                                 }
 
                                 if ($issue && $type == 'enum' && count($selectedKeys) == 1 && isset($selectedKeys[0]) && empty($selectedKeys[0])) {
-                                    if ($listKeys!=false && isset($listKeys[0])) {
+                                    if ($listKeys != false && isset($listKeys[0])) {
                                         $issue = false;
                                         //set default value to first item in list
                                         $modifiedSelectedKeys[0] = $listKeys[0];
