@@ -242,19 +242,6 @@ class supp_LanguageRepairs extends supp_Repairs
                         break;
                     case 'T_ARRAY_KEY':
                         $oldKey = $keyList[1];
-<<<<<<< HEAD
-                        $keyList[1] = $this->getValidLanguageKeyName($keyList[1]);
-                        if ($oldKey != $keyList[1]) {
-                            //OK a key has changed, now we need to update everything
-                            $this->changed = true;
-                            //Sometimes the values come though as 'value', we need to get rid of the tick marks
-                            $oldKey = trim($oldKey, "'\"");
-                            $newKey = trim($keyList[1], "'\"");
-                            if (!empty($tokenListName)) {
-                                $listNameInfo = $this->findListField($tokenListName);
-                                if (!empty($listNameInfo)) {
-                                    $this->updateDatabase($listNameInfo, $oldKey, $newKey);
-=======
                         $testKey = $this->getValidLanguageKeyName($keyList[1]);
                         $cleanOldKey = trim(trim($oldKey, "'"), '"');
                         $cleanTestKey = trim(trim($testKey, "'"), '"');
@@ -277,7 +264,6 @@ class supp_LanguageRepairs extends supp_Repairs
                                     if (!empty($listNameInfo)) {
                                         $this->updateDatabase($listNameInfo, $oldKey, $newKey);
                                     }
->>>>>>> upstream/master
                                 }
                             }
                         }
@@ -331,66 +317,6 @@ class supp_LanguageRepairs extends supp_Repairs
     }
 
     /**
-<<<<<<< HEAD
-     * This function updated the fields_meta_data table looking for default values that need changing
-     *
-     * @param $fieldData
-     * @param $newKey
-     * @param $oldKey
-     */
-    public function updateFieldsMetaDataTable($fieldData, $oldKey, $newKey)
-    {
-        $hash = $GLOBALS['db']->fetchOne("SELECT * FROM fields_meta_data
-                                          WHERE default_value LIKE '%^{$oldKey}^%' OR
-                                                default_value = '{$oldKey}' OR
-                                                ext4 LIKE '%{$oldKey}%'");
-        if ($hash != false) {
-            //back up the database table if it has not been backed up yet.
-            if (!$this->isBackedUpTable('fields_meta_data')) {
-                $this->backupTable('fields_meta_data');
-            }
-
-            foreach ($fieldData as $moduleName => $fieldName) {
-                $sql = "SELECT id FROM fields_meta_data
-                        WHERE custom_module='{$moduleName}'
-                          AND (default_value LIKE '%^{$oldKey}^%' OR default_value = '{$oldKey}')
-                          AND ext1='{$fieldName}'";
-                $result = $GLOBALS['db']->query($sql, true, "Error updating fields_meta_data.");
-                while ($hash = $GLOBALS['db']->fetchByAssoc($result)) {
-                    $sql = "UPDATE fields_meta_data
-                           SET default_value = REPLACE(default_value, '{$oldKey}', '{$newKey}')
-                           WHERE id = '{$hash['id']}'";
-                    //don't bother running the same query twice or at all if we are in testing mode
-                    if (!in_array($sql, $this->queryCache) && !$this->isTesting) {
-                        $this->updateQuery($sql);
-                    }
-                    $this->queryCache[] = $sql;
-                }
-
-                //catch new dependencies
-                $sql = "SELECT id FROM fields_meta_data
-                        WHERE custom_module='{$moduleName}'
-                          AND (ext4 LIKE '%{$oldKey}%')
-                          AND ext1='{$fieldName}'";
-                $result = $GLOBALS['db']->query($sql, true, "Error updating fields_meta_data.");
-                while ($hash = $GLOBALS['db']->fetchByAssoc($result)) {
-                    $sql = "UPDATE fields_meta_data
-                           SET ext4 = REPLACE(default_value, '{$oldKey}', '{$newKey}')
-                           WHERE id = '{$hash['id']}'";
-                    //don't bother running the same query twice or at all if we are in testing mode
-                    if (!in_array($sql, $this->queryCache) && !$this->isTesting) {
-                        $this->updateQuery($sql);
-                    }
-                    $this->queryCache[] = $sql;
-                }
-            }
-            $this->log("-> {$oldKey} found as a default value or in a dependency in fields_meta_data table.");
-        }
-    }
-
-    /**
-=======
->>>>>>> upstream/master
      * This updates the tables in the database, it automatically detects if it is in the stock table or the custom table
      *
      * @param array $fieldData
@@ -402,22 +328,27 @@ class supp_LanguageRepairs extends supp_Repairs
     {
         if (!empty($fieldData)) {
             foreach ($fieldData as $module => $fieldName) {
+                $id_field_name = 'id';
                 $bean = BeanFactory::getBean($module);
                 $fieldDef = $bean->field_defs[$fieldName];
                 if (array_key_exists('source', $fieldDef) && $fieldDef['source'] == 'custom_fields') {
                     $table = $bean->table_name . '_cstm';
+                    $id_field_name='id_c';
                 } else {
                     $table = $bean->table_name;
                 }
 
                 $hash = $GLOBALS['db']->fetchOne("SELECT * FROM {$table} WHERE {$fieldName} LIKE '%^{$oldKey}^%' OR {$fieldName} = '{$oldKey}'");
                 if ($hash != false) {
+                    if($this->isTesting) {
+                        $this->log("Found the key '{$oldKey}' will be updated in '{$table}'.",'info');
+                    }
                     //back up the database table if it has not been backed up yet.
                     if (!$this->isBackedUpTable($table)) {
                         $this->backupTable($table);
                     }
 
-                    $sql = "SELECT id FROM {$table}
+                    $sql = "SELECT {$id_field_name} FROM {$table}
                             WHERE {$fieldName} LIKE '%^{$oldKey}^%' OR
                                   {$fieldName} = '{$oldKey}'";
                     $result = $GLOBALS['db']->query($sql, true, "Error updating fields_meta_data.");
