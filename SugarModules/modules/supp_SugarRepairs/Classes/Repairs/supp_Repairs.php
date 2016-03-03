@@ -727,7 +727,7 @@ abstract class supp_Repairs
             return $list;
         } else {
             $this->log("-> The list '{$listName}' was not found.");
-            return array(''=>'');
+            return false;
         }
     }
 
@@ -744,7 +744,7 @@ abstract class supp_Repairs
             $listName = $definition['options'];
         } else {
             $this->log("-> No options list found for {$module} / {$field}: " . print_r($definition, true));
-            return array(''=>'');
+            return false;
         }
 
         $list = $this->getListOptions($listName);

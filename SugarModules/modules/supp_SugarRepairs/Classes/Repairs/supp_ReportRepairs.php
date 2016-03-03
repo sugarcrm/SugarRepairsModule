@@ -53,14 +53,14 @@ class supp_ReportRepairs extends supp_Repairs
                         $modifiedSelectedKeys = $selectedKeys;
                         foreach ($selectedKeys as $id => $selectedKey) {
                             $issue = false;
-                            if (!in_array($selectedKey, $listKeys)) {
+                            if ($listKeys != false && !in_array($selectedKey, $listKeys)) {
                                 $issue = true;
                             }
                             if ($issue) {
                                 $testKey = $this->getValidLanguageKeyName($selectedKey);
                                 //try to fix the key if it was updated in the lang repair script
                                 if ($testKey !== $selectedKey) {
-                                    if (in_array($testKey, $listKeys)) {
+                                    if ($listKeys != false && in_array($testKey, $listKeys)) {
                                         $issue = false;
                                         $modifiedSelectedKeys[$id] = $testKey;
                                         if (!$this->isTesting) {

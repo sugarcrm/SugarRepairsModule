@@ -62,7 +62,7 @@ class supp_WorkflowRepairs extends supp_Repairs
                 $modifiedSelectedKeys = $selectedKeys;
                 foreach ($selectedKeys as $id => $selectedKey) {
                     $issue = false;
-                    if (!in_array($selectedKey, $listKeys)) {
+                    if ($listKeys != false && !in_array($selectedKey, $listKeys)) {
                         $this->foundActionIssues[$row['workflow_actionsID']] = $row['workflow_actionsID'];
                         $issue = true;
                     }
@@ -71,7 +71,7 @@ class supp_WorkflowRepairs extends supp_Repairs
                         $testKey = $this->getValidLanguageKeyName($selectedKey);
                         //try to fix the key if it was updated in the lang repair script
                         if ($testKey !== $selectedKey) {
-                            if (in_array($testKey, $listKeys)) {
+                            if ($listKeys != false && in_array($testKey, $listKeys)) {
                                 $issue = false;
                                 $modifiedSelectedKeys[$id] = $testKey;
                                 if (!$this->isTesting) {
@@ -143,7 +143,7 @@ class supp_WorkflowRepairs extends supp_Repairs
                 $modifiedSelectedKeys = $selectedKeys;
                 foreach ($selectedKeys as $id => $selectedKey) {
                     $issue = false;
-                    if (!in_array($selectedKey, $listKeys)) {
+                    if ($listKeys != false && !in_array($selectedKey, $listKeys)) {
                         $this->foundExpressionIssues[$row['expression_id']] = $row['expression_id'];
                         $issue = true;
                     }
@@ -152,7 +152,7 @@ class supp_WorkflowRepairs extends supp_Repairs
                         $testKey = $this->getValidLanguageKeyName($selectedKey);
                         //try to fix the key if it was updated in the lang repair script
                         if ($testKey !== $selectedKey) {
-                            if (in_array($testKey, $listKeys)) {
+                            if ($listKeys != false && in_array($testKey, $listKeys)) {
                                 $issue = false;
                                 $modifiedSelectedKeys[$id] = $testKey;
                                 if (!$this->isTesting) {

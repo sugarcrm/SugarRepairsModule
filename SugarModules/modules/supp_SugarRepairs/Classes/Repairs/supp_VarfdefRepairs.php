@@ -34,7 +34,7 @@ class supp_VardefRepairs extends supp_Repairs
             $modifiedSelectedKeys = $selectedKeys;
             foreach ($selectedKeys as $id => $selectedKey) {
                 $issue = false;
-                if (!in_array($selectedKey, $listKeys)) {
+                if ($listKeys!=false && !in_array($selectedKey, $listKeys)) {
                     $this->foundMetadataIssues[$defKey] = $defKey;
                     $issue = true;
                 }
@@ -43,7 +43,7 @@ class supp_VardefRepairs extends supp_Repairs
                     $testKey = $this->getValidLanguageKeyName($selectedKey);
                     //try to fix the key if it was updated in the lang repair script
                     if ($testKey !== $selectedKey) {
-                        if (in_array($testKey, $listKeys)) {
+                        if ($listKeys!=false && in_array($testKey, $listKeys)) {
                             $issue = false;
                             $modifiedSelectedKeys[$id] = $testKey;
                         }
@@ -51,7 +51,7 @@ class supp_VardefRepairs extends supp_Repairs
                 }
 
                 if ($issue && $type == 'enum' && count($selectedKeys) == 1 && isset($selectedKeys[0]) && empty($selectedKeys[0])) {
-                    if (isset($listKeys[0])) {
+                    if ($listKeys!=false && isset($listKeys[0])) {
                         $issue = false;
                         //set default value to first item in list
                         $modifiedSelectedKeys[0] = $listKeys[0];
@@ -159,7 +159,7 @@ class supp_VardefRepairs extends supp_Repairs
                             $modifiedSelectedKeys = $selectedKeys;
                             foreach ($selectedKeys as $id => $selectedKey) {
                                 $issue = false;
-                                if (!in_array($selectedKey, $listKeys)) {
+                                if ($listKeys!=false && !in_array($selectedKey, $listKeys)) {
                                     $this->foundVardefIssues[$defKey] = $defKey;
                                     $issue = true;
                                 }
@@ -168,7 +168,7 @@ class supp_VardefRepairs extends supp_Repairs
                                     $testKey = $this->getValidLanguageKeyName($selectedKey);
                                     //try to fix the key if it was updated in the lang repair script
                                     if ($testKey !== $selectedKey) {
-                                        if (in_array($testKey, $listKeys)) {
+                                        if ($listKeys!=false && in_array($testKey, $listKeys)) {
                                             $issue = false;
                                             $modifiedSelectedKeys[$id] = $testKey;
                                         }
@@ -176,7 +176,7 @@ class supp_VardefRepairs extends supp_Repairs
                                 }
 
                                 if ($issue && $type == 'enum' && count($selectedKeys) == 1 && isset($selectedKeys[0]) && empty($selectedKeys[0])) {
-                                    if (isset($listKeys[0])) {
+                                    if ($listKeys!=false && isset($listKeys[0])) {
                                         $issue = false;
                                         //set default value to first item in list
                                         $modifiedSelectedKeys[0] = $listKeys[0];
@@ -230,7 +230,7 @@ class supp_VardefRepairs extends supp_Repairs
                                 foreach ($values as $gridIndex => $gridkey) {
                                     //$this->log("Checking visibility_grid '{$gridIndex} / {$gridkey}'...");
                                     $gridIssue = false;
-                                    if (!in_array($gridkey, $gridListKeys)) {
+                                    if ($gridListKeys != false && !in_array($gridkey, $gridListKeys)) {
                                         $gridIssue = true;
                                         $this->foundVardefIssues[$defKey] = $defKey;
                                     }
@@ -239,7 +239,7 @@ class supp_VardefRepairs extends supp_Repairs
                                         $testGridKey = $this->getValidLanguageKeyName($gridkey);
                                         //try to fix the key if it was updated in the lang repair script
                                         if ($testGridKey !== $gridkey) {
-                                            if (in_array($testGridKey, $gridListKeys)) {
+                                            if ($gridListKeys != false && in_array($testGridKey, $gridListKeys)) {
                                                 $gridIssue = false;
                                                 $this->logChange("-> Vardef '{$defKey}' has an issue with the visibility_grid. The mapping '{$key} / {$gridkey}' uses the grid key '{$gridkey}' which will be updated to '{$testGridKey}'. Available keys in list: " . print_r($gridListKeys, true));
 
@@ -262,7 +262,7 @@ class supp_VardefRepairs extends supp_Repairs
                                 }
 
                                 $triggerIssue = false;
-                                if (!in_array($key, $triggerListKeys)) {
+                                if ($triggerListKeys != false && !in_array($key, $triggerListKeys)) {
                                     $triggerIssue = true;
                                     $this->foundVardefIssues[$defKey] = $defKey;
                                 }
@@ -271,7 +271,7 @@ class supp_VardefRepairs extends supp_Repairs
                                     $testKey = $this->getValidLanguageKeyName($key);
                                     //try to fix the key if it was updated in the lang repair script
                                     if ($testKey !== $key) {
-                                        if (in_array($testKey, $triggerListKeys)) {
+                                        if ($triggerListKeys != false && in_array($testKey, $triggerListKeys)) {
                                             $triggerIssue = false;
                                             $this->logChange("-> Vardef '{$defKey}' has an issue with the visibility_grid. The field '{$triggerField}' uses the key '{$key}' which will be updated with '{$testKey}'. Available keys in list: " . print_r($triggerListKeys, true));
 
