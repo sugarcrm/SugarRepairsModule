@@ -4,7 +4,7 @@ require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_Repairs.php');
 
 class supp_VardefRepairs extends supp_Repairs
 {
-    protected $loggerTitle = "Vardef";
+    protected $loggerTitle = "Vardefs";
     protected $foundVardefIssues = array();
     protected $foundMetadataIssues = array();
 
