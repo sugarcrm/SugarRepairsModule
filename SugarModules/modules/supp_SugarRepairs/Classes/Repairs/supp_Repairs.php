@@ -238,7 +238,7 @@ abstract class supp_Repairs
         $result = $GLOBALS['db']->tableExists($backupTable);
         if ($result) {
             $this->log("Database table '{$backupTable}' already exists. Renaming.");
-            $backupTable . '_' . time();
+            $backupTable . '_srm_' . time();
         }
 
         if ($sugar_config['dbconfig']['db_type'] == 'mysql') {
@@ -740,8 +740,6 @@ abstract class supp_Repairs
     public function getFieldOptionKeys($module, $field)
     {
         $definition = $this->getFieldDefinition($module, $field);
-
-        $listName = '';
         if ($definition && isset($definition['options'])) {
             $listName = $definition['options'];
         } else {

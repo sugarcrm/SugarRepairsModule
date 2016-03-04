@@ -249,7 +249,7 @@ class supp_LanguageRepairs extends supp_Repairs
 
                         $currentOptions = $this->getListOptions($tokenListName);
 
-                        if (is_array($currentOptions) && $testKey !== $oldKey && in_array($cleanTestKey, $currentOptions)) {
+                        if ($testKey !== $oldKey && in_array($cleanTestKey, $currentOptions)) {
                             $this->logAction("-> The key '{$cleanOldKey}' in '{$fileName}' cannot be updated as '{$cleanTestKey}' already exists in the list '{$tokenListName}'. This will need to be manually corrected. List options are" . print_r($currentOptions, true));
                         } else {
                             $keyList[1] = $testKey;

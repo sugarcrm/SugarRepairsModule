@@ -57,6 +57,14 @@ class supp_WorkflowRepairs extends supp_Repairs
 
             if (in_array($type, array('enum', 'multienum'))) {
                 $listKeys = $this->getFieldOptionKeys($base_module, $field);
+
+                if ($listKeys == false) {
+                    $this->logAction("-> Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has a field ({$base_module} / {$field}) with a deleted or missing dropdown list. You should review this workflow or field.");
+                    $this->foundActionIssues[$row['workflow_actionsID']] = $row['workflow_actionsID'];
+                    $this->disableWorkflow($row['workflow_id']);
+                    continue;
+                }
+
                 $selectedKeys = unencodeMultienum($value);
 
                 $modifiedSelectedKeys = $selectedKeys;
@@ -138,6 +146,14 @@ class supp_WorkflowRepairs extends supp_Repairs
 
             if (in_array($row['exp_type'], array('enum', 'multienum')) && in_array($type, array('enum', 'multienum'))) {
                 $listKeys = $this->getFieldOptionKeys($leftModule, $leftField);
+
+                if ($listKeys == false) {
+                    $this->logAction("-> Workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has a field ({$leftModule} / {$leftField}) with a deleted or missing dropdown list. You should review this workflow or field.");
+                    $this->foundExpressionIssues[$row['expression_id']] = $row['expression_id'];
+                    $this->disableWorkflow($row['workflow_id']);
+                    continue;
+                }
+
                 $selectedKeys = unencodeMultienum($rightValue);
 
                 $modifiedSelectedKeys = $selectedKeys;

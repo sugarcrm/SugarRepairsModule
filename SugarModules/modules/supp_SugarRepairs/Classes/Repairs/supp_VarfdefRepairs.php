@@ -29,6 +29,13 @@ class supp_VardefRepairs extends supp_Repairs
             $field = $row['name'];
             $this->log("Processing fields metadata for '{$defKey}'...'");
             $listKeys = $this->getFieldOptionKeys($module, $field);
+
+            if ($listKeys == false) {
+                $this->logAction("-> Metadata '{$defKey}' has an invalid default value '{$selectedKey}'. This can be corrected by resaving the field in studio. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
+                $this->foundMetadataIssues[$defKey] = $defKey;
+                continue;
+            }
+
             $selectedKeys = unencodeMultienum($row['default_value']);
 
             $modifiedSelectedKeys = $selectedKeys;
@@ -154,6 +161,13 @@ class supp_VardefRepairs extends supp_Repairs
                     if ($type && isset($fieldDefs['default'])) {
                         if (in_array($type, array('enum', 'multienum'))) {
                             $listKeys = $this->getFieldOptionKeys($module, $field);
+
+                            if ($listKeys == false) {
+                                $this->logAction("-> Metadata '{$defKey}' has an invalid dropdown list. This can be corrected by resaving the field in studio. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
+                                $this->foundMetadataIssues[$defKey] = $defKey;
+                                continue;
+                            }
+
                             $selectedKeys = unencodeMultienum($fieldDefs['default']);
 
                             $modifiedSelectedKeys = $selectedKeys;
@@ -224,6 +238,9 @@ class supp_VardefRepairs extends supp_Repairs
                         if (in_array($triggerType, array('enum', 'multienum'))) {
                             $triggerListKeys = $this->getFieldOptionKeys($module, $triggerField);
                             $gridListKeys = $this->getFieldOptionKeys($module, $field);
+
+
+                            //took out the tests here because they broke the code
 
                             foreach ($fieldDefs['visibility_grid']['values'] as $key => $values) {
 

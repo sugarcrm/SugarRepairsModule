@@ -49,6 +49,14 @@ class supp_ReportRepairs extends supp_Repairs
                         && in_array($filters[$i]['qualifier_name'], array('is', 'is_not', 'one_of', 'not_one_of'))
                     ) {
                         $listKeys = $this->getFieldOptionKeys($module, $field);
+
+                        if ($listKeys == false) {
+                            $this->logAction("-> Report '{$report->name}' field '{$field}' has an invalid dropdown list. This can be corrected by resaving the field in studio. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
+                            $this->foundIssues[$report->id] = $report->id;
+                            $this->markReportBroken($report->id);
+                            continue;
+                        }
+
                         $selectedKeys = unencodeMultienum($filters[$i]['input_name0']);
                         $modifiedSelectedKeys = $selectedKeys;
                         foreach ($selectedKeys as $id => $selectedKey) {
