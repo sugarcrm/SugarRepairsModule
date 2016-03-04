@@ -847,7 +847,7 @@ abstract class supp_Repairs
         }
 
         if ($this->isTesting) {
-            $this->log("Running in test mode.", true);
+            $this->log("Running in test mode.");
         }
     }
 }

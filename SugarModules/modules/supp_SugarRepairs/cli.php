@@ -24,7 +24,7 @@ if (empty($current_user) || empty($current_user->id)) {
 $sugarRepairs = BeanFactory::newBean('supp_SugarRepairs');
 
 if (!isset($options)) {
-    $options = getopt("repair:testing:tp:");
+    $options = getopt('', array("repair:", "test::"));
 }
 
 if (isset($options['repair'])) {

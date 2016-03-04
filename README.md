@@ -12,10 +12,10 @@ Repairs will need to be run differently based on your environment.
 For local instances and ION, you will need to change to the supp_SugarRepairs directory and run the cli.php directly.
 
 ###Testing Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php -repair <action>`
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair <action>`
 
 ###Execute Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php -repair <action> -test false`
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair <action> --test false`
 
 ##For MS
 For mothership, you will need to change to the instances directory and run shadow-shell:
@@ -37,10 +37,10 @@ require_once("./modules/supp_SugarRepairs/cli.php");`
 Corrects common language file issues. The various issues addressed are shown below:
 
 ##Testing Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php -repair lang`
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair lang`
 
 ##Execute Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php -repair lang -test false`
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair lang --test false`
 
 ##Issues Addressed
 * Health Check Errors:
@@ -94,10 +94,10 @@ $app_list_strings['moduleList']['module2'] = 'Module 2';
 Corrects common issues with team sets.
 
 ##Testing Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php -repair team`
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair team`
 
 ##Execute Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php -repair team -test false`
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair team --test false`
 
 ##Issues Addressed
 * Duplicate teams in a team set
@@ -110,10 +110,10 @@ Corrects common issues with team sets.
 Corrects common issues with workflows.
 
 ##Testing Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php -repair workflow`
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair workflow`
 
 ##Execute Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php -repair workflow -test false`
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair workflow --test false`
 
 ##Issues Addressed
 * Workflows with invalid fields
@@ -123,10 +123,10 @@ Corrects common issues with workflows.
 Corrects common issues with vardefs.
 
 ##Testing Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php -repair vardef`
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair vardef`
 
 ##Execute Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php -repair vardef -test false`
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair vardef --test false`
 
 ##Issues Addressed
 * Enum/Multienum fields with invalid default values.

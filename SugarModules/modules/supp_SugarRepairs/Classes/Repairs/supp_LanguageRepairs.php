@@ -346,7 +346,7 @@ class supp_LanguageRepairs extends supp_Repairs
                     $hash = $GLOBALS['db']->fetchOne("SELECT * FROM {$table} WHERE {$fieldName} LIKE '%^{$oldKey}^%' OR {$fieldName} = '{$oldKey}'");
                     if ($hash != false) {
                         if ($this->isTesting) {
-                            $this->log("Found the key '{$oldKey}' in '{$table}', it will be updated.", 'info');
+                            $this->log("Found the key '{$oldKey}' in '{$table}', it will be updated.");
                         }
                         //back up the database table if it has not been backed up yet.
                         if (!$this->isBackedUpTable($table)) {
