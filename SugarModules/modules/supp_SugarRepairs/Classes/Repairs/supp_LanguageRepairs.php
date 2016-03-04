@@ -251,12 +251,12 @@ class supp_LanguageRepairs extends supp_Repairs
                         $currentOptions = $this->getListOptions($tokenListName);
 
                         if ($currentOptions == false) {
-                            $this->logAction("-> A non-existant list ($tokenListName) was found in '{$fileName}'. This will need to be manually corrected.");
+                            $this->logAction("-> A non-existent list ($tokenListName) was found in '{$fileName}'. This will need to be manually corrected.");
                             continue;
                         }
 
                         if ($cleanOldKey !== $cleanTestKey && in_array($cleanTestKey, $currentOptions)) {
-                            $this->logAction("-> The key '{$cleanOldKey}' in '{$fileName}' cannot be updated as '{$cleanTestKey}' already exists in the list '{$tokenListName}'. This will need to be manually corrected. List options are" . print_r($currentOptions, true));
+                            $this->logAction("-> The key '{$cleanOldKey}' in '{$fileName}' cannot be updated as '{$cleanTestKey}' already exists in the list '{$tokenListName}'. This will need to be manually corrected. List options are: " . print_r($currentOptions, true));
                         } else {
                             if ($oldKeyInQuotes != $testKeyInQuotes) {
                                 $keyList[1] = $testKeyInQuotes;
@@ -402,7 +402,7 @@ class supp_LanguageRepairs extends supp_Repairs
         if (empty($retArray)) {
             $this->log("-> The list {$listName} is not used by any fields. This is just for informational purposes.");
         } else {
-            $this->log("-> Found {$listName} in bean '{$bean} in field '{$fieldName}'");
+            $this->log("-> Found list '{$listName}' in '{$bean}' / '{$fieldName}'");
         }
 
         $this->arrayCache[$listName] = $retArray;

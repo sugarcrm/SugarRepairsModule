@@ -112,7 +112,7 @@ abstract class supp_Repairs
         $langRegexes = array(
             //include
             '(\\/|\\\)custom(\\/|\\\)include(\\/|\\\)language(\\/|\\\)(.*?)\.lang.php$',
-            //application extensions
+            //application extensionsget
             '(\\/|\\\)custom(\\/|\\\)Extension(\\/|\\\)application(\\/|\\\)Ext(\\/|\\\)Language(\\/|\\\)(.*?)\.php$',
             //module extensions
             '(\\/|\\\)custom(\\/|\\\)Extension(\\/|\\\)modules(\\/|\\\)(.*?)(\\/|\\\)Ext(\\/|\\\)Language(\\/|\\\)(.*?)\.php$',
@@ -768,7 +768,7 @@ abstract class supp_Repairs
         }
 
         if ($foundList) {
-            return $finalList;
+            return array_unique($finalList);
         } else {
             $this->log("-> The list '{$listName}' was not found.");
             return false;
