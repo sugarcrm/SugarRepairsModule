@@ -23,6 +23,17 @@ class suppSugarRepairsLanguageRepairs extends Sugar_PHPUnit_Framework_TestCase
         SugarTestAccountUtilities::removeAllCreatedAccounts();
     }
 
+    public function testGetListOptions()
+    {
+        $repairAction = new supp_LanguageRepairs();
+        $list = $repairAction->getListOptions('moduleList');
+        $this->assertTrue(is_array($list));
+
+        $list = $repairAction->getListOptions('moduleListInvalid');
+        $this->assertFalse(is_array($list));
+        $this->assertEquals(false, $list);
+    }
+
     /**
      * In this test we are checking that the T_VARIABLE, T_ARRAY_NAME & T_ARRAY_KEY tags
      * have been placed the white space removed and that the $GLOBALS has been corrected properly

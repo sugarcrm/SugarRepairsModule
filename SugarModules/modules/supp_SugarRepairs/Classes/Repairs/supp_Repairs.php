@@ -720,11 +720,55 @@ abstract class supp_Repairs
      */
     public function getListOptions($listName)
     {
-        $app_list_strings = return_app_list_strings_language('en_us');
+        $SupportedLanguages['bg_BG'] = 'bg_BG';
+        $SupportedLanguages['cs_CZ'] = 'cs_CZ';
+        $SupportedLanguages['da_DK'] = 'da_DK';
+        $SupportedLanguages['de_DE'] = 'de_DE';
+        $SupportedLanguages['el_EL'] = 'el_EL';
+        $SupportedLanguages['es_ES'] = 'es_ES';
+        $SupportedLanguages['fr_FR'] = 'fr_FR';
+        $SupportedLanguages['he_IL'] = 'he_IL';
+        $SupportedLanguages['hu_HU'] = 'hu_HU';
+        $SupportedLanguages['it_it'] = 'it_it';
+        $SupportedLanguages['lt_LT'] = 'lt_LT';
+        $SupportedLanguages['ja_JP'] = 'ja_JP';
+        $SupportedLanguages['ko_KR'] = 'ko_KR';
+        $SupportedLanguages['lv_LV'] = 'lv_LV';
+        $SupportedLanguages['nb_NO'] = 'nb_NO';
+        $SupportedLanguages['nl_NL'] = 'nl_NL';
+        $SupportedLanguages['pl_PL'] = 'pl_PL';
+        $SupportedLanguages['pt_PT'] = 'pt_PT';
+        $SupportedLanguages['ro_RO'] = 'ro_RO';
+        $SupportedLanguages['ru_RU'] = 'ru_RU';
+        $SupportedLanguages['sv_SE'] = 'sv_SE';
+        $SupportedLanguages['tr_TR'] = 'tr_TR';
+        $SupportedLanguages['zh_CN'] = 'zh_CN';
+        $SupportedLanguages['pt_BR'] = 'pt_BR';
+        $SupportedLanguages['ca_ES'] = 'ca_ES';
+        $SupportedLanguages['en_UK'] = 'en_UK';
+        $SupportedLanguages['sr_RS'] = 'sr_RS';
+        $SupportedLanguages['sk_SK'] = 'sk_SK';
+        $SupportedLanguages['sq_AL'] = 'sq_AL';
+        $SupportedLanguages['et_EE'] = 'et_EE';
+        $SupportedLanguages['es_LA'] = 'es_LA';
+        $SupportedLanguages['fi_FI'] = 'fi_FI';
+        $SupportedLanguages['ar_SA'] = 'ar_SA';
+        $SupportedLanguages['uk_UA'] = 'uk_UA';
+        $SupportedLanguages['en_us'] = 'en_us';
 
-        if (isset($app_list_strings[$listName])) {
-            $list = array_keys($app_list_strings[$listName]);
-            return $list;
+        $finalList = array();
+        $foundList = false;
+        foreach ($SupportedLanguages as $lang){
+            $app_list_strings = return_app_list_strings_language($lang);
+            if (!is_null($app_list_strings) && isset($app_list_strings[$listName])) {
+                $foundList = true;
+                $list = array_keys($app_list_strings[$listName]);
+                $finalList = array_merge($finalList, $list);
+            }
+        }
+
+        if ($foundList) {
+            return $finalList;
         } else {
             $this->log("-> The list '{$listName}' was not found.");
             return false;
