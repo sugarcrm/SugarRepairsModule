@@ -49,18 +49,26 @@ class supp_ReportRepairs extends supp_Repairs
                         && in_array($filters[$i]['qualifier_name'], array('is', 'is_not', 'one_of', 'not_one_of'))
                     ) {
                         $listKeys = $this->getFieldOptionKeys($module, $field);
+
+                        if ($listKeys == false) {
+                            $this->logAction("-> Report '{$report->name}' field '{$field}' has an invalid dropdown list. This can be corrected by resaving the field in studio. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
+                            $this->foundIssues[$report->id] = $report->id;
+                            $this->markReportBroken($report->id);
+                            continue;
+                        }
+
                         $selectedKeys = unencodeMultienum($filters[$i]['input_name0']);
                         $modifiedSelectedKeys = $selectedKeys;
                         foreach ($selectedKeys as $id => $selectedKey) {
                             $issue = false;
-                            if ($listKeys != false && !in_array($selectedKey, $listKeys)) {
+                            if (!in_array($selectedKey, $listKeys)) {
                                 $issue = true;
                             }
                             if ($issue) {
                                 $testKey = $this->getValidLanguageKeyName($selectedKey);
                                 //try to fix the key if it was updated in the lang repair script
                                 if ($testKey !== $selectedKey) {
-                                    if ($listKeys != false && in_array($testKey, $listKeys)) {
+                                    if (in_array($testKey, $listKeys)) {
                                         $issue = false;
                                         $modifiedSelectedKeys[$id] = $testKey;
                                         if (!$this->isTesting) {

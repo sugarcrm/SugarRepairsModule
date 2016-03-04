@@ -29,12 +29,19 @@ class supp_VardefRepairs extends supp_Repairs
             $field = $row['name'];
             $this->log("Processing fields metadata for '{$defKey}'...'");
             $listKeys = $this->getFieldOptionKeys($module, $field);
+
+            if ($listKeys == false) {
+                $this->logAction("-> Metadata '{$defKey}' has an invalid default value '{$selectedKey}'. This can be corrected by resaving the field in studio. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
+                $this->foundMetadataIssues[$defKey] = $defKey;
+                continue;
+            }
+
             $selectedKeys = unencodeMultienum($row['default_value']);
 
             $modifiedSelectedKeys = $selectedKeys;
             foreach ($selectedKeys as $id => $selectedKey) {
                 $issue = false;
-                if ($listKeys != false && !in_array($selectedKey, $listKeys)) {
+                if (!in_array($selectedKey, $listKeys)) {
                     $this->foundMetadataIssues[$defKey] = $defKey;
                     $issue = true;
                 }
@@ -43,7 +50,7 @@ class supp_VardefRepairs extends supp_Repairs
                     $testKey = $this->getValidLanguageKeyName($selectedKey);
                     //try to fix the key if it was updated in the lang repair script
                     if ($testKey !== $selectedKey) {
-                        if ($listKeys != false && in_array($testKey, $listKeys)) {
+                        if (in_array($testKey, $listKeys)) {
                             $issue = false;
                             $modifiedSelectedKeys[$id] = $testKey;
                         }
@@ -51,7 +58,7 @@ class supp_VardefRepairs extends supp_Repairs
                 }
 
                 if ($issue && $type == 'enum' && count($selectedKeys) == 1 && isset($selectedKeys[0]) && empty($selectedKeys[0])) {
-                    if ($listKeys != false && isset($listKeys[0])) {
+                    if (isset($listKeys[0])) {
                         $issue = false;
                         //set default value to first item in list
                         $modifiedSelectedKeys[0] = $listKeys[0];
@@ -154,12 +161,19 @@ class supp_VardefRepairs extends supp_Repairs
                     if ($type && isset($fieldDefs['default'])) {
                         if (in_array($type, array('enum', 'multienum'))) {
                             $listKeys = $this->getFieldOptionKeys($module, $field);
+
+                            if ($listKeys == false) {
+                                $this->logAction("-> Metadata '{$defKey}' has an invalid dropdown list. This can be corrected by resaving the field in studio. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
+                                $this->foundMetadataIssues[$defKey] = $defKey;
+                                continue;
+                            }
+
                             $selectedKeys = unencodeMultienum($fieldDefs['default']);
 
                             $modifiedSelectedKeys = $selectedKeys;
                             foreach ($selectedKeys as $id => $selectedKey) {
                                 $issue = false;
-                                if ($listKeys != false && !in_array($selectedKey, $listKeys)) {
+                                if (!in_array($selectedKey, $listKeys)) {
                                     $this->foundVardefIssues[$defKey] = $defKey;
                                     $issue = true;
                                 }
@@ -168,7 +182,7 @@ class supp_VardefRepairs extends supp_Repairs
                                     $testKey = $this->getValidLanguageKeyName($selectedKey);
                                     //try to fix the key if it was updated in the lang repair script
                                     if ($testKey !== $selectedKey) {
-                                        if ($listKeys != false && in_array($testKey, $listKeys)) {
+                                        if (in_array($testKey, $listKeys)) {
                                             $issue = false;
                                             $modifiedSelectedKeys[$id] = $testKey;
                                         }
@@ -176,7 +190,7 @@ class supp_VardefRepairs extends supp_Repairs
                                 }
 
                                 if ($issue && $type == 'enum' && count($selectedKeys) == 1 && isset($selectedKeys[0]) && empty($selectedKeys[0])) {
-                                    if ($listKeys != false && isset($listKeys[0])) {
+                                    if (isset($listKeys[0])) {
                                         $issue = false;
                                         //set default value to first item in list
                                         $modifiedSelectedKeys[0] = $listKeys[0];
@@ -225,12 +239,15 @@ class supp_VardefRepairs extends supp_Repairs
                             $triggerListKeys = $this->getFieldOptionKeys($module, $triggerField);
                             $gridListKeys = $this->getFieldOptionKeys($module, $field);
 
+
+                            //took out the tests here because they broke the code
+
                             foreach ($fieldDefs['visibility_grid']['values'] as $key => $values) {
 
                                 foreach ($values as $gridIndex => $gridkey) {
                                     //$this->log("Checking visibility_grid '{$gridIndex} / {$gridkey}'...");
                                     $gridIssue = false;
-                                    if ($gridListKeys != false && !in_array($gridkey, $gridListKeys)) {
+                                    if (!in_array($gridkey, $gridListKeys)) {
                                         $gridIssue = true;
                                         $this->foundVardefIssues[$defKey] = $defKey;
                                     }
@@ -239,7 +256,7 @@ class supp_VardefRepairs extends supp_Repairs
                                         $testGridKey = $this->getValidLanguageKeyName($gridkey);
                                         //try to fix the key if it was updated in the lang repair script
                                         if ($testGridKey !== $gridkey) {
-                                            if ($gridListKeys != false && in_array($testGridKey, $gridListKeys)) {
+                                            if (in_array($testGridKey, $gridListKeys)) {
                                                 $gridIssue = false;
                                                 $this->logChange("-> Vardef '{$defKey}' has an issue with the visibility_grid. The mapping '{$key} / {$gridkey}' uses the grid key '{$gridkey}' which will be updated to '{$testGridKey}'. Available keys in list: " . print_r($gridListKeys, true));
 
@@ -262,7 +279,7 @@ class supp_VardefRepairs extends supp_Repairs
                                 }
 
                                 $triggerIssue = false;
-                                if ($triggerListKeys != false && !in_array($key, $triggerListKeys)) {
+                                if (!in_array($key, $triggerListKeys)) {
                                     $triggerIssue = true;
                                     $this->foundVardefIssues[$defKey] = $defKey;
                                 }
@@ -271,7 +288,7 @@ class supp_VardefRepairs extends supp_Repairs
                                     $testKey = $this->getValidLanguageKeyName($key);
                                     //try to fix the key if it was updated in the lang repair script
                                     if ($testKey !== $key) {
-                                        if ($triggerListKeys != false && in_array($testKey, $triggerListKeys)) {
+                                        if (in_array($testKey, $triggerListKeys)) {
                                             $triggerIssue = false;
                                             $this->logChange("-> Vardef '{$defKey}' has an issue with the visibility_grid. The field '{$triggerField}' uses the key '{$key}' which will be updated with '{$testKey}'. Available keys in list: " . print_r($triggerListKeys, true));
 
