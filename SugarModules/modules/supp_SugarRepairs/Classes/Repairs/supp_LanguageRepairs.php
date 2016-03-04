@@ -109,7 +109,7 @@ class supp_LanguageRepairs extends supp_Repairs
     private function repairStaticFile($fileName)
     {
         //Next run the file through the tests and fill the new array
-        $tokensByLine = $this->processTokenList(sugar_file_get_contents($fileName), $fileName);
+        $tokensByLine = $this->processTokenList(file_get_contents($fileName), $fileName);
 
         if ($this->changed) {
             $this->foundIssues[$fileName] = $fileName;
