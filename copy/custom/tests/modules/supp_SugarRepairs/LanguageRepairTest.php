@@ -154,6 +154,8 @@ class suppSugarRepairsLanguageRepairs extends Sugar_PHPUnit_Framework_TestCase
         $this->assertEquals('one', $newRepairTest->getValidLanguageKeyName('#one'));
         $this->assertEquals('o ne', $newRepairTest->getValidLanguageKeyName('o�ne'));
         $this->assertEquals('one and one', $newRepairTest->getValidLanguageKeyName('one�#\/&-one'));
+        $this->assertEquals('Implementación', 'Implementacion');
+        $this->assertEquals(false, $newRepairTest->getValidLanguageKeyName('='));
     }
 
     public function testCustomMultiEnums()
