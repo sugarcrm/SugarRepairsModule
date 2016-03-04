@@ -238,7 +238,7 @@ abstract class supp_Repairs
         $result = $GLOBALS['db']->tableExists($backupTable);
         if ($result) {
             $this->log("Database table '{$backupTable}' already exists. Renaming.");
-            $backupTable . '_srm_' . time();
+            $backupTable . '_' . time();
         }
 
         if ($sugar_config['dbconfig']['db_type'] == 'mysql') {
@@ -759,15 +759,30 @@ abstract class supp_Repairs
     /**
      * Returns valid key names give a string
      * @param $key
-     * @return mixed
+     * @return string
      */
     public function getValidLanguageKeyName($key)
     {
-        //Now go through and remove the characters [+ & / - ( )] and spaces (in some cases) from array keys
-        $badChars = array(' + ', '+',' & ', '&', ' - ', '-', ' / ', '/', '(', ')');
-        $goodChars = array('_', '_','_', '_', '_', '_', '_', '_', '', '');
-        $newKey = str_replace($badChars, $goodChars, $key, $count);
-        return $newKey;
+        $storedKey = $key;
+
+        //try to keep it with original intent
+        $replacements = array(
+            '&amp;' => ' and ',
+            '&' => ' and '
+        );
+
+        $key = str_replace(array_keys($replacements), array_values($replacements), $key);
+
+        //only allow letters, numbers, spaces, and underscores
+        $key = preg_replace("/[^a-z0-9\s\_]/i", ' ', $key);
+
+        if ($storedKey !== $key) {
+            //if key was changed, clean whitespace
+            $key = preg_replace('!\s+!', ' ', $key);
+            $key = trim($key);
+        }
+
+        return $key;
     }
 
     /**
@@ -827,7 +842,7 @@ abstract class supp_Repairs
      */
     public function execute(array $args)
     {
-        if (isset($args['t']) && ($args['t'] == 'false' || $args['t'] == '0' || $args['t'] == false)) {
+        if (isset($args['test']) && ($args['test'] == 'false' || $args['test'] == '0' || $args['test'] == false)) {
             $this->setTesting(false);
         }
 

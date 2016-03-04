@@ -46,7 +46,7 @@ class suppSugarRepairsReportsRepairsTest extends Sugar_PHPUnit_Framework_TestCas
         $this->reportIDs[]=$reportID;
 
         $reportTest = new supp_ReportRepairs();
-        $reportTest->execute(array('t' => false));
+        $reportTest->execute(array('test' => false));
 
         $savedReport = BeanFactory::getBean('Reports', $reportID);
         $beforeJson = html_entity_decode($savedReport->content);
@@ -82,7 +82,7 @@ class suppSugarRepairsReportsRepairsTest extends Sugar_PHPUnit_Framework_TestCas
 
         $reportTest = new supp_ReportRepairs();
         $reportTest->setTesting(false);
-        $reportTest->execute(array('t' => false));
+        $reportTest->execute(array('test' => false));
 
         $savedReport = BeanFactory::getBean('Reports', $reportID);
         $message = "Broken: ";

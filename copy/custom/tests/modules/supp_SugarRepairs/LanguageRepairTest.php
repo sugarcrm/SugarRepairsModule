@@ -2,6 +2,8 @@
 
 require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_LanguageRepairs.php');
 require_once('ModuleInstall/ModuleInstaller.php');
+require_once('modules/Studio/DropDowns/DropDownHelper.php');
+
 /**
  * @group support
  * @group language
@@ -47,21 +49,49 @@ class suppSugarRepairsLanguageRepairs extends Sugar_PHPUnit_Framework_TestCase
         $this->assertTrue($tokenList[12] == ';');
     }
 
+    public function writeDropDown($name, $list)
+    {
+        $dropdownHelper = new DropDownHelper();
+
+        $parameters = array();
+        $parameters['dropdown_name'] = $name;
+
+        $count = 0;
+        foreach ($list as $key=>$value)
+        {
+            $parameters['slot_'. $count] = $count;
+            $parameters['key_'. $count] = $key;
+            $parameters['value_'. $count] = $value;
+            //set 'use_push' to true to update/add values while keeping old values
+            //$parameters['use_push'] = true;
+            $count++;
+        }
+
+        $dropdownHelper->saveDropDown($parameters);
+    }
     /**
      * In this test we are checking to make sure and the characters &,/,-,( and ) are replaced with underscores or nothing
      */
     public function testprocessTokenList()
     {
+        $this->writeDropDown('test_list', array(
+            'one&one' => 'One',
+            'one-one' => 'Two',
+            'one/one' => 'Three',
+            'one(one)' => 'Four',
+            'one+one' => 'Five',
+        ));
+
         $testFile = "<?php\n\$GLOBALS['app_list_strings']['test_list']=array (\n\n\n\n\n'one&one' => 'One',\n'one-one' => 'Two',\n'one/one' => 'Three',\n'one(one)' => 'Four',\n'one+one' => 'Five',\n);\n";
         $newRepairTest = new supp_LanguageRepairs();
         $newRepairTest->setTesting(false);
         $tokenList = $newRepairTest->processTokenList($testFile);
 
-        $this->assertTrue($tokenList[7][0][1] == "'one_one'");
-        $this->assertTrue($tokenList[8][0][1] == "'one_one'");
-        $this->assertTrue($tokenList[9][0][1] == "'one_one'");
-        $this->assertTrue($tokenList[10][0][1] == "'oneone'");
-        $this->assertTrue($tokenList[11][0][1] == "'one_one'");
+        $this->assertEquals("'one and one'", $tokenList[7][0][1]);
+        $this->assertEquals("'one one'", $tokenList[8][0][1]);
+        $this->assertEquals("'one one'", $tokenList[9][0][1]);
+        $this->assertEquals("'one one'", $tokenList[10][0][1]);
+        $this->assertEquals("'one one'", $tokenList[11][0][1]);
     }
 
     /**
@@ -77,10 +107,10 @@ class suppSugarRepairsLanguageRepairs extends Sugar_PHPUnit_Framework_TestCase
         $newRepairTest = new supp_LanguageRepairs();
         $newRepairTest->setTesting(false);
         $fieldData = array('Accounts' => array(0=>'industry'));
-        $newRepairTest->updateDatabase($fieldData, "one&one", "one_one");
+        $newRepairTest->updateDatabase($fieldData, "one&one", "one and one");
 
         $account->retrieve();
-        $this->assertEquals("one_one", $account->industry);
+        $this->assertEquals("one and one", $account->industry);
     }
 
     /**
@@ -100,14 +130,19 @@ class suppSugarRepairsLanguageRepairs extends Sugar_PHPUnit_Framework_TestCase
     {
         $newRepairTest = new supp_LanguageRepairs();
         $newRepairTest->setTesting(false);
-        $this->assertTrue($newRepairTest->getValidLanguageKeyName('one&one') == 'one_one');
-        $this->assertTrue($newRepairTest->getValidLanguageKeyName('one-one') == 'one_one');
-        $this->assertTrue($newRepairTest->getValidLanguageKeyName('one/one') == 'one_one');
-        $this->assertTrue($newRepairTest->getValidLanguageKeyName('one & one') == 'one_one');
-        $this->assertTrue($newRepairTest->getValidLanguageKeyName('one - one') == 'one_one');
-        $this->assertTrue($newRepairTest->getValidLanguageKeyName('one / one') == 'one_one');
-        $this->assertTrue($newRepairTest->getValidLanguageKeyName('one(one)') == 'oneone');
-        $this->assertTrue($newRepairTest->getValidLanguageKeyName('one+one') == 'one_one');
+        $this->assertEquals('one and one', $newRepairTest->getValidLanguageKeyName('one&one'));
+        $this->assertEquals('one and one', $newRepairTest->getValidLanguageKeyName('one & one'));
+        $this->assertEquals('one one', $newRepairTest->getValidLanguageKeyName('one-one'));
+        $this->assertEquals('one one', $newRepairTest->getValidLanguageKeyName('one - one'));
+        $this->assertEquals('one one', $newRepairTest->getValidLanguageKeyName('one/one'));
+        $this->assertEquals('one one', $newRepairTest->getValidLanguageKeyName('one / one'));
+        $this->assertEquals('one one', $newRepairTest->getValidLanguageKeyName('one\one'));
+        $this->assertEquals('one one', $newRepairTest->getValidLanguageKeyName('one \ one'));
+        $this->assertEquals('one one', $newRepairTest->getValidLanguageKeyName('one (one)'));
+        $this->assertEquals('one', $newRepairTest->getValidLanguageKeyName('(one)'));
+        $this->assertEquals('one', $newRepairTest->getValidLanguageKeyName('#one'));
+        $this->assertEquals('o ne', $newRepairTest->getValidLanguageKeyName('o�ne'));
+        $this->assertEquals('one and one', $newRepairTest->getValidLanguageKeyName('one�#\/&-one'));
     }
 
     public function testCustomMultiEnums()
@@ -116,11 +151,11 @@ class suppSugarRepairsLanguageRepairs extends Sugar_PHPUnit_Framework_TestCase
         $newRepairTest = new supp_LanguageRepairs();
         $newRepairTest->setTesting(false);
         $newRepairTest->runQRAR();
-        $newRepairTest->execute(array('t' => false));
+        $newRepairTest->execute(array('test' => false));
 
         $hash = $GLOBALS['db']->fetchOne("SELECT * FROM accounts_cstm WHERE id_c = 'unittest517'");
 
-        $this->assertEquals("^One^,^_Two_^,^_Three_^,^_Four_^", $hash['unittest517_c']);
+        $this->assertEquals("^One^,^Two^,^Three^,^Four^", $hash['unittest517_c']);
     }
 
     public function testCustomSharingEnums()
@@ -129,11 +164,11 @@ class suppSugarRepairsLanguageRepairs extends Sugar_PHPUnit_Framework_TestCase
         $newRepairTest = new supp_LanguageRepairs();
         $newRepairTest->setTesting(false);
         $newRepairTest->runQRAR();
-        $newRepairTest->execute(array('t' => false));
+        $newRepairTest->execute(array('test' => false));
 
         $hash = $GLOBALS['db']->fetchOne("SELECT * FROM accounts_cstm WHERE id_c = 'unittest715'");
 
-        $this->assertEquals("^One^,^_Two_^,^_Three_^,^_Four_^", $hash['unittest517a_c']);
+        $this->assertEquals("^One^,^Two^,^Three^,^Four^", $hash['unittest517a_c']);
         $this->assertEquals("One", $hash['unittest517b_c']);
     }
 
@@ -155,8 +190,17 @@ class suppSugarRepairsLanguageRepairs extends Sugar_PHPUnit_Framework_TestCase
             'importable' => 'true', // 'true', 'false', 'required'
             'duplicate_merge' => false, // true or false
         );
-        $langFileText = "<?php\n\$app_list_strings['unittest517_list']=array(''=>'',\n'(One)'=>'One',\n'-Two-'=>'Two',\n'&Three&'=>'Three',\n'+Four+'=>'Four'\n);";
-        sugar_file_put_contents("custom/Extension/application/Ext/Language/en_us.sugar_unittest517_list.php", $langFileText);
+
+        $this->writeDropDown('unittest517_list', array(
+            ''=>'',
+            '(One)'=>'One',
+            '-Two-'=>'Two',
+            ',Three,'=>'Three',
+            '+Four+'=>'Four'
+        ));
+
+        //$langFileText = "<?php\n\$app_list_strings['unittest517_list']=array(''=>'',\n'(One)'=>'One',\n'-Two-'=>'Two',\n'&Three&'=>'Three',\n'+Four+'=>'Four'\n);";
+        //sugar_file_put_contents("custom/Extension/application/Ext/Language/en_us.sugar_unittest517_list.php", $langFileText);
 
         $mb = new ModuleInstaller();
         $mb->install_custom_fields(array($custom_field));
@@ -164,7 +208,7 @@ class suppSugarRepairsLanguageRepairs extends Sugar_PHPUnit_Framework_TestCase
         $GLOBALS['db']->query("DELETE FROM accounts_cstm WHERE id_c='unittest517' OR id_c='unittest715';");
 
         $sql = "INSERT INTO accounts_cstm (id_c, unittest517_c)
-                VALUES ('unittest517', '^(One)^,^-Two-^,^&Three&^,^+Four+^')";
+                VALUES ('unittest517', '^(One)^,^-Two-^,^,Three,^,^+Four+^')";
         $GLOBALS['db']->query($sql);
     }
 
@@ -202,8 +246,17 @@ class suppSugarRepairsLanguageRepairs extends Sugar_PHPUnit_Framework_TestCase
             'importable' => 'true', // 'true', 'false', 'required'
             'duplicate_merge' => false, // true or false
         );
-        $langFileText = "<?php\n\$app_list_strings['unittest517a_list']=array(''=>'',\n'(One)'=>'One',\n'-Two-'=>'Two',\n'&Three&'=>'Three',\n'+Four+'=>'Four'\n);";
-        sugar_file_put_contents("custom/Extension/application/Ext/Language/en_us.sugar_unittest517_list.php", $langFileText);
+
+        $this->writeDropDown('unittest517a_list', array(
+            ''=>'',
+            '(One)'=>'One',
+            '-Two-'=>'Two',
+            ',Three,'=>'Three',
+            '+Four+'=>'Four'
+        ));
+
+        //$langFileText = "<?php\n\$app_list_strings['unittest517a_list']=array(''=>'',\n'(One)'=>'One',\n'-Two-'=>'Two',\n'&Three&'=>'Three',\n'+Four+'=>'Four'\n);";
+        //sugar_file_put_contents("custom/Extension/application/Ext/Language/en_us.sugar_unittest517_list.php", $langFileText);
 
         $mb = new ModuleInstaller();
         $mb->install_custom_fields(array($custom_field1));
@@ -211,7 +264,7 @@ class suppSugarRepairsLanguageRepairs extends Sugar_PHPUnit_Framework_TestCase
 
         $GLOBALS['db']->query("DELETE FROM accounts_cstm WHERE id_c='unittest517' OR id_c='unittest715';");
 
-        $sql = "INSERT INTO accounts_cstm (id_c, unittest517_c, unittest517a_c, unittest517b_c) VALUES ('unittest715', '', '^(One)^,^-Two-^,^&Three&^,^+Four+^', '(One)');";
+        $sql = "INSERT INTO accounts_cstm (id_c, unittest517_c, unittest517a_c, unittest517b_c) VALUES ('unittest715', '', '^(One)^,^-Two-^,^,Three,^,^+Four+^', '(One)');";
         $GLOBALS['db']->query($sql);
     }
 
@@ -225,15 +278,15 @@ class suppSugarRepairsLanguageRepairs extends Sugar_PHPUnit_Framework_TestCase
 
         $mb = new ModuleInstaller();
         $mb->uninstall_custom_fields(array($custom_field));
-        @unlink("custom/Extension/modules/Accounts/Ext/Vardefs/sugarfield_unittest517_c.php");
-        @unlink("custom/Extension/application/Ext/Language/en_us.sugar_unittest517_list.php");
+        //@unlink("custom/Extension/modules/Accounts/Ext/Vardefs/sugarfield_unittest517_c.php");
+        //@unlink("custom/Extension/application/Ext/Language/en_us.sugar_unittest517_list.php");
     }
 
     private function tearDownCustomSharingEnums()
     {
-        @unlink("custom/Extension/modules/Accounts/Ext/Vardefs/sugarfield_unittest517a_c.php");
-        @unlink("custom/Extension/modules/Accounts/Ext/Vardefs/sugarfield_unittest517b_c.php");
-        @unlink("custom/Extension/application/Ext/Language/en_us.sugar_unittest517_list.php");
+        //@unlink("custom/Extension/modules/Accounts/Ext/Vardefs/sugarfield_unittest517a_c.php");
+        //@unlink("custom/Extension/modules/Accounts/Ext/Vardefs/sugarfield_unittest517b_c.php");
+        //@unlink("custom/Extension/application/Ext/Language/en_us.sugar_unittest517_list.php");
         $custom_field1=array(
             'name' => 'unittest517a_c',
             'module' => 'Accounts',

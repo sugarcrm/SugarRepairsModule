@@ -5,7 +5,13 @@
  */
 
 define('sugarEntry', true);
-chdir('../../');
+
+if (defined('SUGAR_SHADOW_TEMPLATEPATH')) {
+    chdir(SUGAR_SHADOW_TEMPLATEPATH);
+} else {
+    chdir('../../');
+}
+
 require_once('include/entryPoint.php');
 
 global $current_user;
@@ -16,18 +22,21 @@ if (empty($current_user) || empty($current_user->id)) {
 }
 
 $sugarRepairs = BeanFactory::newBean('supp_SugarRepairs');
-$options = getopt("r:t:tp:");
+
+if (!isset($options)) {
+    $options = getopt("repair:testing:tp:");
+}
 
 if (isset($options['r'])) {
-    if ($options['r'] == 'lang') {
+    if ($options['repair'] == 'lang') {
         $sugarRepairs->repairLanguages($options);
-    } else if ($options['r'] == 'team') {
+    } else if ($options['repair'] == 'team') {
         $sugarRepairs->repairTeamSets($options);
-    } else if ($options['r'] == 'workflow') {
+    } else if ($options['repair'] == 'workflow') {
         $sugarRepairs->repairWorkflows($options);
-    } else if ($options['r'] == 'report') {
+    } else if ($options['repair'] == 'report') {
         $sugarRepairs->repairReports($options);
-    } else if ($options['r'] == 'vardef') {
+    } else if ($options['repair'] == 'vardef') {
         $sugarRepairs->repairVardefs($options);
     } else {
         echo "Invalid repair type. Please refer to the documentation.\n";

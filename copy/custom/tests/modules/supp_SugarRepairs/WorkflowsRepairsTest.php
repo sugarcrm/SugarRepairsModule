@@ -30,7 +30,7 @@ class suppSugarRepairsWorkflowRepairsTest extends Sugar_PHPUnit_Framework_TestCa
     {
         $this->setupTestWorkflow();
         $workflowRepairs = new supp_WorkflowRepairs();
-        $workflowRepairs->execute(array('t' => false));
+        $workflowRepairs->execute(array('test' => false));
 
         foreach ($this->workflowData as $index => $data) {
             if (stristr($index, "Expression_Test") !== false) {

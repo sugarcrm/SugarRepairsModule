@@ -30,8 +30,9 @@ class supp_VardefRepairs extends supp_Repairs
             $this->log("Processing fields metadata for '{$defKey}'...'");
             $listKeys = $this->getFieldOptionKeys($module, $field);
 
+
             if ($listKeys == false) {
-                $this->logAction("-> Metadata '{$defKey}' has an invalid default value '{$selectedKey}'. This can be corrected by resaving the field in studio. Allowed keys for {$module} / {$field} are: " . print_r($listKeys, true));
+                $this->logAction("-> Metadata '{$defKey}' is using an invalid list'. This can be corrected by resaving the field in studio.");
                 $this->foundMetadataIssues[$defKey] = $defKey;
                 continue;
             }

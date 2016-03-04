@@ -242,27 +242,31 @@ class supp_LanguageRepairs extends supp_Repairs
                         $tokenListName = trim($keyList[1],"'\"");
                         break;
                     case 'T_ARRAY_KEY':
-                        $oldKey = $keyList[1];
-                        $testKey = $this->getValidLanguageKeyName($keyList[1]);
-                        $cleanOldKey = trim(trim($oldKey, "'"), '"');
-                        $cleanTestKey = trim(trim($testKey, "'"), '"');
+                        $oldKeyInQuotes = $keyList[1];
+                        $cleanOldKey = trim($oldKeyInQuotes, "'\"");
+                        $cleanTestKey = $this->getValidLanguageKeyName($keyList[1]);
+                        $testKeyInQuotes = "'{$cleanTestKey}'"; // need to rewrap this for string replacements
+
 
                         $currentOptions = $this->getListOptions($tokenListName);
 
-                        if ($testKey !== $oldKey && in_array($cleanTestKey, $currentOptions)) {
+                        if ($currentOptions == false) {
+                            $this->logAction("-> A non-existant list ($tokenListName) was found in '{$fileName}'. This will need to be manually corrected.");
+                            continue;
+                        }
+
+                        if ($cleanOldKey !== $cleanTestKey && in_array($cleanTestKey, $currentOptions)) {
                             $this->logAction("-> The key '{$cleanOldKey}' in '{$fileName}' cannot be updated as '{$cleanTestKey}' already exists in the list '{$tokenListName}'. This will need to be manually corrected. List options are" . print_r($currentOptions, true));
                         } else {
-                            $keyList[1] = $testKey;
-                            if ($oldKey != $keyList[1]) {
+                            if ($oldKeyInQuotes != $testKeyInQuotes) {
+                                $keyList[1] = $testKeyInQuotes;
                                 //OK a key has changed, now we need to update everything
                                 $this->changed = true;
                                 //Sometimes the values come though as 'value', we need to get rid of the tick marks
-                                $oldKey = trim($oldKey, "'\"");
-                                $newKey = trim($keyList[1], "'\"");
                                 if (!empty($tokenListName)) {
                                     $listNameInfo = $this->findListField(trim($tokenListName, "'\""));
                                     if (!empty($listNameInfo)) {
-                                        $this->updateDatabase($listNameInfo, $oldKey, $newKey);
+                                        $this->updateDatabase($listNameInfo, $cleanOldKey, $cleanTestKey);
                                     }
                                 }
                             }
