@@ -27,7 +27,7 @@ if (!isset($options)) {
     $options = getopt("repair:testing:tp:");
 }
 
-if (isset($options['r'])) {
+if (isset($options['repair'])) {
     if ($options['repair'] == 'lang') {
         $sugarRepairs->repairLanguages($options);
     } else if ($options['repair'] == 'team') {
