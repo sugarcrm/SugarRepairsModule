@@ -112,7 +112,7 @@ abstract class supp_Repairs
         $langRegexes = array(
             //include
             '(\\/|\\\)custom(\\/|\\\)include(\\/|\\\)language(\\/|\\\)(.*?)\.lang.php$',
-            //application extensionsget
+            //application extensions
             '(\\/|\\\)custom(\\/|\\\)Extension(\\/|\\\)application(\\/|\\\)Ext(\\/|\\\)Language(\\/|\\\)(.*?)\.php$',
             //module extensions
             '(\\/|\\\)custom(\\/|\\\)Extension(\\/|\\\)modules(\\/|\\\)(.*?)(\\/|\\\)Ext(\\/|\\\)Language(\\/|\\\)(.*?)\.php$',
