@@ -305,7 +305,7 @@ class supp_VardefRepairs extends supp_Repairs
                                     $this->logChange("-> Vardef '{$defKey}' has an issue with the visibility_grid. The field '{$triggerField}' uses the key '{$key}' which will be removed. Key does not exist in list: " . print_r($triggerListKeys, true));
                                     if (!$this->isTesting) {
                                         $this->foundVardefIssues[$defKey] = $defKey;
-                                        if ($dictionary[$objectName]['fields'][$field]['visibility_grid']['values'][$key]) {
+                                        if (isset($dictionary[$objectName]['fields'][$field]['visibility_grid']['values'][$key])) {
                                             unset($dictionary[$objectName]['fields'][$field]['visibility_grid']['values'][$key]);
                                         }
                                     }
@@ -337,12 +337,6 @@ class supp_VardefRepairs extends supp_Repairs
      */
     public function execute(array $args)
     {
-        //kbrill: I think this does apply to CE
-//        if ($this->isCE()) {
-//            $this->log('Repair ignored as it does not apply to CE');
-//            return false;
-//        }
-
         //check for testing an other repair generic params
         parent::execute($args);
 
