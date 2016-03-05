@@ -1,7 +1,6 @@
 <?php
 
 require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_Repairs.php');
-require_once('include/SugarQuery/SugarQuery.php');
 
 class supp_EmailAddressRepairs extends supp_Repairs
 {
@@ -20,15 +19,6 @@ class supp_EmailAddressRepairs extends supp_Repairs
      * @return $id|string Id of the email_addr_bean_rel 
      */
     public function getNewPrimaryAddress($bean_module, $bean_id){
-
-        // $sugarQuery = new SugarQuery();
-        // $sugarQuery->select(array('id'));
-        // $sugarQuery->from("email_addr_bean_rel", array('team_security' => false));
-        // $sugarQuery->>where()
-        //     ->equals('bean_module', $bean_module)
-        //     ->equals('bean_id', $bean_id)
-        // $sugarQuery->orderBy("date_created","ASC");
-        // $id = $sugarQuery->getOne();
 
         $sql = "
             SELECT id
