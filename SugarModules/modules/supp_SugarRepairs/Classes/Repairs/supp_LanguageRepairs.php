@@ -64,7 +64,7 @@ class supp_LanguageRepairs extends supp_Repairs
                         unlink($fullPath);
                         $this->logChange("-> Deleted the file.");
                     } else {
-                        $this->logChange("-> Will delete file." . $this->isTesting);
+                        $this->logChange("-> Will delete file.");
                     }
                     break;
                 case self::TYPE_DYNAMIC:
