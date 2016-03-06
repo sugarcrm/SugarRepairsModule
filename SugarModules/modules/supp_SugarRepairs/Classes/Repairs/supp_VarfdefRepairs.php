@@ -49,6 +49,13 @@ class supp_VardefRepairs extends supp_Repairs
 
                 if ($issue) {
                     $testKey = $this->getValidLanguageKeyName($selectedKey);
+
+                    if ($testKey === false) {
+                        $this->logAction("-> The converted key for '{$selectedKey}' in metadata '{$defKey}' will be empty. This will need to be manually corrected.");
+                        $this->foundMetadataIssues[$defKey] = $defKey;
+                        continue;
+                    }
+
                     //try to fix the key if it was updated in the lang repair script
                     if ($testKey !== $selectedKey) {
                         if (in_array($testKey, $listKeys)) {
@@ -181,6 +188,13 @@ class supp_VardefRepairs extends supp_Repairs
 
                                 if ($issue) {
                                     $testKey = $this->getValidLanguageKeyName($selectedKey);
+
+                                    if ($testKey === false) {
+                                        $this->logAction("-> The converted key for '{$selectedKey}' in metadata '{$defKey}' will be empty. This will need to be manually corrected.");
+                                        $this->foundVardefIssues[$defKey] = $defKey;
+                                        continue;
+                                    }
+
                                     //try to fix the key if it was updated in the lang repair script
                                     if ($testKey !== $selectedKey) {
                                         if (in_array($testKey, $listKeys)) {
@@ -255,6 +269,13 @@ class supp_VardefRepairs extends supp_Repairs
 
                                     if ($gridIssue) {
                                         $testGridKey = $this->getValidLanguageKeyName($gridkey);
+
+                                        if ($testGridKey === false) {
+                                            $this->logAction("-> The converted key for '{$gridkey}' in the visibility grid '{$defKey}' will be empty. This will need to be manually corrected.");
+                                            $this->foundVardefIssues[$defKey] = $defKey;
+                                            continue;
+                                        }
+
                                         //try to fix the key if it was updated in the lang repair script
                                         if ($testGridKey !== $gridkey) {
                                             if (in_array($testGridKey, $gridListKeys)) {
@@ -287,6 +308,13 @@ class supp_VardefRepairs extends supp_Repairs
 
                                 if ($triggerIssue) {
                                     $testKey = $this->getValidLanguageKeyName($key);
+
+                                    if ($testKey === false) {
+                                        $this->logAction("-> The converted key for '{$key}' in the visibility grid '{$defKey}' will be empty. This will need to be manually corrected.");
+                                        $this->foundVardefIssues[$defKey] = $defKey;
+                                        continue;
+                                    }
+
                                     //try to fix the key if it was updated in the lang repair script
                                     if ($testKey !== $key) {
                                         if (in_array($testKey, $triggerListKeys)) {

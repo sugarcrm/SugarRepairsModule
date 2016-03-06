@@ -77,6 +77,14 @@ class supp_WorkflowRepairs extends supp_Repairs
 
                     if ($issue) {
                         $testKey = $this->getValidLanguageKeyName($selectedKey);
+
+                        if ($testKey === false) {
+                            $this->logAction("-> The converted key for '{$selectedKey}' in the workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an action ({$row['workflow_actionsID']}) that will be empty. This will need to be manually corrected.");
+                            $this->foundActionIssues[$row['workflow_actionsID']] = $row['workflow_actionsID'];
+                            $this->disableWorkflow($row['workflow_id']);
+                            continue;
+                        }
+
                         //try to fix the key if it was updated in the lang repair script
                         if ($testKey !== $selectedKey) {
                             if (in_array($testKey, $listKeys)) {
@@ -166,7 +174,14 @@ class supp_WorkflowRepairs extends supp_Repairs
 
                     if ($issue) {
                         $testKey = $this->getValidLanguageKeyName($selectedKey);
-                        //try to fix the key if it was updated in the lang repair script
+
+                        if ($testKey === false) {
+                            $this->logAction("-> The converted key for '{$selectedKey}' in the workflow '{$row['workflow_name']}' ({$row['workflow_id']}) has an expression ({$row['expression_id']}) that will be empty. This will need to be manually corrected.");
+                            $this->foundExpressionIssues[$row['expression_id']] = $row['expression_id'];
+                            $this->disableWorkflow($row['workflow_id']);
+                            continue;
+                        }
+                            //try to fix the key if it was updated in the lang repair script
                         if ($testKey !== $selectedKey) {
                             if (in_array($testKey, $listKeys)) {
                                 $issue = false;

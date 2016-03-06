@@ -64,7 +64,7 @@ class supp_LanguageRepairs extends supp_Repairs
                         unlink($fullPath);
                         $this->logChange("-> Deleted the file.");
                     } else {
-                        $this->logChange("-> Will delete file.");
+                        $this->logChange("-> Will delete file." . $this->isTesting);
                     }
                     break;
                 case self::TYPE_DYNAMIC:
@@ -244,9 +244,13 @@ class supp_LanguageRepairs extends supp_Repairs
                     case 'T_ARRAY_KEY':
                         $oldKeyInQuotes = $keyList[1];
                         $cleanOldKey = trim($oldKeyInQuotes, "'\"");
-                        $cleanTestKey = $this->getValidLanguageKeyName($keyList[1]);
-                        $testKeyInQuotes = "'{$cleanTestKey}'"; // need to rewrap this for string replacements
+                        $cleanTestKey = $this->getValidLanguageKeyName($cleanOldKey);
+                        if ($cleanTestKey === false) {
+                            $this->logAction("-> The converted key for '{$cleanOldKey}' in list '{$tokenListName}' will be empty. This will need to be manually corrected in studio.");
+                            continue;
+                        }
 
+                        $testKeyInQuotes = "'{$cleanTestKey}'"; // need to rewrap this for string replacements
 
                         $currentOptions = $this->getListOptions($tokenListName);
 
@@ -346,7 +350,9 @@ class supp_LanguageRepairs extends supp_Repairs
                     $hash = $GLOBALS['db']->fetchOne("SELECT * FROM {$table} WHERE {$fieldName} LIKE '%^{$oldKey}^%' OR {$fieldName} = '{$oldKey}'");
                     if ($hash != false) {
                         if ($this->isTesting) {
-                            $this->log("Found the key '{$oldKey}' in '{$table}', it will be updated.");
+                            $this->log("-> Will update database value '{$oldKey}' to '{$newKey}' in '{$table}.{$fieldName}'.");
+                        } else {
+                            $this->log("-> Updating database value '{$oldKey}' to '{$newKey}' in '{$table}.{$fieldName}'.");
                         }
                         //back up the database table if it has not been backed up yet.
                         if (!$this->isBackedUpTable($table)) {

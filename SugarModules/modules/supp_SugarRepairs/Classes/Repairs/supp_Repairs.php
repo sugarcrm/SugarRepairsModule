@@ -817,6 +817,9 @@ abstract class supp_Repairs
 
         $key = str_replace(array_keys($replacements), array_values($replacements), $key);
 
+        //try to convert accents
+        $key = strtr(utf8_decode($key), utf8_decode('àáâãäçèéêëìíîïñòóôõöùúûüýÿÀÁÂÃÄÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝ'), 'aaaaaceeeeiiiinooooouuuuyyAAAAACEEEEIIIINOOOOOUUUUY');
+
         //only allow letters, numbers, spaces, and underscores
         $key = preg_replace("/[^a-z0-9\s\_]/i", ' ', $key);
 
@@ -824,6 +827,11 @@ abstract class supp_Repairs
             //if key was changed, clean whitespace
             $key = preg_replace('!\s+!', ' ', $key);
             $key = trim($key);
+
+            if (empty($key)) {
+                $this->log("The key '{$storedKey}' converted to an empty string.");
+                return false;
+            }
         }
 
         return $key;

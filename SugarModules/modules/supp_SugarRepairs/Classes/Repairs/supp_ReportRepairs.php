@@ -66,6 +66,14 @@ class supp_ReportRepairs extends supp_Repairs
                             }
                             if ($issue) {
                                 $testKey = $this->getValidLanguageKeyName($selectedKey);
+
+                                if ($testKey === false) {
+                                    $this->logAction("-> The converted key for '{$selectedKey}' in report '{$report->name}' ({$report->id}) will be empty. This will need to be manually corrected.");
+                                    $this->foundIssues[$report->id] = $report->id;
+                                    $this->markReportBroken($report->id);
+                                    continue;
+                                }
+
                                 //try to fix the key if it was updated in the lang repair script
                                 if ($testKey !== $selectedKey) {
                                     if (in_array($testKey, $listKeys)) {
