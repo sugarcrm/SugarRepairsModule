@@ -65,7 +65,7 @@ class suppSugarRepairsEmailAddressesRepairsTest extends Sugar_PHPUnit_Framework_
     }
 
     /**
-     * Test for 
+     * Test for getting the correct new primary address
      * @covers supp_EmailAddressRepairs::getNewPrimaryAddress
      */
     public function testGetNewPrimaryAddress()
@@ -75,10 +75,11 @@ class suppSugarRepairsEmailAddressesRepairsTest extends Sugar_PHPUnit_Framework_
         $bean_id = "3272dd2c-e26e-11e5-8409-1e78fe93e4be";
 
         $supp_EmailAddressTest = new supp_EmailAddressRepairs();
+        $supp_EmailAddressTest->setTesting(false);
 
         // should return the oldest, but not deleted
         $id = $supp_EmailAddressTest->getNewPrimaryAddress($bean_module, $bean_id);
-        $this->assertEquals("d891c182-e26e-11e5-8409-1e78fe93e4be",$id);
+        $this->assertEquals("d891c182-e26e-11e5-8409-1e78fe93e4be", $id);
 
         // should return false
         $id = $supp_EmailAddressTest->getNewPrimaryAddress("supp_doesnt_exist", "6a983312-e270-11e5-8409-1e78fe93fake");
@@ -87,7 +88,7 @@ class suppSugarRepairsEmailAddressesRepairsTest extends Sugar_PHPUnit_Framework_
     }
 
     /**
-     * Test for 
+     * Test for setting the primary address on a record
      * @covers supp_EmailAddressRepairs::setPrimaryAddress
      */
     public function testSetPrimaryAddress()
@@ -96,6 +97,7 @@ class suppSugarRepairsEmailAddressesRepairsTest extends Sugar_PHPUnit_Framework_
         $id = "d891c182-e26e-11e5-8409-1e78fe93e4be";
 
         $supp_EmailAddressTest = new supp_EmailAddressRepairs();
+        $supp_EmailAddressTest->setTesting(false);
         $results = $supp_EmailAddressTest->setPrimaryAddress($id);
 
         // should return true
@@ -109,17 +111,15 @@ class suppSugarRepairsEmailAddressesRepairsTest extends Sugar_PHPUnit_Framework_
         $returnedPrimary = $GLOBALS['db']->getOne($sql);
 
         // should return "1"
-        $this->assertEquals("1",$returnedPrimary);
+        $this->assertEquals("1", $returnedPrimary);
     }
 
     /**
-     * Test for 
+     * Test for
      * @covers supp_EmailAddressRepairs::repairPrimaryEmailAddresses
      */
     public function testRepairPrimaryEmailAddresses()
     {
         //not sure on how to test this one yet...
     }
-
-
 }

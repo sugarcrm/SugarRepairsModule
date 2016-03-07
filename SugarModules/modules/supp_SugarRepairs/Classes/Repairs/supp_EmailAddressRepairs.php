@@ -7,7 +7,7 @@ class supp_EmailAddressRepairs extends supp_Repairs
     protected $loggerTitle = "EmailAddress";
     protected $foundIssues = array();
 
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
     }
@@ -16,9 +16,10 @@ class supp_EmailAddressRepairs extends supp_Repairs
      * Retrieves an id to set as the primary email address
      * @param string $bean_module Module name
      * @param string $bean_id Id of the module record
-     * @return $id|string Id of the email_addr_bean_rel 
+     * @return $id|string Id of the email_addr_bean_rel
      */
-    public function getNewPrimaryAddress($bean_module, $bean_id){
+    public function getNewPrimaryAddress($bean_module, $bean_id)
+    {
 
         $sql = "
             SELECT id
@@ -34,7 +35,9 @@ class supp_EmailAddressRepairs extends supp_Repairs
      * Sets a email address as the primary
      * @param string $id email_addr_bean_rel record id
      */
-    public function setPrimaryAddress($id){
+    public function setPrimaryAddress($id)
+    {
+        $results = false;
         $sql = "
             UPDATE email_addr_bean_rel
             SET primary_address = '1'
@@ -43,9 +46,8 @@ class supp_EmailAddressRepairs extends supp_Repairs
         if (!$this->isTesting) {
             $this->logChange("-> Updating email address relationship as primary :: id->{$id}");
             $results = $this->updateQuery($sql);
-        }else{
+        } else {
             $this->logChange("-> Will update email address relationship as primary :: id->{$id}");
-            $results = true;
         }
 
         return $results;
@@ -84,11 +86,15 @@ class supp_EmailAddressRepairs extends supp_Repairs
                 "bean_module" => $bean_module,
                 "bean_id" => $bean_id,
                 );
-            $id = $this->getNewPrimaryAddress($bean_module,$bean_id);
-            if($id===false) $this->logAction("-> Unable to find a primary email address for {$bean_module}->{$bean_id}. This will have to be fixed manaully.");
+            $id = $this->getNewPrimaryAddress($bean_module, $bean_id);
+            if ($id===false) {
+                $this->logAction("-> Unable to find a primary email address for {$bean_module}->{$bean_id}. This will have to be fixed manaully.");
+            }
             
             $results = $this->setPrimaryAddress($id);
-            if(!$results==true) $this->logAction("-> Failed to update primary email address for {$bean_module}->{$bean_id}. This will have to be fixed manaully.");
+            if (!$results==true) {
+                $this->logAction("-> Failed to update primary email address for {$bean_module}->{$bean_id}. This will have to be fixed manaully.");
+            }
         }
 
         $foundIssuesCount = count($this->foundIssues);
@@ -107,11 +113,8 @@ class supp_EmailAddressRepairs extends supp_Repairs
 
         $stamp = time();
 
-        if (
-            $this->backupTable('email_addr_bean_rel', $stamp)
-        ) {
+        if ($this->backupTable('email_addr_bean_rel', $stamp)) {
             $this->repairPrimaryEmailAddresses();
         }
     }
-
 }
