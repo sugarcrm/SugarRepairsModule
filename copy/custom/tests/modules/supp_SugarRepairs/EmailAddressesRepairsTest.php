@@ -51,6 +51,17 @@ class suppSugarRepairsEmailAddressesRepairsTest extends Sugar_PHPUnit_Framework_
             VALUES('$record_id','$bean_module','$bean_id','$deleted','$date_created','0')
         ";
         $res = $GLOBALS['db']->query($sql);
+
+        // one more test record for the entire process to test
+        $record_id = "7d1da3a8-e4ac-11e5-9c96-fc4c85ba1538";
+        $deleted = 0;
+        $date_created = "2016-02-29";
+
+        $sql = "
+            INSERT INTO email_addr_bean_rel(id,bean_module,bean_id,deleted,date_created, primary_address) 
+            VALUES('$record_id','$bean_module','$bean_id','$deleted','$date_created','0')
+        ";
+        $res = $GLOBALS['db']->query($sql);
     }
 
     public function tearDown()
@@ -115,11 +126,25 @@ class suppSugarRepairsEmailAddressesRepairsTest extends Sugar_PHPUnit_Framework_
     }
 
     /**
-     * Test for
+     * Test for running entire repair
      * @covers supp_EmailAddressRepairs::repairPrimaryEmailAddresses
+     * @covers supp_EmailAddressRepairs::execute
      */
     public function testRepairPrimaryEmailAddresses()
     {
-        //not sure on how to test this one yet...
+        $supp_EmailAddressTest = new supp_EmailAddressRepairs();
+        $supp_EmailAddressTest->setTesting(false);
+
+        $supp_EmailAddressTest->execute(array('test' => false));
+
+        $sql = "
+            SELECT primary_address 
+            FROM email_addr_bean_rel
+            WHERE id = '7d1da3a8-e4ac-11e5-9c96-fc4c85ba1538'
+        ";
+        $returnedPrimary = $GLOBALS['db']->getOne($sql);
+
+        // should return "1"
+        $this->assertEquals("1", $returnedPrimary);
     }
 }

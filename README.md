@@ -147,7 +147,7 @@ Corrects common issues with Email Addresses.
 ##Issues Addressed
 * Bean Records without a Primary Email Address
 > Any Bean that has at least one email address, and no primary designation will get the oldest email address updated to be primary.
-
+    
 # Adding New Repair Actions
 * All repair actions should be located in `./modules/supp_SugarRepairs/Classes/Repairs/` and extend the abstract class `supp_Repairs`. 
 * Any custom classes should use the `supp_` prefix.
