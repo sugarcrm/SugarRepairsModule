@@ -29,7 +29,7 @@ require_once("./modules/supp_SugarRepairs/cli.php");`
 ###Execute Command:
 `$options = array(
 'repair' => '<action>',
-'testing' => false
+'test' => false
 );
 require_once("./modules/supp_SugarRepairs/cli.php");`
 
