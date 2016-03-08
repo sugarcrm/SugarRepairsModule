@@ -38,6 +38,8 @@ if (isset($options['repair'])) {
         $sugarRepairs->repairReports($options);
     } else if ($options['repair'] == 'vardef') {
         $sugarRepairs->repairVardefs($options);
+    } else if ($options['repair'] == 'emailAddresses') {
+        $sugarRepairs->repairEmailAddresses($options);
     } else {
         echo "Invalid repair type. Please refer to the documentation.\n";
     }
