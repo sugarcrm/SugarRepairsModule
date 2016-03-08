@@ -887,14 +887,13 @@ abstract class supp_Repairs
         );
     }
 
-
     /**
      * Executes the repairs
      * @param array $args
      */
     public function execute(array $args)
     {
-        if (isset($args['test']) && ($args['test'] == 'false' || $args['test'] == '0' || $args['test'] == false)) {
+        if (isset($args['test']) && ($args['test'] === 'false' || $args['test'] === false)) {
             $this->setTesting(false);
         }
 
