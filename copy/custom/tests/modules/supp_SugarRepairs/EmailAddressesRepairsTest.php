@@ -54,6 +54,7 @@ class suppSugarRepairsEmailAddressesRepairsTest extends Sugar_PHPUnit_Framework_
 
         // one more test record for the entire process to test
         $record_id = "7d1da3a8-e4ac-11e5-9c96-fc4c85ba1538";
+        $bean_id = "standalone26e-11e5-8409-1e78fe93e4be";
         $deleted = 0;
         $date_created = "2016-02-29";
 
@@ -70,7 +71,7 @@ class suppSugarRepairsEmailAddressesRepairsTest extends Sugar_PHPUnit_Framework_
 
         $sql = "
             DELETE FROM email_addr_bean_rel
-            WHERE id in ('b1c36934-e26e-11e5-8409-1e78fe93e4be','d891c182-e26e-11e5-8409-1e78fe93e4be','5266af86-e26f-11e5-8409-1e78fe93e4be')
+            WHERE id in ('b1c36934-e26e-11e5-8409-1e78fe93e4be','d891c182-e26e-11e5-8409-1e78fe93e4be','5266af86-e26f-11e5-8409-1e78fe93e4be','7d1da3a8-e4ac-11e5-9c96-fc4c85ba1538')
         ";
         $res = $GLOBALS['db']->query($sql);
     }
@@ -112,7 +113,7 @@ class suppSugarRepairsEmailAddressesRepairsTest extends Sugar_PHPUnit_Framework_
         $results = $supp_EmailAddressTest->setPrimaryAddress($id);
 
         // should return true
-        $this->assertsTrue($results);
+        $this->assertTrue($results);
 
         $sql = "
             SELECT primary_address 
@@ -132,6 +133,9 @@ class suppSugarRepairsEmailAddressesRepairsTest extends Sugar_PHPUnit_Framework_
      */
     public function testRepairPrimaryEmailAddresses()
     {
+
+        $id = "7d1da3a8-e4ac-11e5-9c96-fc4c85ba1538";
+
         $supp_EmailAddressTest = new supp_EmailAddressRepairs();
         $supp_EmailAddressTest->setTesting(false);
 
@@ -140,7 +144,7 @@ class suppSugarRepairsEmailAddressesRepairsTest extends Sugar_PHPUnit_Framework_
         $sql = "
             SELECT primary_address 
             FROM email_addr_bean_rel
-            WHERE id = '7d1da3a8-e4ac-11e5-9c96-fc4c85ba1538'
+            WHERE id = '$id'
         ";
         $returnedPrimary = $GLOBALS['db']->getOne($sql);
 
