@@ -82,6 +82,7 @@ class supp_LanguageRepairs extends supp_Repairs
 
         if (!$this->isTesting) {
             $this->runQRAR();
+            $this->clearLanguagesCache();
         }
 
         //execute the vardef repairs to correct any language updates

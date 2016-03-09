@@ -334,8 +334,41 @@ abstract class supp_Repairs
         $this->log("Running a Quick Repair & Rebuild...");
         require_once('modules/Administration/QuickRepairAndRebuild.php');
         $RAC = new RepairAndClear();
-        $actions = array('clearAll');
-        $RAC->repairAndClearAll($actions, array('All Modules'), false, false);
+        $RAC->repairAndClearAll(array('clearAll'), array('All Modules'), false, false);
+    }
+
+    /**
+     * Clears all language caches
+     */
+    public function clearLanguagesCache()
+    {
+        // Get the hashes array handled first
+        $hashes = array();
+        $path = sugar_cached("api/metadata/hashes.php");
+        @include($path);
+
+        // Track which indexes were deleted
+        $deleted = array();
+        foreach ($hashes as $key => $hash) {
+            // If the index is a .json file path, unset it and delete it
+            if (strpos($key, '.json')) {
+                unset($hashes[$key]);
+                @unlink($key);
+                $deleted[$key] = $key;
+            }
+        }
+
+        // Now handle files on the file system. This should yield an empty array
+        // but its better to be safe than sorry
+        $files = glob(sugar_cached("api/metadata/*.json"));
+        foreach ($files as $file) {
+            @unlink($file);
+            $deleted[$file] = $file;
+        }
+
+        if ($deleted) {
+            write_array_to_file("hashes", $hashes, $path);
+        }
     }
 
     /**
@@ -355,7 +388,6 @@ abstract class supp_Repairs
         global $db;
 
         $workflow_object = new WorkFlow();
-
 
         $module_array = $workflow_object->get_module_array();
 
@@ -867,7 +899,7 @@ abstract class supp_Repairs
         $key = strtr(utf8_decode($key), utf8_decode('àáâãäçèéêëìíîïñòóôõöùúûüýÿÀÁÂÃÄÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝ'), 'aaaaaceeeeiiiinooooouuuuyyAAAAACEEEEIIIINOOOOOUUUUY');
 
         //only allow letters, numbers, spaces, and underscores
-        $key = preg_replace("/[^a-z0-9\s\_]/i", ' ', $key);
+        $key = preg_replace("/[^a-z0-9\s\_\.]/i", ' ', $key);
 
         if ($storedKey !== $key) {
             //if key was changed, clean whitespace
@@ -941,25 +973,25 @@ abstract class supp_Repairs
         switch (json_last_error()) {
             case JSON_ERROR_NONE:
                 return 'No errors';
-            break;
+                break;
             case JSON_ERROR_DEPTH:
                 return 'Maximum stack depth exceeded';
-            break;
+                break;
             case JSON_ERROR_STATE_MISMATCH:
                 return 'Underflow or the modes mismatch';
-            break;
+                break;
             case JSON_ERROR_CTRL_CHAR:
                 return 'Unexpected control character found';
-            break;
+                break;
             case JSON_ERROR_SYNTAX:
                 return 'Syntax error, malformed JSON';
-            break;
+                break;
             case JSON_ERROR_UTF8:
                 return 'Malformed UTF-8 characters, possibly incorrectly encoded';
-            break;
+                break;
             default:
                 return 'Unknown error';
-            break;
+                break;
         }
     }
 
