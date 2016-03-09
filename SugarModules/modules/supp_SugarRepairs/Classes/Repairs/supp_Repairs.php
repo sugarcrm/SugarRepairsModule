@@ -594,6 +594,52 @@ abstract class supp_Repairs
     }
 
     /**
+     * Disables a specific process author definition
+     * @param $id
+     */
+    public function disablePADefinition($id)
+    {
+        $paDefinition = BeanFactory::retrieveBean('pmse_Project', $id);
+        if(is_object($paDefinition)===false){
+            $this->logAction("-> Failed to locate definition {$id}.");
+            return false;
+        }
+
+        if ($paDefinition->prj_status == "ACTIVE") {
+            if (!$this->isTesting) {
+                $this->logChange("Disabling PA Definition '{$paDefinition->name}' ({$id})...");
+                $paDefinition->prj_status = "INACTIVE";
+                $paDefinition->save();
+            } else {
+                $this->logChange("-> Will disable PA Definition '{$paDefinition->name}' ({$id}).");
+            }
+        } else {
+            $this->log("-> PA Definition '{$paDefinition->name}' ({$id}) is already disabled.");
+        }
+    }
+
+    /**
+     * Used to fetch the related module name from moduel and link
+     * @param $module string
+     * @param $link string
+     * @return string
+     */
+    public function getRelatedModuleName($module, $link){
+        $bean = BeanFactory::getBean($module);
+        $bean->load_relationship($link);
+
+        if($bean->$link->relationship->selfReferencing == true){
+            return $module;
+        }else{
+            if($bean->$link->relationship->lhs_module==$module){
+                return $bean->$link->relationship->rhs_module;
+            }else{
+                return $bean->$link->relationship->lhs_module;
+            }
+        }
+    }
+
+    /**
      * Used to fetch module name from object name
      * @param $objectName
      * @return mixed
@@ -888,12 +934,43 @@ abstract class supp_Repairs
     }
 
     /**
+     * Returns the last JSON error in a readable format
+     * @return string
+     */
+    public function getJSONLastError(){
+        switch (json_last_error()) {
+            case JSON_ERROR_NONE:
+                return 'No errors';
+            break;
+            case JSON_ERROR_DEPTH:
+                return 'Maximum stack depth exceeded';
+            break;
+            case JSON_ERROR_STATE_MISMATCH:
+                return 'Underflow or the modes mismatch';
+            break;
+            case JSON_ERROR_CTRL_CHAR:
+                return 'Unexpected control character found';
+            break;
+            case JSON_ERROR_SYNTAX:
+                return 'Syntax error, malformed JSON';
+            break;
+            case JSON_ERROR_UTF8:
+                return 'Malformed UTF-8 characters, possibly incorrectly encoded';
+            break;
+            default:
+                return 'Unknown error';
+            break;
+        }
+    }
+
+
+    /**
      * Executes the repairs
      * @param array $args
      */
     public function execute(array $args)
     {
-        if (isset($args['test']) && ($args['test'] === 'false' || $args['test'] === false)) {
+        if (isset($args['test']) && ($args['test'] == 'false' || $args['test'] == '0' || $args['test'] == false)) {
             $this->setTesting(false);
         }
 

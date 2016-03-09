@@ -7,6 +7,7 @@ require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_WorkflowRepairs.php
 require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_ReportRepairs.php');
 require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_VarfdefRepairs.php');
 require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_EmailAddressRepairs.php');
+require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_ProcessAuthorRepairs.php');
 class supp_SugarRepairs extends supp_SugarRepairs_sugar
 {
     /**
@@ -87,5 +88,16 @@ class supp_SugarRepairs extends supp_SugarRepairs_sugar
     {
         $emailAddressRepairs = new supp_EmailAddressRepairs();
         return $emailAddressRepairs->execute($args);
+    }
+
+    /**
+     * Repairs or disable process author definitions
+     * @param array $args
+     * @return bool|void
+     */
+    public function repairProcessAuthor(array $args)
+    {
+        $processAuthorRepairs = new supp_ProcessAuthorRepairs();
+        return $processAuthorRepairs->execute($args);
     }
 }
