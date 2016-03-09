@@ -970,7 +970,7 @@ abstract class supp_Repairs
      */
     public function execute(array $args)
     {
-        if (isset($args['test']) && ($args['test'] == 'false' || $args['test'] == '0' || $args['test'] == false)) {
+        if (isset($args['test']) && ($args['test'] === 'false' || $args['test'] === false)) {
             $this->setTesting(false);
         }
 
