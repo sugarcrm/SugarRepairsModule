@@ -116,10 +116,10 @@ abstract class supp_Repairs
             '(\\/|\\\)custom(\\/|\\\)Extension(\\/|\\\)application(\\/|\\\)Ext(\\/|\\\)Language(\\/|\\\)(.*?)\.php$',
             //module extensions
             '(\\/|\\\)custom(\\/|\\\)Extension(\\/|\\\)modules(\\/|\\\)(.*?)(\\/|\\\)Ext(\\/|\\\)Language(\\/|\\\)(.*?)\.php$',
-            //module builder application
-            '(\\/|\\\)custom(\\/|\\\)modulebuilder(\\/|\\\)packages(\\/|\\\)(.*?)(\\/|\\\)language(\\/|\\\)application(\\/|\\\)(.*?)\.lang.php$',
-            //module builder modules
-            '(\\/|\\\)custom(\\/|\\\)modulebuilder(\\/|\\\)packages(\\/|\\\)(.*?)(\\/|\\\)modules(\\/|\\\)(.*?)(\\/|\\\)language(\\/|\\\)(.*?)\.lang.php$',
+            //module builder application (removed with plans to make modulebuilder its own scan soon)
+            //'(\\/|\\\)custom(\\/|\\\)modulebuilder(\\/|\\\)packages(\\/|\\\)(.*?)(\\/|\\\)language(\\/|\\\)application(\\/|\\\)(.*?)\.lang.php$',
+            //module builder modules (removed with plans to make modulebuilder its own scan soon)
+            //'(\\/|\\\)custom(\\/|\\\)modulebuilder(\\/|\\\)packages(\\/|\\\)(.*?)(\\/|\\\)modules(\\/|\\\)(.*?)(\\/|\\\)language(\\/|\\\)(.*?)\.lang.php$',
             //custom modules
             '(\\/|\\\)custom(\\/|\\\)modules(\\/|\\\)(.*?)(\\/|\\\)language(\\/|\\\)(.*?)\.lang.php$',
         );
@@ -796,7 +796,7 @@ abstract class supp_Repairs
      * @param $listName
      * @return array|bool
      */
-    public function getListOptions($listName,$moduleBuilderFileName='')
+    public function getListOptions($listName)
     {
         $SupportedLanguages['bg_BG'] = 'bg_BG';
         $SupportedLanguages['cs_CZ'] = 'cs_CZ';
@@ -838,11 +838,6 @@ abstract class supp_Repairs
         $foundList = false;
         foreach ($SupportedLanguages as $lang){
             $app_list_strings = return_app_list_strings_language($lang);
-            if(!empty($moduleBuilderFileName) && stristr($moduleBuilderFileName,"modulebuilder") !== false) {
-                $tmp_app_list_strings=$app_list_strings;
-                include($moduleBuilderFileName);
-                $app_list_strings = array_merge($tmp_app_list_strings,$app_list_strings);
-            }
             if (!is_null($app_list_strings) && isset($app_list_strings[$listName])) {
                 $foundList = true;
                 $list = array_keys($app_list_strings[$listName]);
