@@ -796,7 +796,7 @@ abstract class supp_Repairs
      * @param $listName
      * @return array|bool
      */
-    public function getListOptions($listName)
+    public function getListOptions($listName,$moduleBuilderFileName='')
     {
         $SupportedLanguages['bg_BG'] = 'bg_BG';
         $SupportedLanguages['cs_CZ'] = 'cs_CZ';

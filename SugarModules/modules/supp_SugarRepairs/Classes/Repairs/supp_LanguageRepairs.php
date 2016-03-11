@@ -253,7 +253,7 @@ class supp_LanguageRepairs extends supp_Repairs
 
                         $testKeyInQuotes = "'{$cleanTestKey}'"; // need to rewrap this for string replacements
 
-                        $currentOptions = $this->getListOptions($tokenListName);
+                        $currentOptions = $this->getListOptions($tokenListName, $fileName);
 
                         if ($currentOptions == false) {
                             $this->logAction("-> A non-existent list ($tokenListName) was found in '{$fileName}'. This will need to be manually corrected.");
