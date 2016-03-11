@@ -838,6 +838,11 @@ abstract class supp_Repairs
         $foundList = false;
         foreach ($SupportedLanguages as $lang){
             $app_list_strings = return_app_list_strings_language($lang);
+            if(!empty($moduleBuilderFileName) && stristr($moduleBuilderFileName,"modulebuilder") !== false) {
+                $tmp_app_list_strings=$app_list_strings;
+                include($moduleBuilderFileName);
+                $app_list_strings = array_merge($tmp_app_list_strings,$app_list_strings);
+            }
             if (!is_null($app_list_strings) && isset($app_list_strings[$listName])) {
                 $foundList = true;
                 $list = array_keys($app_list_strings[$listName]);
