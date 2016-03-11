@@ -260,10 +260,11 @@ class supp_LanguageRepairs extends supp_Repairs
                             continue;
                         }
 
-                        if ($cleanOldKey !== $cleanTestKey && in_array($cleanTestKey, $currentOptions)) {
+                        if ($cleanOldKey != $cleanTestKey && in_array($cleanTestKey, $currentOptions)) {
                             $this->logAction("-> The key '{$cleanOldKey}' in '{$fileName}' cannot be updated as '{$cleanTestKey}' already exists in the list '{$tokenListName}'. This will need to be manually corrected. List options are: " . print_r($currentOptions, true));
                         } else {
-                            if ($oldKeyInQuotes != $testKeyInQuotes) {
+                            //Since numeric indexes come back without quotes we are going to test both side without quotes
+                            if ($cleanOldKey != $cleanTestKey) {
                                 $keyList[1] = $testKeyInQuotes;
                                 //OK a key has changed, now we need to update everything
                                 $this->changed = true;
