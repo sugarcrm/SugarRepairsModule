@@ -208,16 +208,16 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
 
     /**
      * Test for fixing start criteria
-     * @covers supp_ProcessAuthorRepairs::repairStartCriteria
+     * @covers supp_ProcessAuthorRepairs::repairEventCriteria
      */
-    public function testRepairStartCriteria()
+    public function testRepairEventCriteria()
     {
         $supp_ProcessAuthorRepairsTest = new supp_ProcessAuthorRepairs();
         $supp_ProcessAuthorRepairsTest->setTesting(false);
-        $supp_ProcessAuthorRepairsTest->repairStartCriteria();
+        $supp_ProcessAuthorRepairsTest->repairEventCriteria();
 
         // 4 broken records should be issues
-        $this->assertGreaterThanOrEqual(4, count($supp_ProcessAuthorRepairsTest->foundStartCriteriaIssues));
+        $this->assertGreaterThanOrEqual(4, count($supp_ProcessAuthorRepairsTest->foundIssues));
 
         $paDefinition = BeanFactory::retrieveBean('pmse_Project', "46d69d50-e58c-11e5-9261-fe49746prjid");
         $this->assertEquals("INACTIVE", $paDefinition->prj_status);
