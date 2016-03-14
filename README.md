@@ -119,6 +119,21 @@ Corrects common issues with workflows.
 * Workflows with invalid fields
 > Disables any workflows with missing or invalid fields
 
+#Process Author Repairs
+Corrects common issues with Process Author Definitions.
+
+##Testing Command:
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair processAuthor`
+
+##Execute Command:
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair processAuthor --test false`
+
+##Issues Addressed
+* Start Event Criteria with invalid fields
+> Disables any Process Author Definition with start criteria referencing missing or invalid fields
+* Activities and Actions with invalid fields
+> Disables any Process Author Definition with an activity or action referencing missing or invalid fields
+
 #Vardef Repairs
 Corrects common issues with vardefs.
 
