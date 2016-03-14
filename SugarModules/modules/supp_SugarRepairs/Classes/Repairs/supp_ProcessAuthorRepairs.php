@@ -68,7 +68,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
      * @param array $paDef Process Author Definition info (id, name)
      * @return mixed $type false if field doesnt exist; string of field type
      */
-    public function validatePAFieldExisits($base_module, $field, $paDef)
+    public function validatePAFieldExists($base_module, $field, $paDef)
     {
         // Check if field exists
         $type = $this->getFieldType($base_module, $field);
@@ -196,7 +196,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                 }
 
                 // Check if field exists
-                $type = $this->validatePAFieldExisits($base_module, $field, $paDef);
+                $type = $this->validatePAFieldExists($base_module, $field, $paDef);
                 if ($type === false) continue;
 
                 // Validate dropdown or multiselect option list exsists
@@ -274,7 +274,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                     $base_module = $row['prj_module'];
 
                     // Check if field exists
-                    $type = $this->validatePAFieldExisits($base_module, $field, $paDef);
+                    $type = $this->validatePAFieldExists($base_module, $field, $paDef);
                     if ($type === false) continue;
 
                     // Validate dropdown or multiselect option list exsists
@@ -304,7 +304,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                     }
 
                     // Check if field exists
-                    $type = $this->validatePAFieldExisits($base_module, $field, $paDef);
+                    $type = $this->validatePAFieldExists($base_module, $field, $paDef);
                     if ($type === false) continue;
 
                     // Validate dropdown or multiselect option list exsists
