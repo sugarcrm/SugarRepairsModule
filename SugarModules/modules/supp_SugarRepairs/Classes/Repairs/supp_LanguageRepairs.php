@@ -244,6 +244,18 @@ class supp_LanguageRepairs extends supp_Repairs
                         break;
                     case 'T_ARRAY_KEY':
                         $oldKeyInQuotes = $keyList[1];
+                        if(token_name($keyList[0])=='T_LNUMBER') {
+                            //If the key is an integer then set its tyoe
+                            // and skip the rest of the processing
+                            settype($keyList[1], 'integer');
+                            continue;
+                        }
+                        if(token_name($keyList[0])=='T_DNUMBER') {
+                            //if there is a decimal, then convert to a string with quotes, we may
+                            // skip the rest of the processing here too
+                            $keyList[1]="'{$keyList[1]}'";
+                            continue;
+                        }
                         $cleanOldKey = trim($oldKeyInQuotes, "'\"");
                         $cleanTestKey = $this->getValidLanguageKeyName($cleanOldKey);
                         if ($cleanTestKey === false) {

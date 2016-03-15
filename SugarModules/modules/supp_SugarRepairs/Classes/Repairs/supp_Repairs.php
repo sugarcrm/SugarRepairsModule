@@ -6,6 +6,7 @@ abstract class supp_Repairs
     protected $cycle_id = '';
     protected $isTesting = true; //always default to true
     protected $backupTables = array();
+    public $unitTestLog = array();
 
     /**
      * Construct to set the cycle id
@@ -68,7 +69,8 @@ abstract class supp_Repairs
                     || $_SERVER['argv'][0] == '/usr/bin/phpunit'
                 )
             ) {
-                //in phpunit tests
+                //Capture the log file for unit tests
+                $this->unitTestLog[] = $log;
             } else {
                 echo $log . "\n";
             }
