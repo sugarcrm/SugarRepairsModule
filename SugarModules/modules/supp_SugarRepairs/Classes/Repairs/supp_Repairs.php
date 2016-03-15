@@ -7,6 +7,7 @@ abstract class supp_Repairs
     protected $isTesting = true; //always default to true
     protected $backupTables = array();
     public $unitTestLog = array();
+    protected $listCache = array();
 
     /**
      * Construct to set the cycle id
@@ -800,6 +801,9 @@ abstract class supp_Repairs
      */
     public function getListOptions($listName)
     {
+        if(array_key_exists($listName, $this->listCache)) {
+            return $this->listCache;
+        }
         $SupportedLanguages['bg_BG'] = 'bg_BG';
         $SupportedLanguages['cs_CZ'] = 'cs_CZ';
         $SupportedLanguages['da_DK'] = 'da_DK';
@@ -840,6 +844,7 @@ abstract class supp_Repairs
         $foundList = false;
         foreach ($SupportedLanguages as $lang){
             $app_list_strings = return_app_list_strings_language($lang);
+            $this->listCache = array_merge($this->listCache, $app_list_strings);
             if (!is_null($app_list_strings) && isset($app_list_strings[$listName])) {
                 $foundList = true;
                 $list = array_keys($app_list_strings[$listName]);
