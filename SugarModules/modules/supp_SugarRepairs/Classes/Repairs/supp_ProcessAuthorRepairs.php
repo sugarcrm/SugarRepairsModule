@@ -48,7 +48,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
         $results = false;
         $sql = "
             UPDATE pmse_bpm_activity_definition
-            SET evn_criteria = '$new_action_fields'
+            SET act_fields = '$new_action_fields'
             WHERE id = '$actionId'
         ";
         if (!$this->isTesting) {

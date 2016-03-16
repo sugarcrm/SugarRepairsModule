@@ -30,10 +30,11 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
             INSERT INTO `pmse_bpm_event_definition` (`id`,`deleted`,`prj_id`,`evn_status`,`evn_type`,`evn_module`,`evn_criteria`)
             VALUES ('9ff025b6-e576-11e5-9261-fe497468edid',0,'9ff025b6-e576-11e5-9261-fe49746prjid','ACTIVE','START','Accounts','[{\"expType\":\"MODULE\",\"expSubtype\":\"DropDown\",\"expLabel\":\"Industry is equal to Apparel\",\"expValue\":\"Apparel\",\"expOperator\":\"equals\",\"expModule\":\"Accounts\",\"expField\":\"industry\"},{\"expType\":\"LOGIC\",\"expLabel\":\"OR\",\"expValue\":\"OR\"},{\"expType\":\"USER_ROLE\",\"expLabel\":\"Supervisor has not role Administrator\",\"expValue\":\"is_admin\",\"expOperator\":\"not_equals\",\"expField\":\"supervisor\"}]');
         ";
-        // $sql_setup[] = "
-        //     INSERT INTO `pmse_project` (`id`,`name`,`deleted`,`prj_status`,`prj_module`)
-        //     VALUES ('9ff025b6-e576-11e5-9261-fe49746prjid','Test Working Record',0,'ACTIVE','Accounts');
-        // ";
+        $sql_setup[] = "
+            INSERT INTO `pmse_bpm_activity_definition` (`id`,`deleted`,`name`,`act_field_module`,`act_fields`)
+            VALUES ('f6c394c0-eb0e-11e5-b792-460e741c2f98',0,'Change Field','Accounts','[{\"name\":\"Industry\",\"field\":\"industry\",\"value\":\"Apparel\",\"type\":\"DropDown\"},{\"name\":\"Type\",\"field\":\"account_type\",\"value\":\"Analyst\",\"type\":\"DropDown\"},{\"name\":\"Website\",\"field\":\"website\",\"value\":\"test\",\"type\":\"URL\"}]');
+        ";
+
         //Create bean
         $bean = BeanFactory::newBean("pmse_Project");
         $bean->id = '9ff025b6-e576-11e5-9261-fe49746prjid';
@@ -101,23 +102,6 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
         $bean->prj_module = "Accounts";
         $bean->save();
 
-        // $sql_setup[] = "
-        //     INSERT INTO `pmse_project` (`id`,`name`,`deleted`,`prj_status`,`prj_module`)
-        //     VALUES ('46d69d50-e58c-11e5-9261-fe49746prjid','Test DD Field Missing Value',0,'ACTIVE','Accounts');
-        // ";
-        // $sql_setup[] = "
-        //     INSERT INTO `pmse_project` (`id`,`name`,`deleted`,`prj_status`,`prj_module`)
-        //     VALUES ('46d69d51-e58c-11e5-9261-fe49746prjid','Test Self Related DD Field Missing Value',0,'ACTIVE','Accounts');
-        // ";
-        // $sql_setup[] = "
-        //     INSERT INTO `pmse_project` (`id`,`name`,`deleted`,`prj_status`,`prj_module`)
-        //     VALUES ('46d69d52-e58c-11e5-9261-fe49746prjid','Test Related DD Field Missing Value',0,'ACTIVE','Accounts');
-        // ";
-        // $sql_setup[] = "
-        //     INSERT INTO `pmse_project` (`id`,`name`,`deleted`,`prj_status`,`prj_module`)
-        //     VALUES ('46d69d53-e58c-11e5-9261-fe49746prjid','Test Field doesnt Exist',0,'ACTIVE','Accounts');
-        // ";
-
         $sql_setup[] = "
             INSERT INTO `pmse_bpmn_flow` (`id`,`deleted`,`prj_id`,`flo_element_origin`)
             VALUES ('8236146e-e58e-11e5-9261-fe497468afid',0,'46d69d50-e58c-11e5-9261-fe49746prjid','38047c8e-e58c-11e5-9261-fe497468edid');
@@ -160,13 +144,19 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
             WHERE id in ('9ff025b6-e576-11e5-9261-fe497468afid','8236146e-e58e-11e5-9261-fe497468afid','87a549d8-e58e-11e5-9261-fe497468afid','8b0b2fde-e58e-11e5-9261-fe497468afid','8e736524-e58e-11e5-9261-fe497468afid')
         ";
 
+        $sql_teardown[] = "
+            DELETE FROM pmse_bpm_activity_definition
+            WHERE id in ('f6c394c0-eb0e-11e5-b792-460e741c2f98')
+        ";
+        
+
         foreach ($sql_teardown as $q_teardown) {
             $res = $GLOBALS['db']->query($q_teardown);
         }
     }
 
     /**
-     * Test for setting the new criteria
+     * Test for setting the new event definition
      * @covers supp_ProcessAuthorRepairs::setEventDefinition
      */
     public function testSetEventDefinition()
@@ -190,6 +180,33 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
 
         // should return updated criteria
         $this->assertEquals($new_evn_criteria, $returnedCriteria);
+    }
+
+    /**
+     * Test for setting the new action definition
+     * @covers supp_ProcessAuthorRepairs::setActionDefinition
+     */
+    public function testSetActionDefinition()
+    {
+        $actionId = "f6c394c0-eb0e-11e5-b792-460e741c2f98";
+        $new_action_fields = '[{"name":"Industry","field":"industry","value":"Apparel","type":"DropDown"},{"name":"Website","field":"website","value":"test","type":"URL"}]';
+
+        $supp_ProcessAuthorRepairsTest = new supp_ProcessAuthorRepairs();
+        $supp_ProcessAuthorRepairsTest->setTesting(false);
+        $results = $supp_ProcessAuthorRepairsTest->setActionDefinition($actionId, $new_action_fields);
+
+        // should return true
+        $this->assertTrue($results);
+
+        $sql = "
+            SELECT act_fields 
+            FROM pmse_bpm_activity_definition
+            WHERE id = '$actionId'
+        ";
+        $returnedCriteria = html_entity_decode($GLOBALS['db']->getOne($sql));
+
+        // should return updated criteria
+        $this->assertEquals($new_action_fields, $returnedCriteria);
     }
 
     /**
