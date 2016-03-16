@@ -802,7 +802,7 @@ abstract class supp_Repairs
     public function getListOptions($listName)
     {
         if(array_key_exists($listName, $this->listCache)) {
-            return $this->listCache;
+            return $this->listCache[$listName];
         }
         $SupportedLanguages['bg_BG'] = 'bg_BG';
         $SupportedLanguages['cs_CZ'] = 'cs_CZ';
