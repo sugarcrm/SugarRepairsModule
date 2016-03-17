@@ -229,7 +229,8 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
         $this->foundIssues = array();
         $sql = "
             SELECT 
-                p.id as prj_id, p.name, p.prj_module, ad.id as activity_id, ad.act_field_module, ad.act_fields, ad.act_required_fields
+                p.id as prj_id, p.name, p.prj_module, a.act_script_type, a.act_task_type, 
+                ad.id as activity_id, ad.act_field_module, ad.act_fields, ad.act_required_fields
             FROM pmse_bpm_activity_definition ad
                 JOIN pmse_bpmn_activity a
                     ON
@@ -354,9 +355,10 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
         $stamp = time();
 
         if ($this->backupTable('pmse_bpm_event_definition', $stamp)
-            && $this->backupTable('pmse_bpm_related_dependency', $stamp)
+            && $this->backupTable('pmse_bpm_activity_definition', $stamp)
         ) {
             $this->repairEventCriteria();
+            $this->repairActivities();
         }
     }
 }
