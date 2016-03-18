@@ -245,7 +245,7 @@ class supp_LanguageRepairs extends supp_Repairs
                     case 'T_ARRAY_KEY':
                         $oldKeyInQuotes = $keyList[1];
                         if(token_name($keyList[0])=='T_LNUMBER') {
-                            //If the key is an integer then set its tyoe
+                            //If the key is an integer then set its type
                             // and skip the rest of the processing
                             settype($keyList[1], 'integer');
                             continue;
@@ -283,6 +283,8 @@ class supp_LanguageRepairs extends supp_Repairs
                                 //Sometimes the values come though as 'value', we need to get rid of the tick marks
                                 if (!empty($tokenListName)) {
                                     $listNameInfo = $this->findListField(trim($tokenListName, "'\""));
+                                    //unset this cached item so it will be re-built if it comes up again
+                                    unset($this->listCache[$tokenListName]);
                                     if (!empty($listNameInfo)) {
                                         $this->updateDatabase($listNameInfo, $cleanOldKey, $cleanTestKey);
                                     }

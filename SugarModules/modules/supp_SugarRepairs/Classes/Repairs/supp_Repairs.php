@@ -50,7 +50,7 @@ abstract class supp_Repairs
      * @param $message
      * @param string $level
      */
-    protected function log($message, $prefix='')
+    protected function log($message, $prefix = '')
     {
         if (empty($prefix)) {
             $log = "[Sugar Repairs][{$this->cycle_id}][{$this->loggerTitle}] ";
@@ -159,11 +159,12 @@ abstract class supp_Repairs
         $vars = array();
         $results = array_filter(
             token_get_all(file_get_contents($file)),
-            function($t) { return $t[0] == T_VARIABLE; }
+            function ($t) {
+                return $t[0] == T_VARIABLE;
+            }
         );
 
-        foreach ($results as $result)
-        {
+        foreach ($results as $result) {
             if (isset($result[1])) {
                 $vars[$result[1]] = $result[1];
             }
@@ -635,7 +636,7 @@ abstract class supp_Repairs
     public function disablePADefinition($id)
     {
         $paDefinition = BeanFactory::retrieveBean('pmse_Project', $id);
-        if(is_object($paDefinition)===false){
+        if (is_object($paDefinition) === false) {
             $this->logAction("-> Failed to locate definition {$id}.");
             return false;
         }
@@ -659,16 +660,17 @@ abstract class supp_Repairs
      * @param $link string
      * @return string
      */
-    public function getRelatedModuleName($module, $link){
+    public function getRelatedModuleName($module, $link)
+    {
         $bean = BeanFactory::getBean($module);
         $bean->load_relationship($link);
 
-        if($bean->$link->relationship->selfReferencing == true){
+        if ($bean->$link->relationship->selfReferencing == true) {
             return $module;
-        }else{
-            if($bean->$link->relationship->lhs_module==$module){
+        } else {
+            if ($bean->$link->relationship->lhs_module == $module) {
                 return $bean->$link->relationship->rhs_module;
-            }else{
+            } else {
                 return $bean->$link->relationship->lhs_module;
             }
         }
@@ -801,11 +803,13 @@ abstract class supp_Repairs
      */
     public function getListOptions($listName)
     {
-        if(!empty($this->listCache)) {
+        //If the listCache is built and the ListName we are looking for
+        // is in it then just return that.  Otherwise rescan the language file again
+        if (!empty($this->listCache)) {
             if (array_key_exists($listName, $this->listCache)) {
                 return $this->listCache[$listName];
             } else {
-                return false;
+                $this->listCache = array();
             }
         }
         $SupportedLanguages['bg_BG'] = 'bg_BG';
@@ -846,11 +850,25 @@ abstract class supp_Repairs
 
         $finalList = array();
         $foundList = false;
-        foreach ($SupportedLanguages as $lang){
+        foreach ($SupportedLanguages as $lang) {
             $app_list_strings = return_app_list_strings_language($lang);
-            $this->listCache = array_merge($this->listCache, $app_list_strings);
+
+            //Build the cache, making sure the keys only appear once
+            foreach ($app_list_strings as $listNames => $keys) {
+                if(!isset($this->listCache[$listNames])) {
+                    $this->listCache[$listNames]=array();
+                }
+                if(!is_array($keys)) {
+                    $keys=array($keys=>$keys);
+                }
+                $this->listCache[$listNames] = array_unique(array_merge($this->listCache[$listNames], array_keys($keys)));
+            }
+
             if (!is_null($app_list_strings) && isset($app_list_strings[$listName])) {
                 $foundList = true;
+                if(!is_array($app_list_strings[$listName])) {
+                    $app_list_strings[$listName]=array($app_list_strings[$listName]=>$app_list_strings[$listName]);
+                }
                 $list = array_keys($app_list_strings[$listName]);
                 $finalList = array_merge($finalList, $list);
             }
@@ -980,7 +998,8 @@ abstract class supp_Repairs
      * Returns the last JSON error in a readable format
      * @return string
      */
-    public function getJSONLastError(){
+    public function getJSONLastError()
+    {
         switch (json_last_error()) {
             case JSON_ERROR_NONE:
                 return 'No errors';
