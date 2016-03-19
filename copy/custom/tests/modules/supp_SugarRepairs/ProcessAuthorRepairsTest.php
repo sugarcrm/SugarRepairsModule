@@ -549,11 +549,85 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
         ";
 
         // business rule with condition field, related module that does not exist
+        //{"id":"52547811-b7e9-5b7a-6247-56ec988cb1bd","base_module":"Accounts","type":"single","name":"related br","columns":{"conditions":[{"module":"campaign_accounts","field":"status"},{"module":"Accounts","field":"industry"}],"conclusions":[""]},"ruleset":[{"id":1,"conditions":[{"value":[{"expType":"CONSTANT","expSubType":"string","expLabel":"In Queue","expValue":"In Queue"}],"variable_name":"nonexistantfield56_c","condition":"==","variable_module":"campaign_accounts"},{"value":[{"expType":"CONSTANT","expSubType":"string","expLabel":"Chemicals","expValue":"Chemicals"}],"variable_name":"industry","condition":"==","variable_module":"Accounts"}],"conclusions":[{"value":[{"expType":"CONSTANT","expSubtype":"boolean","expLabel":"TRUE","expValue":true}],"conclusion_value":"result","conclusion_type":"return"}]}]}
+        $bean = BeanFactory::newBean("pmse_Project");
+        $bean->id = 'd79ee4d6-ed67-11e5-94a1-736088870fb3';
+        $bean->new_with_id = true;
+        $bean->name = 'business rule with condition field, related module that does not exist';
+        $bean->prj_status = "ACTIVE";
+        $bean->prj_module = "Accounts";
+        $bean->save();
+
+        $sql_setup[] = "
+            INSERT INTO `pmse_business_rules` (`id`,`deleted`,`name`,`rst_module`,`rst_source_definition`)
+            VALUES ('df46a8c2-ed67-11e5-94a1-736088870fb3',0,'Business Rule','Accounts','{\"id\":\"df46a8c2-ed67-11e5-94a1-736088870fb3\",\"base_module\":\"Accounts\",\"type\":\"single\",\"name\":\"related br\",\"columns\":{\"conditions\":[{\"module\":\"campaign_accounts\",\"field\":\"status\"},{\"module\":\"Accounts\",\"field\":\"industry\"}],\"conclusions\":[\"\"]},\"ruleset\":[{\"id\":1,\"conditions\":[{\"value\":[{\"expType\":\"CONSTANT\",\"expSubType\":\"string\",\"expLabel\":\"In Queue\",\"expValue\":\"In Queue\"}],\"variable_name\":\"nonexistantfield56_c\",\"condition\":\"==\",\"variable_module\":\"campaign_accounts\"},{\"value\":[{\"expType\":\"CONSTANT\",\"expSubType\":\"string\",\"expLabel\":\"Chemicals\",\"expValue\":\"Chemicals\"}],\"variable_name\":\"industry\",\"condition\":\"==\",\"variable_module\":\"Accounts\"}],\"conclusions\":[{\"value\":[{\"expType\":\"CONSTANT\",\"expSubtype\":\"boolean\",\"expLabel\":\"TRUE\",\"expValue\":true}],\"conclusion_value\":\"result\",\"conclusion_type\":\"return\"}]}]}');
+        ";
+        $sql_setup[] = "
+            INSERT INTO `pmse_bpm_activity_definition` (`id`,`deleted`,`name`,`act_field_module`,`act_fields`)
+            VALUES ('e9c27a1a-ed67-11e5-94a1-736088870fb3',0,'Business Rule','Accounts','df46a8c2-ed67-11e5-94a1-736088870fb3');
+        ";
+        $sql_setup[] = "
+            INSERT INTO `pmse_bpmn_activity` (`id`,`name`,`deleted`,`prj_id`,`act_task_type`,`act_script_type`)
+            VALUES ('e9c27a1a-ed67-11e5-94a1-736088870fb3','Business Rule',0,'d79ee4d6-ed67-11e5-94a1-736088870fb3','SCRIPTTASK','BUSINESS_RULE');
+        ";
+        $sql_setup[] = "
+            INSERT INTO `pmse_bpmn_flow` (`id`,`deleted`,`prj_id`,`flo_element_origin`)
+            VALUES ('f076cadc-ed67-11e5-94a1-736088870fb3',0,'d79ee4d6-ed67-11e5-94a1-736088870fb3','e9c27a1a-ed67-11e5-94a1-736088870fb3');
+        ";
+
         // business rule with condition field, related module using invalid dropdown value 
+        // {"id":"52547811-b7e9-5b7a-6247-56ec988cb1bd","base_module":"Accounts","type":"single","name":"related br","columns":{"conditions":[{"module":"campaign_accounts","field":"status"},{"module":"Accounts","field":"industry"}],"conclusions":[""]},"ruleset":[{"id":1,"conditions":[{"value":[{"expType":"CONSTANT","expSubType":"string","expLabel":"In Queue","expValue":"nonexistantvalue"}],"variable_name":"status","condition":"==","variable_module":"campaign_accounts"},{"value":[{"expType":"CONSTANT","expSubType":"string","expLabel":"Chemicals","expValue":"Chemicals"}],"variable_name":"industry","condition":"==","variable_module":"Accounts"}],"conclusions":[{"value":[{"expType":"CONSTANT","expSubtype":"boolean","expLabel":"TRUE","expValue":true}],"conclusion_value":"result","conclusion_type":"return"}]}]}
+        $bean = BeanFactory::newBean("pmse_Project");
+        $bean->id = '6376436e-ed68-11e5-94a1-736088870fb3';
+        $bean->new_with_id = true;
+        $bean->name = 'business rule with condition field, related module using invalid dropdown value ';
+        $bean->prj_status = "ACTIVE";
+        $bean->prj_module = "Accounts";
+        $bean->save();
+
+        $sql_setup[] = "
+            INSERT INTO `pmse_business_rules` (`id`,`deleted`,`name`,`rst_module`,`rst_source_definition`)
+            VALUES ('6902404e-ed68-11e5-94a1-736088870fb3',0,'Business Rule','Accounts','{\"id\":\"6902404e-ed68-11e5-94a1-736088870fb3\",\"base_module\":\"Accounts\",\"type\":\"single\",\"name\":\"related br\",\"columns\":{\"conditions\":[{\"module\":\"campaign_accounts\",\"field\":\"status\"},{\"module\":\"Accounts\",\"field\":\"industry\"}],\"conclusions\":[\"\"]},\"ruleset\":[{\"id\":1,\"conditions\":[{\"value\":[{\"expType\":\"CONSTANT\",\"expSubType\":\"string\",\"expLabel\":\"In Queue\",\"expValue\":\"nonexistantvalue\"}],\"variable_name\":\"status\",\"condition\":\"==\",\"variable_module\":\"campaign_accounts\"},{\"value\":[{\"expType\":\"CONSTANT\",\"expSubType\":\"string\",\"expLabel\":\"Chemicals\",\"expValue\":\"Chemicals\"}],\"variable_name\":\"industry\",\"condition\":\"==\",\"variable_module\":\"Accounts\"}],\"conclusions\":[{\"value\":[{\"expType\":\"CONSTANT\",\"expSubtype\":\"boolean\",\"expLabel\":\"TRUE\",\"expValue\":true}],\"conclusion_value\":\"result\",\"conclusion_type\":\"return\"}]}]}');
+        ";
+        $sql_setup[] = "
+            INSERT INTO `pmse_bpm_activity_definition` (`id`,`deleted`,`name`,`act_field_module`,`act_fields`)
+            VALUES ('7a801436-ed68-11e5-94a1-736088870fb3',0,'Business Rule','Accounts','6902404e-ed68-11e5-94a1-736088870fb3');
+        ";
+        $sql_setup[] = "
+            INSERT INTO `pmse_bpmn_activity` (`id`,`name`,`deleted`,`prj_id`,`act_task_type`,`act_script_type`)
+            VALUES ('7a801436-ed68-11e5-94a1-736088870fb3','Business Rule',0,'6376436e-ed68-11e5-94a1-736088870fb3','SCRIPTTASK','BUSINESS_RULE');
+        ";
+        $sql_setup[] = "
+            INSERT INTO `pmse_bpmn_flow` (`id`,`deleted`,`prj_id`,`flo_element_origin`)
+            VALUES ('809c659a-ed68-11e5-94a1-736088870fb3',0,'6376436e-ed68-11e5-94a1-736088870fb3','7a801436-ed68-11e5-94a1-736088870fb3');
+        ";
+
         // business rule with conclusion field, related module, return type, that does not exist
-        // business rule with conclusion field, related module, return type, using invalid dropdown value 
-        // business rule with conclusion field, related module, variable type, that does not exist
-        // business rule with conclusion field, related module, variable type, using invalid dropdown value 
+        // {"id":"7de80e8d-5699-5aef-2528-56ec99144830","base_module":"Accounts","type":"single","name":"related coclusion","columns":{"conditions":[{"module":"Accounts","field":"industry"}],"conclusions":["","industry"]},"ruleset":[{"id":1,"conditions":[{"value":[{"expType":"CONSTANT","expSubType":"string","expLabel":"Apparel","expValue":"Apparel"}],"variable_name":"industry","condition":"==","variable_module":"Accounts"}],"conclusions":[{"value":[{"expType":"VARIABLE","expSubtype":"DropDown","expLabel":"Status","expValue":"nonexistantfield56_c","expModule":"campaign_accounts"},{"expType":"VARIABLE","expSubtype":"DropDown","expLabel":"Type","expValue":"campaign_type","expModule":"campaign_accounts"}],"conclusion_value":"result","conclusion_type":"return"},{"value":[{"expType":"CONSTANT","expSubType":"string","expLabel":"Apparel","expValue":"Apparel"}],"conclusion_value":"industry","conclusion_type":"variable","variable_module":"Accounts"}]}]}
+        $bean = BeanFactory::newBean("pmse_Project");
+        $bean->id = 'c0e866a8-ed68-11e5-94a1-736088870fb3';
+        $bean->new_with_id = true;
+        $bean->name = 'business rule with conclusion field, related module, return type, that does not exist';
+        $bean->prj_status = "ACTIVE";
+        $bean->prj_module = "Accounts";
+        $bean->save();
+
+        $sql_setup[] = "
+            INSERT INTO `pmse_business_rules` (`id`,`deleted`,`name`,`rst_module`,`rst_source_definition`)
+            VALUES ('c85934b2-ed68-11e5-94a1-736088870fb3',0,'Business Rule','Accounts','{\"id\":\"c85934b2-ed68-11e5-94a1-736088870fb3\",\"base_module\":\"Accounts\",\"type\":\"single\",\"name\":\"related coclusion\",\"columns\":{\"conditions\":[{\"module\":\"Accounts\",\"field\":\"industry\"}],\"conclusions\":[\"\",\"industry\"]},\"ruleset\":[{\"id\":1,\"conditions\":[{\"value\":[{\"expType\":\"CONSTANT\",\"expSubType\":\"string\",\"expLabel\":\"Apparel\",\"expValue\":\"Apparel\"}],\"variable_name\":\"industry\",\"condition\":\"==\",\"variable_module\":\"Accounts\"}],\"conclusions\":[{\"value\":[{\"expType\":\"VARIABLE\",\"expSubtype\":\"DropDown\",\"expLabel\":\"Status\",\"expValue\":\"nonexistantfield56_c\",\"expModule\":\"campaign_accounts\"},{\"expType\":\"VARIABLE\",\"expSubtype\":\"DropDown\",\"expLabel\":\"Type\",\"expValue\":\"campaign_type\",\"expModule\":\"campaign_accounts\"}],\"conclusion_value\":\"result\",\"conclusion_type\":\"return\"},{\"value\":[{\"expType\":\"CONSTANT\",\"expSubType\":\"string\",\"expLabel\":\"Apparel\",\"expValue\":\"Apparel\"}],\"conclusion_value\":\"industry\",\"conclusion_type\":\"variable\",\"variable_module\":\"Accounts\"}]}]}');
+        ";
+        $sql_setup[] = "
+            INSERT INTO `pmse_bpm_activity_definition` (`id`,`deleted`,`name`,`act_field_module`,`act_fields`)
+            VALUES ('d2a0a644-ed68-11e5-94a1-736088870fb3',0,'Business Rule','Accounts','c85934b2-ed68-11e5-94a1-736088870fb3');
+        ";
+        $sql_setup[] = "
+            INSERT INTO `pmse_bpmn_activity` (`id`,`name`,`deleted`,`prj_id`,`act_task_type`,`act_script_type`)
+            VALUES ('d2a0a644-ed68-11e5-94a1-736088870fb3','Business Rule',0,'c0e866a8-ed68-11e5-94a1-736088870fb3','SCRIPTTASK','BUSINESS_RULE');
+        ";
+        $sql_setup[] = "
+            INSERT INTO `pmse_bpmn_flow` (`id`,`deleted`,`prj_id`,`flo_element_origin`)
+            VALUES ('db853c48-ed68-11e5-94a1-736088870fb3',0,'c0e866a8-ed68-11e5-94a1-736088870fb3','d2a0a644-ed68-11e5-94a1-736088870fb3');
+        ";
 
         // execute sql statements
         foreach ($sql_setup as $q_setup) {
@@ -604,7 +678,10 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
                 '800eda32-ed5d-11e5-94a1-736088870fb3',
                 '7bf5370a-ed5f-11e5-94a1-736088870fb3',
                 'f6440928-ed5f-11e5-94a1-736088870fb3',
-                '7222b6a2-ed60-11e5-94a1-736088870fb3'
+                '7222b6a2-ed60-11e5-94a1-736088870fb3',
+                'd79ee4d6-ed67-11e5-94a1-736088870fb3',
+                '6376436e-ed68-11e5-94a1-736088870fb3',
+                'c0e866a8-ed68-11e5-94a1-736088870fb3'
             )
         ";
         $sql_teardown[] = "
@@ -632,7 +709,10 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
                 '9bc11498-ed5d-11e5-94a1-736088870fb3',
                 'afd6f716-ed5f-11e5-94a1-736088870fb3',
                 '1df4cc8c-ed60-11e5-94a1-736088870fb3',
-                '8cffbfba-ed60-11e5-94a1-736088870fb3'
+                '8cffbfba-ed60-11e5-94a1-736088870fb3',
+                'f076cadc-ed67-11e5-94a1-736088870fb3',
+                '809c659a-ed68-11e5-94a1-736088870fb3',
+                'db853c48-ed68-11e5-94a1-736088870fb3'
             )
         ";
 
@@ -656,7 +736,10 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
                 '93bfc62c-ed5d-11e5-94a1-736088870fb3',
                 'a8de2e7a-ed5f-11e5-94a1-736088870fb3',
                 '169952fa-ed60-11e5-94a1-736088870fb3',
-                '85811180-ed60-11e5-94a1-736088870fb3'
+                '85811180-ed60-11e5-94a1-736088870fb3',
+                'e9c27a1a-ed67-11e5-94a1-736088870fb3',
+                '7a801436-ed68-11e5-94a1-736088870fb3',
+                'd2a0a644-ed68-11e5-94a1-736088870fb3'
             )
         ";
 
@@ -680,7 +763,10 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
                 '93bfc62c-ed5d-11e5-94a1-736088870fb3',
                 'a8de2e7a-ed5f-11e5-94a1-736088870fb3',
                 '169952fa-ed60-11e5-94a1-736088870fb3',
-                '85811180-ed60-11e5-94a1-736088870fb3'
+                '85811180-ed60-11e5-94a1-736088870fb3',
+                'e9c27a1a-ed67-11e5-94a1-736088870fb3',
+                '7a801436-ed68-11e5-94a1-736088870fb3',
+                'd2a0a644-ed68-11e5-94a1-736088870fb3'
             )
         ";
 
@@ -692,7 +778,10 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
                 '89f53bcc-ed5d-11e5-94a1-736088870fb3',
                 '8ae94de6-ed5f-11e5-94a1-736088870fb3',
                 '09c552d6-ed60-11e5-94a1-736088870fb3',
-                '7abf6440-ed60-11e5-94a1-736088870fb3'
+                '7abf6440-ed60-11e5-94a1-736088870fb3',
+                'df46a8c2-ed67-11e5-94a1-736088870fb3',
+                '6902404e-ed68-11e5-94a1-736088870fb3',
+                'c85934b2-ed68-11e5-94a1-736088870fb3'
             )
         ";
         
@@ -886,8 +975,8 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
         $supp_ProcessAuthorRepairsTest->setTesting(false);
         $supp_ProcessAuthorRepairsTest->repairBusinessRules();
 
-        // 5 broken records should be issues
-        $this->assertGreaterThanOrEqual(5, count($supp_ProcessAuthorRepairsTest->foundIssues));
+        // 8 broken records should be issues
+        $this->assertGreaterThanOrEqual(8, count($supp_ProcessAuthorRepairsTest->foundIssues));
 
         $paDefinition = BeanFactory::retrieveBean('pmse_Project', "2f6b6d54-ed51-11e5-94a1-736088870fb3");
         $this->assertEquals("INACTIVE", $paDefinition->prj_status);
@@ -902,6 +991,15 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
         $this->assertEquals("INACTIVE", $paDefinition->prj_status);
 
         $paDefinition = BeanFactory::retrieveBean('pmse_Project', "7222b6a2-ed60-11e5-94a1-736088870fb3");
+        $this->assertEquals("INACTIVE", $paDefinition->prj_status);
+
+        $paDefinition = BeanFactory::retrieveBean('pmse_Project', "d79ee4d6-ed67-11e5-94a1-736088870fb3");
+        $this->assertEquals("INACTIVE", $paDefinition->prj_status);
+
+        $paDefinition = BeanFactory::retrieveBean('pmse_Project', "6376436e-ed68-11e5-94a1-736088870fb3");
+        $this->assertEquals("INACTIVE", $paDefinition->prj_status);
+
+        $paDefinition = BeanFactory::retrieveBean('pmse_Project', "c0e866a8-ed68-11e5-94a1-736088870fb3");
         $this->assertEquals("INACTIVE", $paDefinition->prj_status);
 
         $paDefinition = BeanFactory::retrieveBean('pmse_Project', "0ac139be-ed3f-11e5-94a1-736088870fb3");
