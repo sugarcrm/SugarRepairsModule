@@ -14,7 +14,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
     }
 
     /**
-     * Sets a process author definition start event criteria
+     * Sets a process author definition event criteria
      * @param string $eventId pmse_bpm_event_definition record id
      * @param string $new_evn_criteria new json and html encoded criteria data
      * @return boolean update query result
@@ -28,10 +28,10 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
             WHERE id = '$eventId'
         ";
         if (!$this->isTesting) {
-            $this->logChange("-> Updating PA Start Criteria '{$eventId}' to: '{$new_evn_criteria}'");
+            $this->logChange("-> Updating PA Event Criteria '{$eventId}' to: '{$new_evn_criteria}'");
             $results = $this->updateQuery($sql);
         } else {
-            $this->logChange("-> Will update PA Definition Start Event '{$eventId}' to: '{$new_evn_criteria}'");
+            $this->logChange("-> Will update PA Definition Event Criteria '{$eventId}' to: '{$new_evn_criteria}'");
         }
 
         return $results;
@@ -52,10 +52,34 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
             WHERE id = '$actionId'
         ";
         if (!$this->isTesting) {
-            $this->logChange("-> Updating PA Start Criteria '{$actionId}' to: '{$new_action_fields}'");
+            $this->logChange("-> Updating PA Action Definition '{$actionId}' to: '{$new_action_fields}'");
             $results = $this->updateQuery($sql);
         } else {
-            $this->logChange("-> Will update PA Definition Start Event '{$actionId}' to: '{$new_action_fields}'");
+            $this->logChange("-> Will update PA Action Definition '{$actionId}' to: '{$new_action_fields}'");
+        }
+
+        return $results;
+    }
+
+    /**
+     * Sets a process author business rule definition
+     * @param string $ruleId pmse_business_rules record id
+     * @param string $new_rst_source_Definition new json and html encoded definition data
+     * @return boolean update query result
+     */
+    public function setBusinessRuleDefinition($ruleId, $new_rst_source_Definition)
+    {
+        $results = false;
+        $sql = "
+            UPDATE pmse_business_rules
+            SET rst_source_Definition = '$new_rst_source_Definition'
+            WHERE id = '$ruleId'
+        ";
+        if (!$this->isTesting) {
+            $this->logChange("-> Updating PA Business Rule '{$ruleId}' to: '{$new_rst_source_Definition}'");
+            $results = $this->updateQuery($sql);
+        } else {
+            $this->logChange("-> Will update PA Business Rule '{$ruleId}' to: '{$new_rst_source_Definition}'");
         }
 
         return $results;
@@ -176,7 +200,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
             $eventArray = json_decode(html_entity_decode($row['evn_criteria']));
 
             if ($eventArray==false || $eventArray == null) {
-                $this->logAction("-> PA Definition '{$row['name']}' Start Criteria failed to process::".$this->getJSONLastError());
+                $this->logAction("-> PA Definition '{$row['name']}' Event Criteria failed to process::".$this->getJSONLastError());
                 continue;
             }
 
@@ -211,7 +235,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                 if ($new_evn_criteria !== $row['evn_criteria']) {
                     $results = $this->setEventDefinition($row['event_id'], $new_evn_criteria);
                     if (!$results == true) {
-                        $this->logAction("-> Failed to update Start Criteria ID: {$row['event_id']} for PA Definition: {$row['prj_id']}. This will have to be fixed manaully.");
+                        $this->logAction("-> Failed to update Event Criteria ID: {$row['event_id']} for PA Definition: {$row['prj_id']}. This will have to be fixed manaully.");
                     }
                 }
             }
@@ -266,7 +290,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                 $action_required_fields = $new_action_required_fields = json_decode(html_entity_decode(base64_decode($row['act_required_fields'])));
 
                 if ($action_required_fields==false || $action_required_fields == null) {
-                    $this->logAction("-> PA Definition '{$row['name']}' Start Criteria failed to process::".$this->getJSONLastError());
+                    $this->logAction("-> PA Definition '{$row['name']}' Activity Required Fields failed to process::".$this->getJSONLastError());
                     continue;
                 }
 
@@ -289,7 +313,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                 $actionsArray = json_decode(html_entity_decode($action_fields));
 
                 if ($actionsArray==false || $actionsArray == null) {
-                    $this->logAction("-> PA Definition '{$row['name']}' Start Criteria failed to process::".$this->getJSONLastError());
+                    $this->logAction("-> PA Definition '{$row['name']}' Action Fields failed to process::".$this->getJSONLastError());
                     continue;
                 }
 
@@ -320,7 +344,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                     if ($new_action_fields !== $row['act_fields']) {
                         $results = $this->setActionDefinition($row['activity_id'], $new_action_fields);
                         if (!$results == true) {
-                            $this->logAction("-> Failed to update Start Criteria ID: {$row['activity_id']} for PA Definition: {$row['prj_id']}. This will have to be fixed manaully.");
+                            $this->logAction("-> Failed to update Action Fields ID: {$row['activity_id']} for PA Definition: {$row['prj_id']}. This will have to be fixed manaully.");
                         }
                     }
                 }
@@ -331,6 +355,154 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
         }
         $foundIssuesCount = count($this->foundIssues);
         $this->log("Found {$foundIssuesCount} bad PA Definition Actions.");
+    }
+
+    /**
+     * Repairs or disables Process Author Definitions 
+     * with various issues in related business rules
+     */
+    public function repairBusinessRules()
+    {
+        $this->foundIssues = array();
+        $sql = "
+            SELECT 
+                p.id as prj_id, p.name, p.prj_module, a.act_script_type, a.act_task_type, 
+                ad.id as activity_id, ad.act_field_module, ad.act_fields,
+                br.rst_source_Definition
+            FROM pmse_bpm_activity_definition ad
+                JOIN pmse_bpmn_activity a
+                    ON
+                        a.id = ad.id AND
+                        a.deleted = '0'
+                JOIN pmse_project p
+                    ON
+                        p.id = a.prj_id AND
+                        p.prj_status = 'ACTIVE' AND
+                        p.deleted = '0'
+                JOIN pmse_business_rules br
+                    ON
+                        br.id = ad.act_fields AND
+                        br.deleted = '0'
+                JOIN pmse_bpmn_flow f
+                    ON
+                        f.flo_element_origin = a.id AND
+                        f.prj_id = a.prj_id AND
+                        f.deleted = '0'
+            WHERE ad.deleted = '0' 
+                AND a.act_script_type = 'BUSINESS_RULE'
+                AND a.act_task_type = 'SCRIPTTASK'
+        ";
+        $result = $GLOBALS['db']->query($sql);
+        while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
+            $this->log("Processing PA Definition '{$row['name']}' ({$row['prj_id']}) Action ({$row['activity_id']})...");
+
+            $paDef = array(
+                'id' => $row['prj_id'],
+                'name' => $row['name']
+                );
+
+            $new_rst_source_Definition = $row['rst_source_Definition'];
+            $brDefinition = json_decode(html_entity_decode($new_rst_source_Definition));
+
+            if ($brDefinition==false || $brDefinition == null) {
+                $this->logAction("-> PA Definition '{$row['name']}' Business Rule Criteria failed to process::".$this->getJSONLastError());
+                continue;
+            }
+
+            foreach($brDefinition->ruleset as $rule_record){
+
+                // conditions
+                foreach ($rule_record->conditions as $condition) {
+
+                    $base_module = $condition->variable_module;
+                    $field = $condition->variable_name;
+                    
+                    // process author module will sometimes be the module we are in
+                    // and sometimes will be a related module
+                    if ($row['prj_module'] != $base_module) {
+                        $base_module = $this->getRelatedModuleName($row['prj_module'], $base_module);
+                    }
+
+                    // Check if field exists
+                    $type = $this->validatePAFieldExists($base_module, $field, $paDef);
+                    if ($type === false) continue;
+
+                    // Validate dropdown or multiselect option list exsists
+                    $listKeys = $this->validatePAOptionListExists($type, $base_module, $field, $paDef);
+                    if ($listKeys === false) continue;
+
+                    foreach($condition->value as $value){
+                        $selectedKey = $value->expValue;
+
+                        // Validate selected key is in list
+                        $new_rst_source_Definition = $this->validatePASelectedKey($selectedKey, $listKeys, $new_rst_source_Definition, $paDef);
+                    }
+                }
+
+                // conclusions
+                foreach ($rule_record->conclusions as $conclusions) {
+
+                    if($conclusions->conclusion_type == "return"){
+                        // return types can have multiple fields...
+
+                        foreach($conclusions->value as $value){
+
+                            if($value->expType != "VARIABLE") continue;
+
+                            $base_module = $value->expModule;
+                            $field = $value->expValue;
+                            
+                            // process author module will sometimes be the module we are in
+                            // and sometimes will be a related module
+                            if ($row['prj_module'] != $base_module) {
+                                $base_module = $this->getRelatedModuleName($row['prj_module'], $base_module);
+                            }
+
+                            // Check if field exists
+                            $type = $this->validatePAFieldExists($base_module, $field, $paDef);
+                            if ($type === false) continue;
+
+                            // Validate dropdown or multiselect option list exsists
+                            $listKeys = $this->validatePAOptionListExists($type, $base_module, $field, $paDef);
+                            if ($listKeys === false) continue;
+                        }
+
+                    }else{
+
+                        $base_module = $conclusions->variable_module;
+                        $field = $conclusions->conclusion_value;
+                        
+                        // process author module will sometimes be the module we are in
+                        // and sometimes will be a related module
+                        if ($row['prj_module'] != $base_module) {
+                            $base_module = $this->getRelatedModuleName($row['prj_module'], $base_module);
+                        }
+
+                        // Check if field exists
+                        $type = $this->validatePAFieldExists($base_module, $field, $paDef);
+                        if ($type === false) continue;
+
+                        // Validate dropdown or multiselect option list exsists
+                        $listKeys = $this->validatePAOptionListExists($type, $base_module, $field, $paDef);
+                        if ($listKeys === false) continue;
+
+                        foreach($conclusions->value as $value){
+                            $selectedKey = $value->expValue;
+
+                            // Validate selected key is in list
+                            $new_rst_source_Definition = $this->validatePASelectedKey($selectedKey, $listKeys, $new_rst_source_Definition, $paDef);
+                        }
+                    }
+                }
+            }
+
+            if ($new_rst_source_Definition !== $row['rst_source_Definition']) {
+                $results = $this->setBusinessRuleDefinition($brDefinition->id, $new_rst_source_Definition);
+                if (!$results == true) {
+                    $this->logAction("-> Failed to update Business Rule Criteria ID: {$brDefinition->id} for PA Definition: {$row['prj_id']}. This will have to be fixed manaully.");
+                }
+            }
+        }
     }
 
     /**
@@ -356,9 +528,11 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
 
         if ($this->backupTable('pmse_bpm_event_definition', $stamp)
             && $this->backupTable('pmse_bpm_activity_definition', $stamp)
+            && $this->backupTable('pmse_business_rules', $stamp)
         ) {
             $this->repairEventCriteria();
             $this->repairActivities();
+            // $this->repairBusinessRules();
         }
     }
 }
