@@ -26,7 +26,7 @@ $sugar_config_si = array (
   'setup_fts_host' => 'localhost',
   'setup_fts_port' => '9200',
   'setup_fts_type' => 'Elastic',
-  'setup_license_key' => '68e75f5f9ffc42f932afe6468e02f6c8',
+  'setup_license_key' => '%SUGAR_KEY%',
   'setup_license_key_expire_date' => '2017-03-18',
   'setup_license_key_oc_licences' => 0,
   'setup_license_key_users' => 10,
@@ -34,6 +34,6 @@ $sugar_config_si = array (
   'setup_site_admin_password' => 'password',
   'setup_site_admin_user_name' => 'admin',
   'setup_site_sugarbeet_automatic_checks' => true,
-  'setup_site_url' => 'http://localhost/sugarcrm/Scarlett',
+  'setup_site_url' => 'http://localhost/repairs',
   'setup_system_name' => 'Scarlett',
 );
