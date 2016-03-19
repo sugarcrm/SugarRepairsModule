@@ -15,6 +15,11 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
     {
         parent::setUpBeforeClass();
 
+        $repairs = new supp_ProcessAuthorRepairs();
+        if (!$repairs->isEnt() && !$repairs->isUlt()) {
+            return;
+        }
+
         $sql_setup = array();
 
         // bean for disabling definition
@@ -75,7 +80,7 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
         $bean->save();
 
         $sql_setup[] = "
-            INSERT INTO `pmse_bpm_event_definition` (`id`,`deleted`,`prj_id`,`evn_status`,`evn_type`,`evn_module`,`evn_criteria`) 
+            INSERT INTO `pmse_bpm_event_definition` (`id`,`deleted`,`prj_id`,`evn_status`,`evn_type`,`evn_module`,`evn_criteria`)
             VALUES ('3c8704ca-e58c-11e5-9261-fe497468edid',0,'46d69d51-e58c-11e5-9261-fe49746prjid','ACTIVE','START','Accounts','[{\"expType\":\"MODULE\",\"expSubtype\":\"DropDown\",\"expLabel\":\"Industry is equal to nonexistantvalue56\",\"expValue\":\"nonexistantvalue56\",\"expOperator\":\"equals\",\"expModule\":\"member_of\",\"expField\":\"industry\"},{\"expType\":\"LOGIC\",\"expLabel\":\"OR\",\"expValue\":\"OR\"},{\"expType\":\"USER_ROLE\",\"expLabel\":\"Supervisor has not role Administrator\",\"expValue\":\"is_admin\",\"expOperator\":\"not_equals\",\"expField\":\"supervisor\"}]');
         ";
         $sql_setup[] = "
@@ -93,7 +98,7 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
         $bean->save();
 
         $sql_setup[] = "
-            INSERT INTO `pmse_bpm_event_definition` (`id`,`deleted`,`prj_id`,`evn_status`,`evn_type`,`evn_module`,`evn_criteria`) 
+            INSERT INTO `pmse_bpm_event_definition` (`id`,`deleted`,`prj_id`,`evn_status`,`evn_type`,`evn_module`,`evn_criteria`)
             VALUES ('4290f060-e58c-11e5-9261-fe497468edid',0,'46d69d52-e58c-11e5-9261-fe49746prjid','ACTIVE','START','Accounts','[{\"expType\":\"MODULE\",\"expSubtype\":\"DropDown\",\"expLabel\":\"Lead Source is equal to nonexistantvalue56\",\"expValue\":\"nonexistantvalue56\",\"expOperator\":\"equals\",\"expModule\":\"contacts\",\"expField\":\"lead_source\"},{\"expType\":\"LOGIC\",\"expLabel\":\"OR\",\"expValue\":\"OR\"},{\"expType\":\"USER_ROLE\",\"expLabel\":\"Supervisor has not role Administrator\",\"expValue\":\"is_admin\",\"expOperator\":\"not_equals\",\"expField\":\"supervisor\"}]');
         ";
         $sql_setup[] = "
@@ -111,7 +116,7 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
         $bean->save();
 
         $sql_setup[] = "
-            INSERT INTO `pmse_bpm_event_definition` (`id`,`deleted`,`prj_id`,`evn_status`,`evn_type`,`evn_module`,`evn_criteria`) 
+            INSERT INTO `pmse_bpm_event_definition` (`id`,`deleted`,`prj_id`,`evn_status`,`evn_type`,`evn_module`,`evn_criteria`)
             VALUES ('46d69d50-e58c-11e5-9261-fe497468edid',0,'46d69d53-e58c-11e5-9261-fe49746prjid','ACTIVE','START','Accounts','[{\"expType\":\"MODULE\",\"expSubtype\":\"DropDown\",\"expLabel\":\"nonexistantfield56 is equal to 3\",\"expValue\":\"3\",\"expOperator\":\"equals\",\"expModule\":\"Accounts\",\"expField\":\"nonexistantfield56_c\"},{\"expType\":\"LOGIC\",\"expLabel\":\"OR\",\"expValue\":\"OR\"},{\"expType\":\"USER_ROLE\",\"expLabel\":\"Supervisor has not role Administrator\",\"expValue\":\"is_admin\",\"expOperator\":\"not_equals\",\"expField\":\"supervisor\"}]');
         ";
         $sql_setup[] = "
@@ -441,7 +446,7 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
             VALUES ('6f669ba4-ed51-11e5-94a1-736088870fb3',0,'2f6b6d54-ed51-11e5-94a1-736088870fb3','67ca2172-ed51-11e5-94a1-736088870fb3');
         ";
 
-        // business rule with condition field, current module using invalid dropdown value 
+        // business rule with condition field, current module using invalid dropdown value
         $bean = BeanFactory::newBean("pmse_Project");
         $bean->id = '800eda32-ed5d-11e5-94a1-736088870fb3';
         $bean->new_with_id = true;
@@ -493,7 +498,7 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
             INSERT INTO `pmse_bpmn_flow` (`id`,`deleted`,`prj_id`,`flo_element_origin`)
             VALUES ('afd6f716-ed5f-11e5-94a1-736088870fb3',0,'7bf5370a-ed5f-11e5-94a1-736088870fb3','a8de2e7a-ed5f-11e5-94a1-736088870fb3');
         ";
-        
+
         // business rule with conclusion field, current module, variable type, that does not exist
         //{\"id\":\"37c7741d-be97-1706-0925-56ec89c09827\",\"base_module\":\"Accounts\",\"type\":\"single\",\"name\":\"conclusion\",\"columns\":{\"conditions\":[{\"module\":\"Accounts\",\"field\":\"billing_address_city\"}],\"conclusions\":[\"\",\"industry\",\"account_type\"]},\"ruleset\":[{\"id\":1,\"conditions\":[{\"value\":[{\"expType\":\"CONSTANT\",\"expSubtype\":\"string\",\"expLabel\":\"\\"test\\"\",\"expValue\":\"test\"}],\"variable_name\":\"billing_address_city\",\"condition\":\"==\",\"variable_module\":\"Accounts\"}],\"conclusions\":[{\"value\":[{\"expType\":\"VARIABLE\",\"expSubtype\":\"DropDown\",\"expLabel\":\"Industry\",\"expValue\":\"industry\",\"expModule\":\"Accounts\"},{\"expType\":\"VARIABLE\",\"expSubtype\":\"DropDown\",\"expLabel\":\"Type\",\"expValue\":\"account_type\",\"expModule\":\"Accounts\"}],\"conclusion_value\":\"result\",\"conclusion_type\":\"return\"},{\"value\":[{\"expType\":\"CONSTANT\",\"expSubType\":\"string\",\"expLabel\":\"Chemicals\",\"expValue\":\"Chemicals\"}],\"conclusion_value\":\"industry\",\"conclusion_type\":\"variable\",\"variable_module\":\"Accounts\"},{\"value\":[{\"expType\":\"CONSTANT\",\"expSubType\":\"string\",\"expLabel\":\"Prospect\",\"expValue\":\"Prospect\"}],\"conclusion_value\":\"nonexistantfield56_c\",\"conclusion_type\":\"variable\",\"variable_module\":\"Accounts\"}]}]}
         $bean = BeanFactory::newBean("pmse_Project");
@@ -521,7 +526,7 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
             VALUES ('1df4cc8c-ed60-11e5-94a1-736088870fb3',0,'f6440928-ed5f-11e5-94a1-736088870fb3','169952fa-ed60-11e5-94a1-736088870fb3');
         ";
 
-        // business rule with conclusion field, current module, variable type, using invalid dropdown value 
+        // business rule with conclusion field, current module, variable type, using invalid dropdown value
         //{\"id\":\"37c7741d-be97-1706-0925-56ec89c09827\",\"base_module\":\"Accounts\",\"type\":\"single\",\"name\":\"conclusion\",\"columns\":{\"conditions\":[{\"module\":\"Accounts\",\"field\":\"billing_address_city\"}],\"conclusions\":[\"\",\"industry\",\"account_type\"]},\"ruleset\":[{\"id\":1,\"conditions\":[{\"value\":[{\"expType\":\"CONSTANT\",\"expSubtype\":\"string\",\"expLabel\":\"\\"test\\"\",\"expValue\":\"test\"}],\"variable_name\":\"billing_address_city\",\"condition\":\"==\",\"variable_module\":\"Accounts\"}],\"conclusions\":[{\"value\":[{\"expType\":\"VARIABLE\",\"expSubtype\":\"DropDown\",\"expLabel\":\"Industry\",\"expValue\":\"industry\",\"expModule\":\"Accounts\"},{\"expType\":\"VARIABLE\",\"expSubtype\":\"DropDown\",\"expLabel\":\"Type\",\"expValue\":\"account_type\",\"expModule\":\"Accounts\"}],\"conclusion_value\":\"result\",\"conclusion_type\":\"return\"},{\"value\":[{\"expType\":\"CONSTANT\",\"expSubType\":\"string\",\"expLabel\":\"Chemicals\",\"expValue\":\"Chemicals\"}],\"conclusion_value\":\"industry\",\"conclusion_type\":\"variable\",\"variable_module\":\"Accounts\"},{\"value\":[{\"expType\":\"CONSTANT\",\"expSubType\":\"string\",\"expLabel\":\"nonexistantvalue56\",\"expValue\":\"nonexistantvalue56\"}],\"conclusion_value\":\"account_type\",\"conclusion_type\":\"variable\",\"variable_module\":\"Accounts\"}]}]}
         $bean = BeanFactory::newBean("pmse_Project");
         $bean->id = '7222b6a2-ed60-11e5-94a1-736088870fb3';
@@ -575,7 +580,7 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
             VALUES ('f076cadc-ed67-11e5-94a1-736088870fb3',0,'d79ee4d6-ed67-11e5-94a1-736088870fb3','e9c27a1a-ed67-11e5-94a1-736088870fb3');
         ";
 
-        // business rule with condition field, related module using invalid dropdown value 
+        // business rule with condition field, related module using invalid dropdown value
         // {"id":"52547811-b7e9-5b7a-6247-56ec988cb1bd","base_module":"Accounts","type":"single","name":"related br","columns":{"conditions":[{"module":"campaign_accounts","field":"status"},{"module":"Accounts","field":"industry"}],"conclusions":[""]},"ruleset":[{"id":1,"conditions":[{"value":[{"expType":"CONSTANT","expSubType":"string","expLabel":"In Queue","expValue":"nonexistantvalue"}],"variable_name":"status","condition":"==","variable_module":"campaign_accounts"},{"value":[{"expType":"CONSTANT","expSubType":"string","expLabel":"Chemicals","expValue":"Chemicals"}],"variable_name":"industry","condition":"==","variable_module":"Accounts"}],"conclusions":[{"value":[{"expType":"CONSTANT","expSubtype":"boolean","expLabel":"TRUE","expValue":true}],"conclusion_value":"result","conclusion_type":"return"}]}]}
         $bean = BeanFactory::newBean("pmse_Project");
         $bean->id = '6376436e-ed68-11e5-94a1-736088870fb3';
@@ -784,7 +789,7 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
                 'c85934b2-ed68-11e5-94a1-736088870fb3'
             )
         ";
-        
+
 
         foreach ($sql_teardown as $q_teardown) {
             $res = $GLOBALS['db']->query($q_teardown);
@@ -797,6 +802,12 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
      */
     public function testSetEventDefinition()
     {
+        $repairs = new supp_ProcessAuthorRepairs();
+        if (!$repairs->isEnt() && !$repairs->isUlt()) {
+            $this->markTestSkipped('Skipping test');
+            return;
+        }
+
         $eventId = "9ff025b6-e576-11e5-9261-fe497468edid";
         $new_evn_criteria = '[{"expType":"MODULE","expSubtype":"DropDown","expLabel":"Industry is equal to "Other"","expValue":"Other","expOperator":"equals","expModule":"Accounts","expField":"industry"}]';
 
@@ -808,7 +819,7 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
         $this->assertTrue($results);
 
         $sql = "
-            SELECT evn_criteria 
+            SELECT evn_criteria
             FROM pmse_bpm_event_definition
             WHERE id = '$eventId'
         ";
@@ -824,6 +835,12 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
      */
     public function testSetActionDefinition()
     {
+        $repairs = new supp_ProcessAuthorRepairs();
+        if (!$repairs->isEnt() && !$repairs->isUlt()) {
+            $this->markTestSkipped('Skipping test');
+            return;
+        }
+
         $actionId = "f6c394c0-eb0e-11e5-b792-460e741c2f98";
         $new_action_fields = '[{"name":"Industry","field":"industry","value":"Apparel","type":"DropDown"},{"name":"Website","field":"website","value":"test","type":"URL"}]';
 
@@ -835,7 +852,7 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
         $this->assertTrue($results);
 
         $sql = "
-            SELECT act_fields 
+            SELECT act_fields
             FROM pmse_bpm_activity_definition
             WHERE id = '$actionId'
         ";
@@ -851,6 +868,12 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
      */
     public function testSetBusinessRuleDefinition()
     {
+        $repairs = new supp_ProcessAuthorRepairs();
+        if (!$repairs->isEnt() && !$repairs->isUlt()) {
+            $this->markTestSkipped('Skipping test');
+            return;
+        }
+
         $ruleId = "646a7084-ed3f-11e5-94a1-736088870fb3";
         $new_rst_source_Definition = '{"id":"646a7084-ed3f-11e5-94a1-736088870fb3","base_module":"Accounts","type":"single","name":"test3","columns":{"conditions":[{"module":"Accounts","field":"industry"}],"conclusions":[""]},"ruleset":[{"id":1,"conditions":[{"value":[{"expType":"CONSTANT","expSubType":"string","expLabel":"Apparel","expValue":"Apparel"}],"variable_name":"industry","condition":"==","variable_module":"Accounts"}],"conclusions":[{"value":[{"expType":"VARIABLE","expSubtype":"DropDown","expLabel":"Industry","expValue":"industry","expModule":"member_of"}],"conclusion_value":"result","conclusion_type":"return"}]}]}';
 
@@ -862,7 +885,7 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
         $this->assertTrue($results);
 
         $sql = "
-            SELECT rst_source_definition 
+            SELECT rst_source_definition
             FROM pmse_business_rules
             WHERE id = '$ruleId'
         ";
@@ -878,6 +901,12 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
      */
     public function testDisablePADefinition()
     {
+        $repairs = new supp_ProcessAuthorRepairs();
+        if (!$repairs->isEnt() && !$repairs->isUlt()) {
+            $this->markTestSkipped('Skipping test');
+            return;
+        }
+
         $supp_ProcessAuthorRepairsTest = new supp_ProcessAuthorRepairs();
         $supp_ProcessAuthorRepairsTest->setTesting(false);
         $supp_ProcessAuthorRepairsTest->disablePADefinition("38c90c70-7788-13a2-668d-513e2b8df5e1");
@@ -892,6 +921,12 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
      */
     public function testRepairEventCriteria()
     {
+        $repairs = new supp_ProcessAuthorRepairs();
+        if (!$repairs->isEnt() && !$repairs->isUlt()) {
+            $this->markTestSkipped('Skipping test');
+            return;
+        }
+
         $supp_ProcessAuthorRepairsTest = new supp_ProcessAuthorRepairs();
         $supp_ProcessAuthorRepairsTest->setTesting(false);
         $supp_ProcessAuthorRepairsTest->repairEventCriteria();
@@ -921,6 +956,12 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
      */
     public function testRepairActivities()
     {
+        $repairs = new supp_ProcessAuthorRepairs();
+        if (!$repairs->isEnt() && !$repairs->isUlt()) {
+            $this->markTestSkipped('Skipping test');
+            return;
+        }
+
         $supp_ProcessAuthorRepairsTest = new supp_ProcessAuthorRepairs();
         $supp_ProcessAuthorRepairsTest->setTesting(false);
         $supp_ProcessAuthorRepairsTest->repairActivities();
@@ -942,22 +983,22 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
 
         $paDefinition = BeanFactory::retrieveBean('pmse_Project', "ba6b467a-ec72-11e5-a19f-342d44d047f0");
         $this->assertEquals("INACTIVE", $paDefinition->prj_status);
-        
+
         $paDefinition = BeanFactory::retrieveBean('pmse_Project', "9dd09126-ec88-11e5-a19f-342d44d047f0");
         $this->assertEquals("INACTIVE", $paDefinition->prj_status);
-        
+
         $paDefinition = BeanFactory::retrieveBean('pmse_Project', "04509716-ec89-11e5-a19f-342d44d047f0");
         $this->assertEquals("INACTIVE", $paDefinition->prj_status);
-        
+
         $paDefinition = BeanFactory::retrieveBean('pmse_Project', "64dc5b98-ec88-11e5-a19f-342d44d047f0");
         $this->assertEquals("INACTIVE", $paDefinition->prj_status);
-        
+
         $paDefinition = BeanFactory::retrieveBean('pmse_Project', "4a3ec220-ec89-11e5-a19f-342d44d047f0");
         $this->assertEquals("INACTIVE", $paDefinition->prj_status);
-        
+
         $paDefinition = BeanFactory::retrieveBean('pmse_Project', "cc88007a-ec89-11e5-a19f-342d44d047f0");
         $this->assertEquals("INACTIVE", $paDefinition->prj_status);
-        
+
         $paDefinition = BeanFactory::retrieveBean('pmse_Project', "b8ea5314-ec8a-11e5-a19f-342d44d047f0");
         $this->assertEquals("INACTIVE", $paDefinition->prj_status);
 
@@ -971,6 +1012,12 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
      */
     public function testRepairBusinessRules()
     {
+        $repairs = new supp_ProcessAuthorRepairs();
+        if (!$repairs->isEnt() && !$repairs->isUlt()) {
+            $this->markTestSkipped('Skipping test');
+            return;
+        }
+
         $supp_ProcessAuthorRepairsTest = new supp_ProcessAuthorRepairs();
         $supp_ProcessAuthorRepairsTest->setTesting(false);
         $supp_ProcessAuthorRepairsTest->repairBusinessRules();
