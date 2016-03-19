@@ -32,7 +32,7 @@ before_script:
   - sudo service apache2 restart
   - sleep 10
   # install sugar
-  - "curl -T $VERSION/$EDITION-$VERSION.zip -u $FTP_USER:$FTP_PASSWORD $FTP_URL"
+  - "curl -T $VERSION/Sugar$EDITION-$VERSION.zip -u $FTP_USER:$FTP_PASSWORD $FTP_URL"
   - unzip Sugar$EDITION-$VERSION.zip
 #  - sudo rm -f config.php
 #  - sudo rm -f config_override.php
