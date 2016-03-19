@@ -40,7 +40,16 @@ class suppSugarRepairsLanguageRepairs extends Sugar_PHPUnit_Framework_TestCase
      */
     public function testGetAnnotatedTokenList()
     {
-        $testFile = "<?php\n\$GLOBALS['app_list_strings']['test_list']=array (\n\n\n\n\n'one&one' => 'One');\n";
+        $testFile = <<<EOT
+<?php
+    //!!!!!The WHITE SPACE in this is intentional!!!!!
+    \$GLOBALS['app_list_strings']['test_list']=array (
+
+
+
+    'one&one' => 'One');
+EOT;
+
         $newRepairTest = new supp_LanguageRepairs();
         $newRepairTest->setTesting(false);
         $tokenList = $newRepairTest->getAnnotatedTokenList($testFile);
@@ -48,16 +57,16 @@ class suppSugarRepairsLanguageRepairs extends Sugar_PHPUnit_Framework_TestCase
         $this->assertTrue(substr($tokenList[0][1], 0, 5) == "<?php");
         $this->assertTrue($tokenList[0]['TOKEN_NAME'] == 'T_OPEN_TAG');
 
-        $this->assertTrue($tokenList[1][1] == "\$app_list_strings");
-        $this->assertTrue($tokenList[1]['TOKEN_NAME'] == 'T_VARIABLE');
+        $this->assertTrue($tokenList[2][1] == "\$app_list_strings");
+        $this->assertTrue($tokenList[2]['TOKEN_NAME'] == 'T_VARIABLE');
 
-        $this->assertTrue($tokenList[3][1] == "'test_list'");
-        $this->assertTrue($tokenList[3]['TOKEN_NAME'] == 'T_ARRAY_NAME');
+        $this->assertTrue($tokenList[4][1] == "'test_list'");
+        $this->assertTrue($tokenList[4]['TOKEN_NAME'] == 'T_ARRAY_NAME');
 
-        $this->assertTrue($tokenList[8][1] == "'one&one'");
-        $this->assertTrue($tokenList[8]['TOKEN_NAME'] == 'T_ARRAY_KEY');
+        $this->assertTrue($tokenList[9][1] == "'one&one'");
+        $this->assertTrue($tokenList[9]['TOKEN_NAME'] == 'T_ARRAY_KEY');
 
-        $this->assertTrue($tokenList[12] == ';');
+        $this->assertTrue($tokenList[13] == ';');
     }
 
     public function writeDropDown($name, $list)
@@ -91,18 +100,36 @@ class suppSugarRepairsLanguageRepairs extends Sugar_PHPUnit_Framework_TestCase
             'one/one' => 'Three',
             'one(one)' => 'Four',
             'one+one' => 'Five',
+            1 => 'Six',
+            1.5 => 'Seven'
         ));
 
-        $testFile = "<?php\n\$GLOBALS['app_list_strings']['test_list']=array (\n\n\n\n\n'one&one' => 'One',\n'one-one' => 'Two',\n'one/one' => 'Three',\n'one(one)' => 'Four',\n'one+one' => 'Five',\n);\n";
+        $testFile = <<<EOT
+<?php
+//!!!!!The WHITE SPACE in this is intentional!!!!!
+\$GLOBALS['app_list_strings']['test_list']=array (
+
+
+    'one&one' => 'One',
+    'one-one' => 'Two',
+    'one/one' => 'Three',
+    'one(one)' => 'Four',
+    'one+one' => 'Five',
+    1 => 'Six',
+    1.5 => 'Seven'
+);
+EOT;
         $newRepairTest = new supp_LanguageRepairs();
         $newRepairTest->setTesting(false);
         $tokenList = $newRepairTest->processTokenList($testFile);
 
-        $this->assertEquals("'one and one'", $tokenList[7][0][1]);
+        $this->assertEquals("'one and one'", $tokenList[6][0][1]);
+        $this->assertEquals("'one one'", $tokenList[7][0][1]);
         $this->assertEquals("'one one'", $tokenList[8][0][1]);
         $this->assertEquals("'one one'", $tokenList[9][0][1]);
         $this->assertEquals("'one one'", $tokenList[10][0][1]);
-        $this->assertEquals("'one one'", $tokenList[11][0][1]);
+        $this->assertEquals(1, $tokenList[11][0][1]);
+        $this->assertEquals("'1.5'", $tokenList[12][0][1]);
     }
 
     /**
@@ -154,7 +181,7 @@ class suppSugarRepairsLanguageRepairs extends Sugar_PHPUnit_Framework_TestCase
         $this->assertEquals('one', $newRepairTest->getValidLanguageKeyName('#one'));
         $this->assertEquals('o ne', $newRepairTest->getValidLanguageKeyName('o�ne'));
         $this->assertEquals('one and one', $newRepairTest->getValidLanguageKeyName('one�#\/&-one'));
-        $this->assertEquals('Implementación', 'Implementacion');
+        $this->assertEquals('Implementacion', $newRepairTest->getValidLanguageKeyName('Implementación'));
         $this->assertEquals(false, $newRepairTest->getValidLanguageKeyName('='));
         $this->assertEquals('one.one', $newRepairTest->getValidLanguageKeyName('one.one'));
     }
@@ -177,7 +204,7 @@ class suppSugarRepairsLanguageRepairs extends Sugar_PHPUnit_Framework_TestCase
         $this->setUpCustomSharingEnums();
         $newRepairTest = new supp_LanguageRepairs();
         $newRepairTest->setTesting(false);
-        $newRepairTest->runQRAR();
+        //$newRepairTest->runQRAR();
         $newRepairTest->execute(array('test' => false));
 
         $hash = $GLOBALS['db']->fetchOne("SELECT * FROM accounts_cstm WHERE id_c = 'unittest715'");
