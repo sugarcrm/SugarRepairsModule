@@ -34,11 +34,11 @@ before_script:
   # install sugar
   #- curl -T $VERSION/Sugar$EDITION-$VERSION.zip -u $FTP_USER:$FTP_PASSWORD $FTP_URL
   - curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION.zip -o Sugar.zip
-  - unzip Sugar.zip
+  - unzip Sugar.zip &> /dev/null
   - cd Sugar$EDITION-Full-$VERSION 
-  - sudo cp -f travis-ci/config_si.php .
+  - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/config_si.php .
   - sudo sed -e "s?%SUGAR_KEY%?$SUGAR_KEY?g" --in-place "config_si.php"
-  - sudo cp -f travis-ci/silentInstall.php .
+  - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/silentInstall.php .
   - sudo php silentInstall.php
 
 script: phpunit --configuration tests/phpuc.xml
