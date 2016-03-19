@@ -532,7 +532,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
         ) {
             $this->repairEventCriteria();
             $this->repairActivities();
-            // $this->repairBusinessRules();
+            $this->repairBusinessRules();
         }
     }
 }
