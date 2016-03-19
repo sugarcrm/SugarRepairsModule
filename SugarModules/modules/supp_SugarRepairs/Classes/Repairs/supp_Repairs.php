@@ -848,8 +848,6 @@ abstract class supp_Repairs
         $SupportedLanguages['uk_UA'] = 'uk_UA';
         $SupportedLanguages['en_us'] = 'en_us';
 
-        $finalList = array();
-        $foundList = false;
         foreach ($SupportedLanguages as $lang) {
             $app_list_strings = return_app_list_strings_language($lang);
 
@@ -863,21 +861,11 @@ abstract class supp_Repairs
                 }
                 $this->listCache[$listNames] = array_unique(array_merge($this->listCache[$listNames], array_keys($keys)));
             }
-
-            if (!is_null($app_list_strings) && isset($app_list_strings[$listName])) {
-                $foundList = true;
-                if(!is_array($app_list_strings[$listName])) {
-                    $app_list_strings[$listName]=array($app_list_strings[$listName]=>$app_list_strings[$listName]);
-                }
-                $list = array_keys($app_list_strings[$listName]);
-                $finalList = array_merge($finalList, $list);
-            }
         }
 
-        if ($foundList) {
-            return array_unique($finalList);
+        if (array_key_exists($listName, $this->listCache)) {
+            return $this->listCache[$listName];
         } else {
-            $this->log("-> The list '{$listName}' was not found.");
             return false;
         }
     }
