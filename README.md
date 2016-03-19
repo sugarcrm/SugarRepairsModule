@@ -129,8 +129,9 @@ Corrects common issues with Process Author Definitions.
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair processAuthor --test false`
 
 ##Issues Addressed
-* Start Event Criteria with invalid fields
-> Disables any Process Author Definition with start criteria referencing missing or invalid fields
+* Event Criteria with invalid fields
+> Disables any Process Author Definition with criteria referencing missing or invalid fields
+> Works on Start, Wait, and Receive Message events
 * Activities and Actions with invalid fields
 > Disables any Process Author Definition with an activity or action referencing missing or invalid fields
 
