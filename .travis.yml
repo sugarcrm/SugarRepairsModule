@@ -6,9 +6,6 @@ env:
     - secure: "iKqRm7aRgAkAyzrCt6RAjUPzUsvtGnJaEZTwrUPNNzaPBQvDxXBw1MKS0qBB1AyBFZSNocPUL9Xa5PUzY7xPJNakzDf10QCNUuZbEdvq+ahZF3nny88Jf3Bp8SneEY8u0/b+Sx+LPv7x5k8cd4ZTAH/BM8cQAqN7I0qkDmvZ9X5hOKb+5cfQbyiXHxKtnTNcGxNDi8/lA8PEyQ84Wu9otYXNBsRj/TrRdXuLUmua4snBl3WpTQsjmviLZeI8mSPTmN+evXYZeidy8XZnO6O6+ypDbecZWTZWB89Zf4wGYNQZ5hWOm0PIUJNC8fTjsfxbnvR9DJ6hf4P1YO+sSvWzfviIwfU8zH346bLBNV9ChVxQoqIxoKVYQIh1IsIFBnrLTkiixYxFDkQD2yJfH4j8e/FwXlSBedyAraumwkbjUx+iO7EmTvnPqT9LGhpsgKd7ZOggMbK43zBOk6MLcCIMdVFNyE1xVUO+7ndhJkaw/2NGJNJgI14hvrTP1oKIAXAZmJhzqYTN0iVBRLZizNkEVkx4MUUaJdKRPuuMEAtWGuDjPBdyE0SwruIW6Odd6KJ1YoUz+DZIFHNiC/OwA6vB704D/oC1Wc8Ym5GUCUuMZvym6ffQJE37RP1+bqa7Z1iIn0af3iTKC3G53bHDn+WLqHD3vk98BfNkJ2PHlQkRn6w="
   matrix:
     - VERSION=7.6.2.1 EDITION=Ent
-after_success:
-    "curl -T $VERSION/$EDITION-$VERSION.zip -u $FTP_USER:$FTP_PASSWORD $FTP_URL"
-
 language: php
 php:
   - '5.3'
@@ -35,7 +32,8 @@ before_script:
   - sudo service apache2 restart
   - sleep 10
   # install sugar
-  - unzip $EDITION-$VERSION.zip
+  - "curl -T $VERSION/$EDITION-$VERSION.zip -u $FTP_USER:$FTP_PASSWORD $FTP_URL"
+  - unzip Sugar$EDITION-$VERSION.zip
 #  - sudo rm -f config.php
 #  - sudo rm -f config_override.php
   - sudo cp -f travis-ci/config_si.php .
