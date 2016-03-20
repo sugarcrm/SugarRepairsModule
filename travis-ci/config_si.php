@@ -18,7 +18,7 @@ $sugar_config_si = array (
     'setup_db_admin_user_name' => 'root',
     'setup_db_create_database' => 1,
     'setup_db_create_sugarsales_user' => 0,
-    'setup_db_database_name' => 'ffff',
+    'setup_db_database_name' => 'sugar',
     'setup_db_drop_tables' => 0,
     'setup_db_host_instance' => '',
     'setup_db_host_name' => 'localhost',
@@ -34,6 +34,6 @@ $sugar_config_si = array (
     'setup_site_admin_password' => 'password',
     'setup_site_admin_user_name' => 'admin',
     'setup_site_sugarbeet_automatic_checks' => true,
-    'setup_site_url' => 'http://localhost/repairs',
-    'setup_system_name' => 'Scarlett',
+    'setup_site_url' => 'http://127.0.0.1',
+    'setup_system_name' => 'sugar',
 );
