@@ -46,4 +46,4 @@ before_script:
   - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/moduleInstaller.php .
   - sudo php moduleInstaller.php -z $TRAVIS_BUILD_DIR/installer.zip
   - cd tests
-script: phpunit -v --debug --group support
+script: phpunit --group support
