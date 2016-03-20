@@ -20,20 +20,19 @@ before_install:
 before_script:
   - zip -r installer.zip $TRAVIS_BUILD_DIR
   - echo "USE mysql; UPDATE user SET password=PASSWORD('password') WHERE user='root'; FLUSH PRIVILEGES;" | mysql -u root #force password
-  #- sudo apt-get update
-  #- sudo apt-get install apache2 libapache2-mod-fastcgi
-  ## enable php-fpm
-  #- sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
-  #- sudo a2enmod rewrite actions fastcgi alias
-  #- echo "cgi.fix_pathinfo = 1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-  #- ~/.phpenv/versions/$(phpenv version-name)/sbin/php-fpm
+  - sudo apt-get update
+  - sudo apt-get install apache2 libapache2-mod-fastcgi
+  # enable php-fpm
+  - sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
+  - sudo a2enmod rewrite actions fastcgi alias
+  - echo "cgi.fix_pathinfo = 1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - ~/.phpenv/versions/$(phpenv version-name)/sbin/php-fpm
   # install apache
-  #- sudo cp -f travis-ci/travis-ci-apache "/etc/apache2/sites-available/default"
-  #- sudo sed -e "s?%TRAVIS_BUILD_DIR%?$(pwd)?g" --in-place "/etc/apache2/sites-available/default"
-  #- sudo service apache2 restart
-  #- sleep 10
+  - sudo cp -f travis-ci/travis-ci-apache "/etc/apache2/sites-available/default"
+  - sudo sed -e "s?%TRAVIS_BUILD_DIR%?$(pwd)?g" --in-place "/etc/apache2/sites-available/default"
+  - sudo service apache2 restart
+  - sleep 10
   # install sugar
-  #- curl -T $VERSION/Sugar$EDITION-$VERSION.zip -u $FTP_USER:$FTP_PASSWORD $FTP_URL
   - curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION.zip -o sugar.zip
   - unzip sugar.zip &> /dev/null
   - cd Sugar$EDITION-Full-$VERSION
@@ -46,5 +45,4 @@ before_script:
   - sudo php silentInstall.php
   - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/moduleInstaller.php .
   - sudo php moduleInstaller.php -z $TRAVIS_BUILD_DIR/installer.zip
-  - cd tests
 script: cd $TRAVIS_BUILD_DIR/Sugar$EDITION-Full-$VERSION/tests/ && phpunit --group support
