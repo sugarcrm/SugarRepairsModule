@@ -14,11 +14,12 @@ services:
   - mysql
 before_install:
   - sudo apt-get purge elasticsearch #remove latest ES
-  - curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.4.4.deb
+  - sudo curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.4.4.deb
   - sudo dpkg -i elasticsearch-1.4.4.deb #install a supported version of ES
+  - sudo /etc/init.d/elasticsearch start
 #install:
 before_script:
-  - zip -r installer.zip $TRAVIS_BUILD_DIR
+  - sudo zip -r installer.zip $TRAVIS_BUILD_DIR
   - echo "USE mysql; UPDATE user SET password=PASSWORD('password') WHERE user='root'; FLUSH PRIVILEGES;" | mysql -u root #force password
   - sudo apt-get update
   - sudo apt-get install apache2 libapache2-mod-fastcgi
@@ -33,12 +34,12 @@ before_script:
   - sudo service apache2 restart
   - sleep 10
   # install sugar
-  - curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION.zip -o sugar.zip
-  - unzip sugar.zip &> /dev/null
+  - sudo curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION.zip -o sugar.zip
+  - sudo unzip sugar.zip &> /dev/null
   - cd Sugar$EDITION-Full-$VERSION
   - curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION-tests.zip -o tests.zip
-  - unzip tests.zip &> /dev/null
-  - composer install
+  - sudo unzip tests.zip &> /dev/null
+  - sudo composer install
   - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/config_si.php .
   - sudo sed -e "s?%SUGAR_KEY%?$SUGAR_KEY?g" --in-place "config_si.php"
   - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/silentInstall.php .
