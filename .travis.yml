@@ -43,11 +43,11 @@ before_script:
   - sudo curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION-tests.zip -o tests.zip
   - sudo unzip tests.zip &> /dev/null
   - sudo chmod -R 777 $TRAVIS_BUILD_DIR
-  - composer install --no-dev
   - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/config_si.php .
   - sudo sed -e "s?%SUGAR_KEY%?$SUGAR_KEY?g" --in-place "config_si.php"
   - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/silentInstall.php .
   - sudo php silentInstall.php
   - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/moduleInstaller.php .
   - sudo php moduleInstaller.php -z $TRAVIS_BUILD_DIR/installer.zip
+  - composer install --no-dev
 script: cd $TRAVIS_BUILD_DIR/Sugar$EDITION-Full-$VERSION/tests/ && phpunit --group support
