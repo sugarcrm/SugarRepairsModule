@@ -39,7 +39,7 @@ before_script:
   - cd Sugar$EDITION-Full-$VERSION
   - sudo curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION-tests.zip -o tests.zip
   - sudo unzip tests.zip &> /dev/null
-  - sudo composer update --no-dev
+  - sudo composer install --no-dev
   - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/config_si.php .
   - sudo sed -e "s?%SUGAR_KEY%?$SUGAR_KEY?g" --in-place "config_si.php"
   - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/silentInstall.php .
