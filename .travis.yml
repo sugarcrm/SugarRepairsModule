@@ -5,7 +5,7 @@ env:
     - secure: "ETACaEtCf+zOPQvZIZwhYEaz2x+5/z7BoiHRwV+tEdGS0mx79c8k4oWVrcBjWo+zYBf4WpgWEIsd1QQ7vLuy2OZWBj7FObyhG3N+S2lBGBU/2/EbJXTZkehkTnzxHCI71drmVwvYjNCLUtTgELMOB71bXeSThh4ddJ8CSEVsJiCWieKdoi12XpqEGc86wz8KIBLmJgRxNFAkB3msOVLghDoLmlVJKB/IjQx/2eL+d6roY3EGol8ENw0YE0VR8U5iliIhFonJxCqKvbtxiULJAk9eeWofq8DnWjfuYep08aonMcgYALy2TTPmPf/nNn3QS5TiJmLpErTOud7S/APGwlC0pMsTRx72h61N8H5111p0e/ScYt6LKi6CrhiVFBDM48ULSMBkvGy7dlci5Zo79+Ez21jh46kN3TQzllInnvj+olAHTm+B8fq7OiKjA+A8INNUo6ub7DFQfL2kDtHTXGHSAYiIqufp4eDBFwVGrT+B80FOs/NEQNSJbwjRO2zrPXDA5wQUhXXQfYo+MwLk8yvjN9PRYgP4JVIHiL+y4S9qA7N6lyliGAHrctQaqml2mi7vY8m6wDtAaiItm+iSdjPwkzGiWes1zh3Jhwb+H5t2BGnJgciG2O6kHHGy1FKKonBpOihauktN+3tqX63mbkVJISgSmSAXaO0aFfr0DPU="
     - secure: "iKqRm7aRgAkAyzrCt6RAjUPzUsvtGnJaEZTwrUPNNzaPBQvDxXBw1MKS0qBB1AyBFZSNocPUL9Xa5PUzY7xPJNakzDf10QCNUuZbEdvq+ahZF3nny88Jf3Bp8SneEY8u0/b+Sx+LPv7x5k8cd4ZTAH/BM8cQAqN7I0qkDmvZ9X5hOKb+5cfQbyiXHxKtnTNcGxNDi8/lA8PEyQ84Wu9otYXNBsRj/TrRdXuLUmua4snBl3WpTQsjmviLZeI8mSPTmN+evXYZeidy8XZnO6O6+ypDbecZWTZWB89Zf4wGYNQZ5hWOm0PIUJNC8fTjsfxbnvR9DJ6hf4P1YO+sSvWzfviIwfU8zH346bLBNV9ChVxQoqIxoKVYQIh1IsIFBnrLTkiixYxFDkQD2yJfH4j8e/FwXlSBedyAraumwkbjUx+iO7EmTvnPqT9LGhpsgKd7ZOggMbK43zBOk6MLcCIMdVFNyE1xVUO+7ndhJkaw/2NGJNJgI14hvrTP1oKIAXAZmJhzqYTN0iVBRLZizNkEVkx4MUUaJdKRPuuMEAtWGuDjPBdyE0SwruIW6Odd6KJ1YoUz+DZIFHNiC/OwA6vB704D/oC1Wc8Ym5GUCUuMZvym6ffQJE37RP1+bqa7Z1iIn0af3iTKC3G53bHDn+WLqHD3vk98BfNkJ2PHlQkRn6w="
   matrix:
-    - VERSION=7.6.2.1 EDITION=Ent
+    - VERSION=7.6.2.1 EDITION=Ult
 language: php
 php:
   - '5.3'
@@ -36,12 +36,15 @@ before_script:
   #- curl -T $VERSION/Sugar$EDITION-$VERSION.zip -u $FTP_USER:$FTP_PASSWORD $FTP_URL
   - curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION.zip -o Sugar.zip
   - unzip Sugar.zip &> /dev/null
-  - cd Sugar$EDITION-Full-$VERSION 
+  - cd Sugar$EDITION-Full-$VERSION
+   - curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION-tests.zip -o Tests.zip
+   - unzip Tests.zip -d tests &> /dev/null
   - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/config_si.php .
   - sudo sed -e "s?%SUGAR_KEY%?$SUGAR_KEY?g" --in-place "config_si.php"
   - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/silentInstall.php .
   - sudo php silentInstall.php
   - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/moduleInstaller.php .
   - sudo php moduleInstaller.php -z $TRAVIS_BUILD_DIR/installer.zip
+  - sudo cd tests && phpunit -v --debug --group support --stop-on-failure
 
 script: phpunit --configuration tests/phpuc.xml
