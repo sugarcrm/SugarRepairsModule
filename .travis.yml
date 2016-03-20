@@ -42,6 +42,6 @@ before_script:
   - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/silentInstall.php .
   - sudo php silentInstall.php
   - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/moduleInstaller.php .
-  - sudo php module_install.php -z $TRAVIS_BUILD_DIR/installer.zip
+  - sudo php moduleInstaller.php -z $TRAVIS_BUILD_DIR/installer.zip
 
 script: phpunit --configuration tests/phpuc.xml
