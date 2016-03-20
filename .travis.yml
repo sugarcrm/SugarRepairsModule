@@ -46,6 +46,5 @@ before_script:
   - sudo php silentInstall.php
   - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/moduleInstaller.php .
   - sudo php moduleInstaller.php -z $TRAVIS_BUILD_DIR/installer.zip
-  - cd composer install
   - cd tests
 script: phpunit --group support
