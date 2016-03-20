@@ -18,7 +18,7 @@ before_install:
   - sudo dpkg -i elasticsearch-1.4.4.deb #install a supported version of ES
 #install:
 before_script:
-  - zip -r installer.zip $TRAVIS_BUILD_DIR/sugarcrm/SugarRepairsModule
+  - zip -r installer.zip $TRAVIS_BUILD_DIR
   - echo "USE mysql; UPDATE user SET password=PASSWORD('password') WHERE user='root'; FLUSH PRIVILEGES;" | mysql -u root #force password
   - sudo apt-get update
   - sudo apt-get install apache2 libapache2-mod-fastcgi
@@ -42,6 +42,6 @@ before_script:
   - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/silentInstall.php .
   - sudo php silentInstall.php
   - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/moduleInstaller.php .
-  - sudo php module_install.php -z $TRAVIS_BUILD_DIR/sugarcrm/SugarRepairsModule/installer.zip
+  - sudo php module_install.php -z $TRAVIS_BUILD_DIR/installer.zip
 
 script: phpunit --configuration tests/phpuc.xml
