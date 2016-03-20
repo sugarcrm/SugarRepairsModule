@@ -20,6 +20,8 @@ before_install:
 #install:
 before_script:
   - echo 'date.timezone = "America/New_York"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+  - echo 'max_execution_time = 600' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+  - echo 'memory_limit = 512M' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   - sudo zip -r installer.zip $TRAVIS_BUILD_DIR
   - echo "USE mysql; UPDATE user SET password=PASSWORD('password') WHERE user='root'; FLUSH PRIVILEGES;" | mysql -u root #force password
   - sudo apt-get update
