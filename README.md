@@ -1,4 +1,4 @@
-# Sugar Repairs Module
+# Sugar Repairs Module [![Build Status](https://travis-ci.com/sugarcrm/SugarRepairsModule.svg?token=ApQ7hyuyE1rftpStfgbN&branch=master)](https://travis-ci.com/sugarcrm/SugarRepairsModule)
 This module is designed to help assist with common repair issues. You should always tests any repairs against a cloned enviroment before run on a production instance. This tool is to be used at your own risk.
 
 All repairs currently need to be run from the command line. By default, all repairs are run in test mode until a `-t false` is added to the cli command.
