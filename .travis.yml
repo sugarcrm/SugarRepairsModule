@@ -37,7 +37,7 @@ before_script:
   - sudo curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION.zip -o sugar.zip
   - sudo unzip sugar.zip &> /dev/null
   - cd Sugar$EDITION-Full-$VERSION
-  - curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION-tests.zip -o tests.zip
+  - sudo curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION-tests.zip -o tests.zip
   - sudo unzip tests.zip &> /dev/null
   - sudo composer install
   - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/config_si.php .
