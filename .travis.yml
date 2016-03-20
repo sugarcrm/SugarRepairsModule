@@ -47,4 +47,4 @@ before_script:
   - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/moduleInstaller.php .
   - sudo php moduleInstaller.php -z $TRAVIS_BUILD_DIR/installer.zip
   - cd tests
-script: phpunit --group support
+script: cd $TRAVIS_BUILD_DIR/Sugar$EDITION-Full-$VERSION/tests/ && phpunit --group support
