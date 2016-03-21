@@ -797,6 +797,26 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
     }
 
     /**
+     * Test for disabling a process author definition
+     * @covers supp_Repairs::disablePADefinition
+     */
+    public function testDisablePADefinition()
+    {
+        $repairs = new supp_ProcessAuthorRepairs();
+        if (!$repairs->isEnt() && !$repairs->isUlt()) {
+            $this->markTestSkipped('Skipping test');
+            return;
+        }
+
+        $supp_ProcessAuthorRepairsTest = new supp_ProcessAuthorRepairs();
+        $supp_ProcessAuthorRepairsTest->setTesting(false);
+        $supp_ProcessAuthorRepairsTest->disablePADefinition("38c90c70-7788-13a2-668d-513e2b8df5e1");
+
+        $paDefinition = BeanFactory::retrieveBean('pmse_Project', "38c90c70-7788-13a2-668d-513e2b8df5e1");
+        $this->assertEquals("INACTIVE", $paDefinition->prj_status);
+    }
+
+    /**
      * Test for setting the new event definition
      * @covers supp_ProcessAuthorRepairs::setEventDefinition
      */
@@ -896,10 +916,10 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
     }
 
     /**
-     * Test for disabling a process author definition
-     * @covers supp_Repairs::disablePADefinition
+     * Test for validating PS fields exist
+     * @covers supp_ProcessAuthorRepairs::validatePAFieldExists
      */
-    public function testDisablePADefinition()
+    public function testValidatePAFieldExists()
     {
         $repairs = new supp_ProcessAuthorRepairs();
         if (!$repairs->isEnt() && !$repairs->isUlt()) {
@@ -907,12 +927,136 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
             return;
         }
 
+        $base_module = "Accounts";
+        $paDef = array(
+            'id' => "testid",
+            'name' => "testname"
+        );
+
+        // valid dropdown field in stock accounts
+        $field = "account_type";
+
         $supp_ProcessAuthorRepairsTest = new supp_ProcessAuthorRepairs();
         $supp_ProcessAuthorRepairsTest->setTesting(false);
-        $supp_ProcessAuthorRepairsTest->disablePADefinition("38c90c70-7788-13a2-668d-513e2b8df5e1");
+        $return1 = $supp_ProcessAuthorRepairsTest->validatePAFieldExists($base_module, $field, $paDef);
 
-        $paDefinition = BeanFactory::retrieveBean('pmse_Project', "38c90c70-7788-13a2-668d-513e2b8df5e1");
-        $this->assertEquals("INACTIVE", $paDefinition->prj_status);
+        $this->assertEquals("enum",$return1);
+
+        // invalid dropdown field in stock accounts
+        $field = "nonexistantfield56_c";
+
+        $supp_ProcessAuthorRepairsTest = new supp_ProcessAuthorRepairs();
+        $supp_ProcessAuthorRepairsTest->setTesting(false);
+        $return2 = $supp_ProcessAuthorRepairsTest->validatePAFieldExists($base_module, $field, $paDef);
+
+        $this->assertFalse($return2);
+
+    }
+
+    /**
+     * Test for validating PS fields exist
+     * @covers supp_ProcessAuthorRepairs::validatePAOptionListExists
+     */
+    public function testValidatePAOptionListExists()
+    {
+        $repairs = new supp_ProcessAuthorRepairs();
+        if (!$repairs->isEnt() && !$repairs->isUlt()) {
+            $this->markTestSkipped('Skipping test');
+            return;
+        }
+
+        $type = "enum";
+        $base_module = "Accounts";
+        $paDef = array(
+            'id' => "testid",
+            'name' => "testname"
+        );
+
+        // valid dropdown field in stock accounts
+        $field = "account_type";
+
+        $supp_ProcessAuthorRepairsTest = new supp_ProcessAuthorRepairs();
+        $supp_ProcessAuthorRepairsTest->setTesting(false);
+        $return1 = $supp_ProcessAuthorRepairsTest->validatePAOptionListExists($type, $base_module, $field, $paDef);
+
+        $this->assertTrue(is_array($return1));
+        $this->assertNotEmpty($return1);
+
+        // invalid dropdown field in accounts
+        $field = "nonexistantfield56_c";
+
+        $supp_ProcessAuthorRepairsTest = new supp_ProcessAuthorRepairs();
+        $supp_ProcessAuthorRepairsTest->setTesting(false);
+        $return2 = $supp_ProcessAuthorRepairsTest->validatePAOptionListExists($type, $base_module, $field, $paDef);
+
+        $this->assertFalse($return2);
+
+        // run on non-dropdown field
+        $type = "textfield";
+        $field = "account_type";
+
+        $supp_ProcessAuthorRepairsTest = new supp_ProcessAuthorRepairs();
+        $supp_ProcessAuthorRepairsTest->setTesting(false);
+        $return3 = $supp_ProcessAuthorRepairsTest->validatePAOptionListExists($type, $base_module, $field, $paDef);
+
+        $this->assertFalse($return3);
+
+    }
+
+    /**
+     * Test for validating PS fields exist
+     * @covers supp_ProcessAuthorRepairs::validatePASelectedKey
+     */
+    public function testValidatePASelectedKey()
+    {
+        $repairs = new supp_ProcessAuthorRepairs();
+        if (!$repairs->isEnt() && !$repairs->isUlt()) {
+            $this->markTestSkipped('Skipping test');
+            return;
+        }
+
+        $listKeys = array(
+            "Apparel",
+            "Banking",
+            "expField",
+            "Other"
+        );
+        $paDef = array(
+            'id' => "testid",
+            'name' => "testname"
+        );
+        $fieldString = "[{\"expType\":\"MODULE\",\"expSubtype\":\"DropDown\",\"expLabel\":\"Type is equal to \",\"expValue\":\"ëxpField*\",\"expOperator\":\"equals\",\"expModule\":\"Accounts\",\"expField\":\"account_type\"}]";
+
+        // Valid item in list
+        $selectedKey = "Apparel";
+
+        $supp_ProcessAuthorRepairsTest = new supp_ProcessAuthorRepairs();
+        $supp_ProcessAuthorRepairsTest->setTesting(false);
+        $return1 = $supp_ProcessAuthorRepairsTest->validatePASelectedKey($selectedKey, $listKeys, $fieldString, $paDef);
+
+        // should return true
+        $this->assertTrue($return1);
+
+        // Invalid item in list
+        $selectedKey = "nonexistantvalue56";
+
+        $supp_ProcessAuthorRepairsTest = new supp_ProcessAuthorRepairs();
+        $supp_ProcessAuthorRepairsTest->setTesting(false);
+        $return2 = $supp_ProcessAuthorRepairsTest->validatePASelectedKey($selectedKey, $listKeys, $fieldString, $paDef);
+
+        // should return false
+        $this->assertFalse($return2);
+
+        // Invalid item in list, but corrected
+        $selectedKey = "ëxpField*";
+        $new_field_string = '[{"expType":"MODULE","expSubtype":"DropDown","expLabel":"Type is equal to ","expValue":"expField","expOperator":"equals","expModule":"Accounts","expField":"account_type"}]';
+
+        $supp_ProcessAuthorRepairsTest = new supp_ProcessAuthorRepairs();
+        $supp_ProcessAuthorRepairsTest->setTesting(false);
+        $return3 = $supp_ProcessAuthorRepairsTest->validatePASelectedKey($selectedKey, $listKeys, $fieldString, $paDef);
+
+        // should return string
+        $this->assertEquals($new_field_string, $return3);
     }
 
     /**
