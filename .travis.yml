@@ -13,6 +13,7 @@ install:
   - cd /var/www/
   - sudo curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION.zip -o sugar.zip
   - sudo unzip sugar.zip &> /dev/null
+  - cd Sugar$EDITION-Full-$VERSION
   - sudo curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION-tests.zip -o tests.zip
   - sudo unzip tests.zip &> /dev/null
   - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/config_si.php .
