@@ -133,13 +133,13 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
 
     /**
      * Validates a Process Author dropdown field has a valid option list
-     * @param string $type Field Type
-     * @param string $base_module Module to check field on
-     * @param string $field Name of field
+     * @param string $selectedKey Dropdown value selected in definition
+     * @param array $listKeys Dropdown options available
+     * @param string $fieldString JSON string of the definition
      * @param array $paDef Process Author Definition info (id, name)
-     * @return mixed $listKeys false if list doesnt exist or field not a dropdown; array of listkeys
+     * @return mixed $new_field_string false if selected value doesnt exist in list and cant be fixed; string of new JSON definition
      */
-    public function validatePASelectedKey($selectedKey, $listKeys, $field_String, $paDef)
+    public function validatePASelectedKey($selectedKey, $listKeys, $fieldString, $paDef)
     {
         // Validate selected key is in list
         if (!in_array($selectedKey, $listKeys)) {
@@ -154,7 +154,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
 
             //try to fix the key if it was updated in the lang repair script
             if ($testKey !== $selectedKey) {
-                $new_field_string = str_replace($selectedKey, $testKey, $field_String);
+                $new_field_string = str_replace($selectedKey, $testKey, $fieldString);
                 return $new_field_string;
             }
         }
