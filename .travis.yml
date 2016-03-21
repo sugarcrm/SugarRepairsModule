@@ -6,48 +6,66 @@ env:
     - secure: "iKqRm7aRgAkAyzrCt6RAjUPzUsvtGnJaEZTwrUPNNzaPBQvDxXBw1MKS0qBB1AyBFZSNocPUL9Xa5PUzY7xPJNakzDf10QCNUuZbEdvq+ahZF3nny88Jf3Bp8SneEY8u0/b+Sx+LPv7x5k8cd4ZTAH/BM8cQAqN7I0qkDmvZ9X5hOKb+5cfQbyiXHxKtnTNcGxNDi8/lA8PEyQ84Wu9otYXNBsRj/TrRdXuLUmua4snBl3WpTQsjmviLZeI8mSPTmN+evXYZeidy8XZnO6O6+ypDbecZWTZWB89Zf4wGYNQZ5hWOm0PIUJNC8fTjsfxbnvR9DJ6hf4P1YO+sSvWzfviIwfU8zH346bLBNV9ChVxQoqIxoKVYQIh1IsIFBnrLTkiixYxFDkQD2yJfH4j8e/FwXlSBedyAraumwkbjUx+iO7EmTvnPqT9LGhpsgKd7ZOggMbK43zBOk6MLcCIMdVFNyE1xVUO+7ndhJkaw/2NGJNJgI14hvrTP1oKIAXAZmJhzqYTN0iVBRLZizNkEVkx4MUUaJdKRPuuMEAtWGuDjPBdyE0SwruIW6Odd6KJ1YoUz+DZIFHNiC/OwA6vB704D/oC1Wc8Ym5GUCUuMZvym6ffQJE37RP1+bqa7Z1iIn0af3iTKC3G53bHDn+WLqHD3vk98BfNkJ2PHlQkRn6w="
   matrix:
     - VERSION=7.6.2.1 EDITION=Ult
-language: php
-php:
-  - '5.4'
-services:
-  - elasticsearch
-  - mysql
 before_install:
-  - sudo apt-get purge elasticsearch #remove latest ES
-  - sudo curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.4.4.deb
-  - sudo dpkg -i elasticsearch-1.4.4.deb #install a supported version of ES
-  - sudo /etc/init.d/elasticsearch start
-#install:
-before_script:
-  - echo 'date.timezone = "America/New_York"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-  - echo 'max_execution_time = 600' >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-  - echo 'memory_limit = 512M' >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-  - sudo zip -r installer.zip $TRAVIS_BUILD_DIR
-  - echo "USE mysql; UPDATE user SET password=PASSWORD('password') WHERE user='root'; FLUSH PRIVILEGES;" | mysql -u root #force password
-  - sudo apt-get update
-  - sudo apt-get install apache2 libapache2-mod-fastcgi
-  # enable php-fpm
-  - sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
-  - sudo a2enmod rewrite actions fastcgi alias
-  - echo "cgi.fix_pathinfo = 1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-  - ~/.phpenv/versions/$(phpenv version-name)/sbin/php-fpm
-  # install apache
-  - sudo cp -f travis-ci/travis-ci-apache "/etc/apache2/sites-available/default"
-  - sudo sed -e "s?%TRAVIS_BUILD_DIR%?$(pwd)?g" --in-place "/etc/apache2/sites-available/default"
-  - sudo service apache2 restart
-  - sleep 10
-  # install sugar
-  - sudo curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION.zip -o sugar.zip
-  - sudo unzip sugar.zip &> /dev/null
-  - cd Sugar$EDITION-Full-$VERSION
-  - sudo curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION-tests.zip -o tests.zip
-  - sudo unzip tests.zip &> /dev/null
-  - sudo chmod -R 777 $TRAVIS_BUILD_DIR
-  - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/config_si.php .
-  - sudo sed -e "s?%SUGAR_KEY%?$SUGAR_KEY?g" --in-place "config_si.php"
-  - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/silentInstall.php .
-  - sudo php silentInstall.php
-  - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/moduleInstaller.php .
-  - sudo php moduleInstaller.php -z $TRAVIS_BUILD_DIR/installer.zip
+  - sudo ./travis-ci/install.sh
+install:
+  - zip -r installer.zip $TRAVIS_BUILD_DIR
+  - cd /var/www/
+  - curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION.zip -o sugar.zip
+  - unzip sugar.zip &> /dev/null
+  - curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION-tests.zip -o tests.zip
+  - unzip tests.zip &> /dev/null
+  - cp -f $TRAVIS_BUILD_DIR/travis-ci/config_si.php .
+  - cp -f $TRAVIS_BUILD_DIR/travis-ci/silentInstall.php .
+  - cp -f $TRAVIS_BUILD_DIR/travis-ci/moduleInstaller.php .
+  - sed -e "s?%SUGAR_KEY%?$SUGAR_KEY?g" --in-place "config_si.php"
+  - chmod -R 777 /var/www/
+  - php silentInstall.php
+  - php moduleInstaller.php -z $TRAVIS_BUILD_DIR/installer.zip
   - composer install --no-dev
-script: cd $TRAVIS_BUILD_DIR/Sugar$EDITION-Full-$VERSION/tests/ && phpunit --group support
+script: cd /var/www/Sugar$EDITION-Full-$VERSION/tests/ && phpunit --group support
+#language: php
+#php:
+#  - '5.4'
+#services:
+#  - elasticsearch
+#  - mysql
+#before_install:
+#  - sudo apt-get purge elasticsearch #remove latest ES
+#  - sudo curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.4.4.deb
+#  - sudo dpkg -i elasticsearch-1.4.4.deb #install a supported version of ES
+#  - sudo /etc/init.d/elasticsearch start
+##install:
+#before_script:
+#  - echo 'date.timezone = "America/New_York"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+#  - echo 'max_execution_time = 600' >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+#  - echo 'memory_limit = 512M' >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+#  - sudo zip -r installer.zip $TRAVIS_BUILD_DIR
+#  - echo "USE mysql; UPDATE user SET password=PASSWORD('password') WHERE user='root'; FLUSH PRIVILEGES;" | mysql -u root #force password
+#  - sudo apt-get update
+#  - sudo apt-get install apache2 libapache2-mod-fastcgi
+#  # enable php-fpm
+#  - sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
+#  - sudo a2enmod rewrite actions fastcgi alias
+#  - echo "cgi.fix_pathinfo = 1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+#  - ~/.phpenv/versions/$(phpenv version-name)/sbin/php-fpm
+#  # install apache
+#  - sudo cp -f travis-ci/travis-ci-apache "/etc/apache2/sites-available/default"
+#  - sudo sed -e "s?%TRAVIS_BUILD_DIR%?$(pwd)?g" --in-place "/etc/apache2/sites-available/default"
+#  - sudo service apache2 restart
+#  - sleep 10
+#  # install sugar
+#  - sudo curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION.zip -o sugar.zip
+#  - sudo unzip sugar.zip &> /dev/null
+#  - cd Sugar$EDITION-Full-$VERSION
+#  - sudo curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION-tests.zip -o tests.zip
+#  - sudo unzip tests.zip &> /dev/null
+#  - sudo chmod -R 777 $TRAVIS_BUILD_DIR
+#  - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/config_si.php .
+#  - sudo sed -e "s?%SUGAR_KEY%?$SUGAR_KEY?g" --in-place "config_si.php"
+#  - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/silentInstall.php .
+#  - sudo php silentInstall.php
+#  - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/moduleInstaller.php .
+#  - sudo php moduleInstaller.php -z $TRAVIS_BUILD_DIR/installer.zip
+#  - composer install --no-dev
+#script: cd $TRAVIS_BUILD_DIR/Sugar$EDITION-Full-$VERSION/tests/ && phpunit --group support
