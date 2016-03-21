@@ -46,9 +46,9 @@ sed -i 's/;date.timezone =/date.timezone = UTC/' /etc/php5/cli/php.ini
 echo "<?php phpinfo();"  > /var/www/phpinfo.php
 
 # We will have Apache run as Vagrant user because this will help prevent permissions issues on a dev setup
-sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=vagrant/" /etc/apache2/envvars
+sed -i "s/export APACHE_RUN_USER=www-data/export APACHE_RUN_USER=apache/" /etc/apache2/envvars
 chown -R 777 /var/www/
-#usermod -a -G www-data vagrant
+usermod -a -G www-data apache
 
 # Enable some important Apache modules
 a2enmod headers expires deflate rewrite
