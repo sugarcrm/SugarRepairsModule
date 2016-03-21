@@ -11,18 +11,19 @@ before_install:
 install:
   - zip -r installer.zip $TRAVIS_BUILD_DIR
   - cd /var/www/
-  - curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION.zip -o sugar.zip
-  - unzip sugar.zip &> /dev/null
-  - curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION-tests.zip -o tests.zip
-  - unzip tests.zip &> /dev/null
-  - cp -f $TRAVIS_BUILD_DIR/travis-ci/config_si.php .
-  - cp -f $TRAVIS_BUILD_DIR/travis-ci/silentInstall.php .
-  - cp -f $TRAVIS_BUILD_DIR/travis-ci/moduleInstaller.php .
-  - sed -e "s?%SUGAR_KEY%?$SUGAR_KEY?g" --in-place "config_si.php"
-  - chmod -R 777 /var/www/
-  - php silentInstall.php
-  - php moduleInstaller.php -z $TRAVIS_BUILD_DIR/installer.zip
+  - sudo curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION.zip -o sugar.zip
+  - sudo unzip sugar.zip &> /dev/null
+  - sudo curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION-tests.zip -o tests.zip
+  - sudo unzip tests.zip &> /dev/null
+  - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/config_si.php .
+  - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/silentInstall.php .
+  - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/moduleInstaller.php .
+  - sudo sed -e "s?%SUGAR_KEY%?$SUGAR_KEY?g" --in-place "config_si.php"
+  - sudo chmod -R 777 /var/www/
+  - sudo php silentInstall.php
+  - sudo php moduleInstaller.php -z $TRAVIS_BUILD_DIR/installer.zip
   - composer install --no-dev
+  - sudo chmod -R 777 /var/www/
 script: cd /var/www/Sugar$EDITION-Full-$VERSION/tests/ && phpunit --group support
 #language: php
 #php:
