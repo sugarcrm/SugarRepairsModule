@@ -200,12 +200,12 @@ phpunit -v --debug --group support --stop-on-failure
 
 * Once finished, commit your test back to the repo.
 
-# Licensed under Apache:
-© 2016 SugarCRM Inc.  Licensed by SugarCRM under the Apache 2.0 license.
-
 # Contributors
 [Ken Brill](https://github.com/kbrill)
 
 [Jerry Clark](https://github.com/geraldclark)
 
 [Mark Everidge](https://github.com/meveridge)
+
+# Licensed under Apache
+© 2016 SugarCRM Inc.  Licensed by SugarCRM under the Apache 2.0 license.
