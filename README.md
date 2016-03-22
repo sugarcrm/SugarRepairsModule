@@ -8,7 +8,7 @@ When testing mode is off, the repair actions will backup any modified tables to 
 
 ##Things to note
 * It is highly recommended to remove the Sugar Repairs module before upgrading.
-* This package can not be installed to the Sugar OnDemand envrionment. If you are experiencing an issue with your instance, please open a [support ticket](https://web.sugarcrm.com/support/cases).
+* This package can not be installed to the Sugar OnDemand envrionment as it will not pass package scanner and you will not have access to the command line. If you are experiencing an issue with your instance, please open a [support ticket](https://web.sugarcrm.com/support/cases).
 
 ## Running Repairs
 Repairs will need to be run differently based on your environment and can only be executed from the command line.
