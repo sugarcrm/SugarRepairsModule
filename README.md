@@ -4,6 +4,8 @@ This module is designed to help assist with repairing common issues in a Sugar i
 # Usage
 This repo is a module loadable package that can be installed to Sugar through the module loader. Once installed repairs can only be run from the command line. By default, all repairs are run in test mode. Test mode will not make any changes to your system and only output information on changes that will be made. To turn off test mode you will need to pass `--test false` to the cli command.
 
+When testing mode is off, the repair actions will backup any modified tables to `<table name>_srm_<timestamp>`. Any files modified or created will have their contents store in a record under the Sugar Repairs module that you can access through the UI. All log messages will be output to your terminal window as well as stored in the Sugar log file. Any items noted as `[Sugar Repairs][<cycle>][<action>][Change]` are information about file rewrites and database updates. Any items noted as `[Sugar Repairs][<cycle>][<action>][Action]` will require a manual change to correct from a developer or administrator of the system.
+
 ##Things to note
 * It is highly recommended to remove the Sugar Repairs module before upgrading.
 * This package can not be installed to the Sugar OnDemand envrionment. If you are experiencing an issue with your instance, please open a [support ticket](https://web.sugarcrm.com/support/cases).
