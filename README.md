@@ -58,23 +58,23 @@ Corrects common language file issues. The various issues addressed are shown bel
 ##Issues Addressed
 * Health Check Errors:
 
->[Health Check Error: Bad vardefs - key] (https://support.sugarcrm.com/Knowledge_Base/Administration/Install/Troubleshooting_Health_Check_Output/Health_Check_Error_Bad_Vardefs_Key/)
+  * [Health Check Error: Bad vardefs - key] (https://support.sugarcrm.com/Knowledge_Base/Administration/Install/Troubleshooting_Health_Check_Output/Health_Check_Error_Bad_Vardefs_Key/)
 
->[Health Check Error: Bad vardefs - multienum] (https://support.sugarcrm.com/Knowledge_Base/Administration/Install/Troubleshooting_Health_Check_Output/Health_Check_Error_Bad_Vardefs_Multienum/)
+  * [Health Check Error: Bad vardefs - multienum] (https://support.sugarcrm.com/Knowledge_Base/Administration/Install/Troubleshooting_Health_Check_Output/Health_Check_Error_Bad_Vardefs_Multienum/)
 
->[Health Check Error: Found NULL values in moduleList strings] (https://support.sugarcrm.com/Knowledge_Base/Administration/Install/Troubleshooting_Health_Check_Output/Health_Check_Error_Found_NULL_Values_in_moduleList_Strings/)
+  * [Health Check Error: Found NULL values in moduleList strings] (https://support.sugarcrm.com/Knowledge_Base/Administration/Install/Troubleshooting_Health_Check_Output/Health_Check_Error_Found_NULL_Values_in_moduleList_Strings/)
 
 * Extra CR/LF issues
->If there are extra CR/LF characters between the lines of a language file they will be eliminated.
+If there are extra CR/LF characters between the lines of a language file they will be eliminated.
 
 * Replaces `$GLOBALS` in language files
->Any language string that is defined as global is rewritten in place.  This assures that when duplicates are removed the correct value is left behind. The example being that `$GLOBALS['app_list_strings']['key'] = array(…);` will be converted to `$app_list_strings['key'] = array(…);`.
+Any language string that is defined as global is rewritten in place.  This assures that when duplicates are removed the correct value is left behind. The example being that `$GLOBALS['app_list_strings']['key'] = array(…);` will be converted to `$app_list_strings['key'] = array(…);`.
 
 * Duplicate Keys
->If an array key appears more than once in any given language file, only the final one will be retained.
+If an array key appears more than once in any given language file, only the final one will be retained.
 
 * Redefined module list arrays
->If the entire module list array is redefined in the language file, it is then written to individual indexes rather than a redefined array. This prevents the system from having undefined modules and issues when deploying new modules through Module Builder. 
+If the entire module list array is redefined in the language file, it is then written to individual indexes rather than a redefined array. This prevents the system from having undefined modules and issues when deploying new modules through Module Builder. 
 ```php
 $app_list_strings['moduleList'] = array(
     'module1' => 'Module 1'
@@ -87,16 +87,16 @@ $app_list_strings['moduleList']['module1'] = 'Module 1';
 $app_list_strings['moduleList']['module2'] = 'Module 2';
 ```
 * Flags Errors
->If a flag is thrown, manual intervention will be required. Scenarios that can throw flags are listed below:
->
->1. All language files are tested for syntax errors and are flagged if they don’t pass.  
->2. Any custom logic hook that contains a modified language key will flagged for manual change.
+If a flag is thrown, manual intervention will be required. Scenarios that can throw flags are listed below:
+
+1. All language files are tested for syntax errors and are flagged if they don’t pass.  
+2. Any custom logic hook that contains a modified language key will flagged for manual change.
 
 * Custom Vardef Files are Updated
->If there is a custom vardef that defines a default value for a field that contains a key that needs to be changed then the VarDef file is updated.
+  * If there is a custom vardef that defines a default value for a field that contains a key that needs to be changed then the VarDef file is updated.
  
 * Other custom PHP files
->If a file contains a string of characters that matches a key that needs to be changed it will be flagged for possible Manual updating in the log. 
+  * If a file contains a string of characters that matches a key that needs to be changed it will be flagged for possible Manual updating in the log. 
  
 * Updates the database keys for enum/multienum fields when a correction is made.
 * Runs the vardef repair.
@@ -114,10 +114,10 @@ Corrects common issues with team sets.
 
 ##Issues Addressed
 * Duplicate teams in a team set
-> Removes any duplicate team relationships to a team set.
+  * Removes any duplicate team relationships to a team set.
        
 * Incorrect team counts on team sets
-> Correct any team sets with invalid team counts and relationships.
+  * Correct any team sets with invalid team counts and relationships.
     
 #Workflow Repairs
 Corrects common issues with workflows.
@@ -130,7 +130,7 @@ Corrects common issues with workflows.
 
 ##Issues Addressed
 * Workflows with invalid fields
-> Disables any workflows with missing or invalid fields.
+  * Disables any workflows with missing or invalid fields.
 
 #Process Author Repairs
 Corrects common issues with Process Author Definitions.
@@ -143,10 +143,10 @@ Corrects common issues with Process Author Definitions.
 
 ##Issues Addressed
 * Event Criteria with invalid fields.
-> Disables any Process Author Definition with criteria referencing missing or invalid fields.
-> Works on Start, Wait, and Receive Message events.
+  * Disables any Process Author Definition with criteria referencing missing or invalid fields.
+  * Works on Start, Wait, and Receive Message events.
 * Activities and Actions with invalid fields.
-> Disables any Process Author Definition with an activity or action referencing missing or invalid fields.
+  * Disables any Process Author Definition with an activity or action referencing missing or invalid fields.
 
 #Vardef Repairs
 Corrects common issues with vardefs.
@@ -159,10 +159,10 @@ Corrects common issues with vardefs.
 
 ##Issues Addressed
 * Enum/Multienum fields with invalid default values.
-> Attempts to find a valid default value key. If no value is found, field is left alone.
+  * Attempts to find a valid default value key. If no value is found, field is left alone.
        
 * Enum/Multienum fields with invalid visibility gird.
-> Attempts to find a valid key. If no key is found, the grid is removed.
+  * Attempts to find a valid key. If no key is found, the grid is removed.
        
 #Email Address Repairs
 Corrects common issues with Email Addresses.
@@ -175,7 +175,7 @@ Corrects common issues with Email Addresses.
 
 ##Issues Addressed
 * Bean Records without a Primary Email Address
-> Bug [75588](https://web.sugarcrm.com/support/issues/75588) - Any Bean that has at least one email address, and no primary designation will get the oldest email address updated to be the primary.
+* Bug [75588](https://web.sugarcrm.com/support/issues/75588) - Any Bean that has at least one email address, and no primary designation will get the oldest email address updated to be the primary.
     
 #Contributing
 Everyone is welcome to be involved by creating or improving existing Sugar repairs. If you would like to contribute, please make sure to review the [CONTRIBUTOR TERMS](CONTRIBUTOR TERMS.pdf). When you update this [README](README.md), please check out the [contribution guidelines](CONTRIBUTING.md) for helpful hints and tips that will make it easier to accept your pull request.
