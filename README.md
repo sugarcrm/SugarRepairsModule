@@ -102,6 +102,7 @@ If a flag is thrown, manual intervention will be required. Scenarios that can th
 * Runs the vardef repair.
 * Runs the workflow repair.
 * Runs the report repair.
+* Runs the process author repairs
 
 #Team Set Repairs
 Corrects common issues with team sets.
