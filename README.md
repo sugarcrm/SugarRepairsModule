@@ -2,11 +2,11 @@
 This module is designed to help assist with repairing common issues in a Sugar instance. You should always tests any repairs against a cloned enviroment before run on a production instance. This tool is to be used at your own risk.
 
 # Usage
-Repair can only be run from the command line. By default, all repairs are run in test mode. Test mode will not make any changes to your system and only output information on changes that will be made. To turn off test mode you will need to pass `--test false` to the cli command.
+This repo is a module loadable package that can be installed to Sugar through the module loader. Once installed repairs can only be run from the command line. By default, all repairs are run in test mode. Test mode will not make any changes to your system and only output information on changes that will be made. To turn off test mode you will need to pass `--test false` to the cli command.
 
 ##Things to note
 * It is highly recommended to remove the Sugar Repairs module before upgrading.
-* This package can not be installed to the Sugar OnDemand envrionment. If you are experiencing an issue with your instance, please open a [support ticket](https://web.sugarcrm.com/support/cases)
+* This package can not be installed to the Sugar OnDemand envrionment. If you are experiencing an issue with your instance, please open a [support ticket](https://web.sugarcrm.com/support/cases).
 
 ## Running Repairs
 Repairs will need to be run differently based on your environment and can only be executed from the command line.
@@ -63,10 +63,10 @@ Corrects common language file issues. The various issues addressed are shown bel
 >[Health Check Error: Found NULL values in moduleList strings] (https://support.sugarcrm.com/Knowledge_Base/Administration/Install/Troubleshooting_Health_Check_Output/Health_Check_Error_Found_NULL_Values_in_moduleList_Strings/)
 
 * Extra CR/LF issues
->If there are extra CR/LF characters between the lines of a language file they will be eliminated
+>If there are extra CR/LF characters between the lines of a language file they will be eliminated.
 
 * Replaces `$GLOBALS` in language files
->Any language string that is defined as global is rewritten in place.  This assures that when duplicates are removed the correct value is left behind. The example being that `$GLOBALS['app_list_strings']['key'] = array(…);` will be converted to `$app_list_strings['key'] = array(…);`
+>Any language string that is defined as global is rewritten in place.  This assures that when duplicates are removed the correct value is left behind. The example being that `$GLOBALS['app_list_strings']['key'] = array(…);` will be converted to `$app_list_strings['key'] = array(…);`.
 
 * Duplicate Keys
 >If an array key appears more than once in any given language file, only the final one will be retained.
@@ -128,7 +128,7 @@ Corrects common issues with workflows.
 
 ##Issues Addressed
 * Workflows with invalid fields
-> Disables any workflows with missing or invalid fields
+> Disables any workflows with missing or invalid fields.
 
 #Process Author Repairs
 Corrects common issues with Process Author Definitions.
@@ -140,11 +140,11 @@ Corrects common issues with Process Author Definitions.
 `cd "modules/supp_SugarRepairs/" && php -f cli.php --repair processAuthor --test false`
 
 ##Issues Addressed
-* Event Criteria with invalid fields
-> Disables any Process Author Definition with criteria referencing missing or invalid fields
-> Works on Start, Wait, and Receive Message events
-* Activities and Actions with invalid fields
-> Disables any Process Author Definition with an activity or action referencing missing or invalid fields
+* Event Criteria with invalid fields.
+> Disables any Process Author Definition with criteria referencing missing or invalid fields.
+> Works on Start, Wait, and Receive Message events.
+* Activities and Actions with invalid fields.
+> Disables any Process Author Definition with an activity or action referencing missing or invalid fields.
 
 #Vardef Repairs
 Corrects common issues with vardefs.
@@ -173,7 +173,7 @@ Corrects common issues with Email Addresses.
 
 ##Issues Addressed
 * Bean Records without a Primary Email Address
-> Any Bean that has at least one email address, and no primary designation will get the oldest email address updated to be primary.
+> Bug [75588](https://web.sugarcrm.com/support/issues/75588) - Any Bean that has at least one email address, and no primary designation will get the oldest email address updated to be the primary.
     
 #Contributing
 Everyone is welcome to be involved by creating or improving existing Sugar repairs. If you would like to contribute, please make sure to review the [CONTRIBUTOR TERMS](CONTRIBUTOR TERMS.pdf). When you update this [README](README.md), please check out the [contribution guidelines](CONTRIBUTING.md) for helpful hints and tips that will make it easier to accept your pull request.
