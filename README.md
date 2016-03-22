@@ -1,46 +1,57 @@
 # Sugar Repairs Module [![Build Status](https://travis-ci.com/sugarcrm/SugarRepairsModule.svg?token=ApQ7hyuyE1rftpStfgbN&branch=master)](https://travis-ci.com/sugarcrm/SugarRepairsModule)
-This module is designed to help assist with common repair issues. You should always tests any repairs against a cloned enviroment before run on a production instance. This tool is to be used at your own risk.
+This module is designed to help assist with repairing common issues in a Sugar instance. You should always tests any repairs against a cloned enviroment before run on a production instance. This tool is to be used at your own risk.
 
-All repairs currently need to be run from the command line. By default, all repairs are run in test mode until a `-t false` is added to the cli command.
+# Usage
+Repair can only be run from the command line. By default, all repairs are run in test mode. Test mode will not make any changes to your system and only output information on changes that will be made. To turn off test mode you will need to pass `--test false` to the cli command.
 
-It is highly recommended to remove the Sugar Repairs module before upgrading.
+##Things to note
+* It is highly recommended to remove the Sugar Repairs module before upgrading.
+* This package can not be installed to the Sugar OnDemand envrionment. If you are experiencing an issue with your instance, please open a [support ticket](https://web.sugarcrm.com/support/cases)
 
-# Running Repairs
-Repairs will need to be run differently based on your environment.
+## Running Repairs
+Repairs will need to be run differently based on your environment and can only be executed from the command line.
 
-##For Local & ION
+##For Local & OnDemand ION
 For local instances and ION, you will need to change to the supp_SugarRepairs directory and run the cli.php directly.
 
 ###Testing Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php --repair <action>`
+```
+cd "modules/supp_SugarRepairs/" && php -f cli.php --repair <action>
+```
 
 ###Execute Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php --repair <action> --test false`
+```
+cd "modules/supp_SugarRepairs/" && php -f cli.php --repair <action> --test false
+```
 
-##For MS
+##For OnDemand MS
 For mothership, you will need to change to the instances directory and run shadow-shell:
 
 ###Testing Command:
-`$options = array(
-'repair' => '<action>'
+```
+$options = array(
+     'repair' => '<action>'
 );
-require_once("./modules/supp_SugarRepairs/cli.php");`
+require_once("./modules/supp_SugarRepairs/cli.php");
+```
 
 ###Execute Command:
-`$options = array(
-'repair' => '<action>',
-'test' => false
+```
+$options = array(
+    'repair' => '<action>',
+    'test' => false
 );
-require_once("./modules/supp_SugarRepairs/cli.php");`
+require_once("./modules/supp_SugarRepairs/cli.php");
+```
 
 # Language Repairs
 Corrects common language file issues. The various issues addressed are shown below:
 
 ##Testing Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php --repair lang`
+`cd "modules/supp_SugarRepairs/" && php -f cli.php --repair lang`
 
 ##Execute Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php --repair lang --test false`
+`cd "modules/supp_SugarRepairs/" && php -f cli.php --repair lang --test false`
 
 ##Issues Addressed
 * Health Check Errors:
@@ -94,10 +105,10 @@ $app_list_strings['moduleList']['module2'] = 'Module 2';
 Corrects common issues with team sets.
 
 ##Testing Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php --repair team`
+`cd "modules/supp_SugarRepairs/" && php -f cli.php --repair team`
 
 ##Execute Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php --repair team --test false`
+`cd "modules/supp_SugarRepairs/" && php -f cli.php --repair team --test false`
 
 ##Issues Addressed
 * Duplicate teams in a team set
@@ -110,10 +121,10 @@ Corrects common issues with team sets.
 Corrects common issues with workflows.
 
 ##Testing Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php --repair workflow`
+`cd "modules/supp_SugarRepairs/" && php -f cli.php --repair workflow`
 
 ##Execute Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php --repair workflow --test false`
+`cd "modules/supp_SugarRepairs/" && php -f cli.php --repair workflow --test false`
 
 ##Issues Addressed
 * Workflows with invalid fields
@@ -123,10 +134,10 @@ Corrects common issues with workflows.
 Corrects common issues with Process Author Definitions.
 
 ##Testing Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php --repair processAuthor`
+`cd "modules/supp_SugarRepairs/" && php -f cli.php --repair processAuthor`
 
 ##Execute Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php --repair processAuthor --test false`
+`cd "modules/supp_SugarRepairs/" && php -f cli.php --repair processAuthor --test false`
 
 ##Issues Addressed
 * Event Criteria with invalid fields
@@ -139,10 +150,10 @@ Corrects common issues with Process Author Definitions.
 Corrects common issues with vardefs.
 
 ##Testing Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php --repair vardef`
+`cd "modules/supp_SugarRepairs/" && php -f cli.php --repair vardef`
 
 ##Execute Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php --repair vardef --test false`
+`cd "modules/supp_SugarRepairs/" && php -f cli.php --repair vardef --test false`
 
 ##Issues Addressed
 * Enum/Multienum fields with invalid default values.
@@ -155,52 +166,19 @@ Corrects common issues with vardefs.
 Corrects common issues with Email Addresses.
 
 ##Testing Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php --repair emailAddresses`
+`cd "modules/supp_SugarRepairs/" && php -f cli.php --repair emailAddresses`
 
 ##Execute Command:
-`cd "modules/supp_SugarRepairs/" && php cli.php --repair emailAddresses --test false`
+`cd "modules/supp_SugarRepairs/" && php -f cli.php --repair emailAddresses --test false`
 
 ##Issues Addressed
 * Bean Records without a Primary Email Address
 > Any Bean that has at least one email address, and no primary designation will get the oldest email address updated to be primary.
     
-# Adding New Repair Actions
-* All repair actions should be located in `./modules/supp_SugarRepairs/Classes/Repairs/` and extend the abstract class `supp_Repairs`. 
-* Any custom classes should use the `supp_` prefix.
+#Contributing
+Everyone is welcome to be involved by creating or improving existing Sugar repairs. If you would like to contribute, please make sure to review the [CONTRIBUTOR TERMS](CONTRIBUTOR TERMS.pdf). When you update this [README](README.md), please check out the [contribution guidelines](CONTRIBUTING.md) for helpful hints and tips that will make it easier to accept your pull request.
 
-# CLI Usage
-This is still under development, however, usage will be as follows:
-
-```
-cd "/<sugar>/modules/supp_SugarRepairs/" && php -f cli.php
-```
-
-# Unit Tests
-PHP unit tests are required for all repair actions. They should all be located in `./custom/tests/modules/supp_SugarRepairs/`.
-
-To setup you environment for unit tests, you will need to do the following:
-
-* Install the Sugar Repairs module to a new Sugar 7.6.1.0 instance. 7.6.1.0 is required as it has published unit tests.
-* In the root of the instance, install composer. `composer install`
-* Download the 7.6.1.0 unit tests from: https://github.com/sugarcrm/unit-tests/releases
-* Extract the content of the tests folder from the zip that are applicable to your edition `<test folder>/<edition>/tests/` into `./tests/`.
-* Create your new unit test in `./custom/tests/modules/supp_SugarRepairs/` and make sure to add it to the `@group support` in the header comment:
-```
-/**
- *@group support
- */
-```
-
-* Validate the tests by running:
-
-```
-cd "/<sugar>/tests/"
-phpunit -v --debug --group support --stop-on-failure
-```
-
-* Once finished, commit your test back to the repo.
-
-# Contributors
+## Contributors
 [Ken Brill](https://github.com/kbrill)
 
 [Jerry Clark](https://github.com/geraldclark)
