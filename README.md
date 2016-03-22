@@ -181,7 +181,7 @@ PHP unit tests are required for all repair actions. They should all be located i
 To setup you environment for unit tests, you will need to do the following:
 
 * Install the Sugar Repairs module to a new Sugar 7.6.1.0 instance. 7.6.1.0 is required as it has published unit tests.
-* in the root of the instance, install composer. `composer install`
+* In the root of the instance, install composer. `composer install`
 * Download the 7.6.1.0 unit tests from: https://github.com/sugarcrm/unit-tests/releases
 * Extract the content of the tests folder from the zip that are applicable to your edition `<test folder>/<edition>/tests/` into `./tests/`.
 * Create your new unit test in `./custom/tests/modules/supp_SugarRepairs/` and make sure to add it to the `@group support` in the header comment:
@@ -199,6 +199,9 @@ phpunit -v --debug --group support --stop-on-failure
 ```
 
 * Once finished, commit your test back to the repo.
+
+# Licensed under Apache:
+© 2016 SugarCRM Inc.  Licensed by SugarCRM under the Apache 2.0 license.
 
 # Contributors
 [Ken Brill](https://github.com/kbrill)
