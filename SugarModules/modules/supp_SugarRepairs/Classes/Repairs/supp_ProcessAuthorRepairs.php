@@ -182,7 +182,8 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                         f.flo_element_origin = ed.id AND
                         f.prj_id = ed.prj_id AND
                         f.deleted = '0'
-            WHERE ed.deleted = '0' 
+            WHERE ed.deleted = '0'
+                AND ed.evn_type IN ('START','END')
                 AND ed.evn_status = 'ACTIVE'
                 AND ed.evn_criteria <> '' 
                 AND ed.evn_criteria IS NOT NULL
@@ -503,6 +504,8 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                 }
             }
         }
+        $foundIssuesCount = count($this->foundIssues);
+        $this->log("Found {$foundIssuesCount} bad PA Business Rules.");
     }
 
     /**
