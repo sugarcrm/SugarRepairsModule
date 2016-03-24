@@ -124,6 +124,32 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
             VALUES ('8e736524-e58e-11e5-9261-fe497468afid',0,'46d69d53-e58c-11e5-9261-fe49746prjid','46d69d50-e58c-11e5-9261-fe497468edid');
         ";
 
+        // non START or END event
+        $bean = BeanFactory::newBean("pmse_Project");
+        $bean->id = 'b25f1060-f1ef-11e5-a564-2c531c938b02';
+        $bean->new_with_id = true;
+        $bean->name = 'Test Record for non Start/End Event';
+        $bean->prj_status = "ACTIVE";
+        $bean->prj_module = "Accounts";
+        $bean->save();
+
+        $sql_setup[] = "
+            INSERT INTO `pmse_bpm_event_definition` (`id`,`deleted`,`prj_id`,`evn_status`,`evn_type`,`evn_module`,`evn_criteria`)
+            VALUES ('ea9db4a4-f1ef-11e5-a564-2c531c938b02',0,'b25f1060-f1ef-11e5-a564-2c531c938b02','ACTIVE','START','Accounts','');
+        ";
+        $sql_setup[] = "
+            INSERT INTO `pmse_bpm_event_definition` (`id`,`deleted`,`prj_id`,`evn_status`,`evn_type`,`evn_module`,`evn_criteria`)
+            VALUES ('31366564-f1f0-11e5-a564-2c531c938b02',0,'b25f1060-f1ef-11e5-a564-2c531c938b02','ACTIVE','INTERMEDIATE','Accounts','2b9633a0-f1f0-11e5-a564-2c531c938b02');
+        ";
+        $sql_setup[] = "
+            INSERT INTO `pmse_bpmn_flow` (`id`,`deleted`,`prj_id`,`flo_element_origin`)
+            VALUES ('f725c6ee-f1ef-11e5-a564-2c531c938b02',0,'b25f1060-f1ef-11e5-a564-2c531c938b02','ea9db4a4-f1ef-11e5-a564-2c531c938b02');
+        ";
+        $sql_setup[] = "
+            INSERT INTO `pmse_bpmn_flow` (`id`,`deleted`,`prj_id`,`flo_element_origin`)
+            VALUES ('a0077b0e-f1f0-11e5-a564-2c531c938b02',0,'b25f1060-f1ef-11e5-a564-2c531c938b02','f725c6ee-f1ef-11e5-a564-2c531c938b02');
+        ";
+
         // action test records
         // testSetActionDefinition
         // testRepairActivities (false positive test)
@@ -654,7 +680,9 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
                 '38047c8e-e58c-11e5-9261-fe497468edid',
                 '3c8704ca-e58c-11e5-9261-fe497468edid',
                 '4290f060-e58c-11e5-9261-fe497468edid',
-                '46d69d50-e58c-11e5-9261-fe497468edid'
+                '46d69d50-e58c-11e5-9261-fe497468edid',
+                'ea9db4a4-f1ef-11e5-a564-2c531c938b02',
+                '31366564-f1f0-11e5-a564-2c531c938b02'
             )
         ";
         $sql_teardown[] = "
@@ -686,7 +714,8 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
                 '7222b6a2-ed60-11e5-94a1-736088870fb3',
                 'd79ee4d6-ed67-11e5-94a1-736088870fb3',
                 '6376436e-ed68-11e5-94a1-736088870fb3',
-                'c0e866a8-ed68-11e5-94a1-736088870fb3'
+                'c0e866a8-ed68-11e5-94a1-736088870fb3',
+                'b25f1060-f1ef-11e5-a564-2c531c938b02'
             )
         ";
         $sql_teardown[] = "
@@ -717,7 +746,9 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
                 '8cffbfba-ed60-11e5-94a1-736088870fb3',
                 'f076cadc-ed67-11e5-94a1-736088870fb3',
                 '809c659a-ed68-11e5-94a1-736088870fb3',
-                'db853c48-ed68-11e5-94a1-736088870fb3'
+                'db853c48-ed68-11e5-94a1-736088870fb3',
+                'f725c6ee-f1ef-11e5-a564-2c531c938b02',
+                'a0077b0e-f1f0-11e5-a564-2c531c938b02'
             )
         ";
 
@@ -744,7 +775,7 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
                 '85811180-ed60-11e5-94a1-736088870fb3',
                 'e9c27a1a-ed67-11e5-94a1-736088870fb3',
                 '7a801436-ed68-11e5-94a1-736088870fb3',
-                'd2a0a644-ed68-11e5-94a1-736088870fb3'
+                'd2a0a644-ed68-11e5-94a1-736088870fb3',
             )
         ";
 
@@ -1078,6 +1109,7 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
         // 4 broken records should be issues
         $this->assertGreaterThanOrEqual(4, count($supp_ProcessAuthorRepairsTest->foundIssues));
 
+        // broken records
         $paDefinition = BeanFactory::retrieveBean('pmse_Project', "46d69d50-e58c-11e5-9261-fe49746prjid");
         $this->assertEquals("INACTIVE", $paDefinition->prj_status);
 
@@ -1090,7 +1122,11 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
         $paDefinition = BeanFactory::retrieveBean('pmse_Project', "46d69d53-e58c-11e5-9261-fe49746prjid");
         $this->assertEquals("INACTIVE", $paDefinition->prj_status);
 
+        // non-broken
         $paDefinition = BeanFactory::retrieveBean('pmse_Project', "9ff025b6-e576-11e5-9261-fe49746prjid");
+        $this->assertEquals("ACTIVE", $paDefinition->prj_status);
+
+        $paDefinition = BeanFactory::retrieveBean('pmse_Project', "b25f1060-f1ef-11e5-a564-2c531c938b02");
         $this->assertEquals("ACTIVE", $paDefinition->prj_status);
     }
 
