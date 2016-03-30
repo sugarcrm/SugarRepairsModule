@@ -18,12 +18,12 @@ For local instances and ION, you will need to change to the supp_SugarRepairs di
 
 ###Testing Command:
 ```
-cd "modules/supp_SugarRepairs/" && php -f cli.php --repair <action>
+cd "modules/supp_SugarRepairs/" && php cli.php --repair <action>
 ```
 
 ###Execute Command:
 ```
-cd "modules/supp_SugarRepairs/" && php -f cli.php --repair <action> --test false
+cd "modules/supp_SugarRepairs/" && php cli.php --repair <action> --test false
 ```
 
 ##For OnDemand MS
@@ -50,10 +50,10 @@ require_once("./modules/supp_SugarRepairs/cli.php");
 Corrects common language file issues. The various issues addressed are shown below:
 
 ##Testing Command:
-`cd "modules/supp_SugarRepairs/" && php -f cli.php --repair lang`
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair lang`
 
 ##Execute Command:
-`cd "modules/supp_SugarRepairs/" && php -f cli.php --repair lang --test false`
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair lang --test false`
 
 ##Issues Addressed
 * Health Check Errors:
@@ -108,10 +108,10 @@ If a flag is thrown, manual intervention will be required. Scenarios that can th
 Corrects common issues with team sets.
 
 ##Testing Command:
-`cd "modules/supp_SugarRepairs/" && php -f cli.php --repair team`
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair team`
 
 ##Execute Command:
-`cd "modules/supp_SugarRepairs/" && php -f cli.php --repair team --test false`
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair team --test false`
 
 ##Issues Addressed
 * Duplicate teams in a team set
@@ -124,10 +124,10 @@ Corrects common issues with team sets.
 Corrects common issues with workflows.
 
 ##Testing Command:
-`cd "modules/supp_SugarRepairs/" && php -f cli.php --repair workflow`
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair workflow`
 
 ##Execute Command:
-`cd "modules/supp_SugarRepairs/" && php -f cli.php --repair workflow --test false`
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair workflow --test false`
 
 ##Issues Addressed
 * Workflows with invalid fields
@@ -137,10 +137,10 @@ Corrects common issues with workflows.
 Corrects common issues with Process Author Definitions.
 
 ##Testing Command:
-`cd "modules/supp_SugarRepairs/" && php -f cli.php --repair processAuthor`
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair processAuthor`
 
 ##Execute Command:
-`cd "modules/supp_SugarRepairs/" && php -f cli.php --repair processAuthor --test false`
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair processAuthor --test false`
 
 ##Issues Addressed
 * Event Criteria with invalid fields.
@@ -153,10 +153,10 @@ Corrects common issues with Process Author Definitions.
 Corrects common issues with vardefs.
 
 ##Testing Command:
-`cd "modules/supp_SugarRepairs/" && php -f cli.php --repair vardef`
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair vardef`
 
 ##Execute Command:
-`cd "modules/supp_SugarRepairs/" && php -f cli.php --repair vardef --test false`
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair vardef --test false`
 
 ##Issues Addressed
 * Enum/Multienum fields with invalid default values.
@@ -169,10 +169,10 @@ Corrects common issues with vardefs.
 Corrects common issues with Email Addresses.
 
 ##Testing Command:
-`cd "modules/supp_SugarRepairs/" && php -f cli.php --repair emailAddresses`
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair emailAddresses`
 
 ##Execute Command:
-`cd "modules/supp_SugarRepairs/" && php -f cli.php --repair emailAddresses --test false`
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair emailAddresses --test false`
 
 ##Issues Addressed
 * Bean Records without a Primary Email Address
