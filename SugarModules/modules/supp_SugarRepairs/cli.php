@@ -42,6 +42,8 @@ if (isset($options['repair'])) {
         $sugarRepairs->repairEmailAddresses($options);
     } else if ($options['repair'] == 'processAuthor') {
         $sugarRepairs->repairProcessAuthor($options);
+    } else if ($options['repair'] == 'forecasts') {
+        $sugarRepairs->repairForecasts($options);
     } else {
         echo "Invalid repair type. Please refer to the documentation.\n";
     }

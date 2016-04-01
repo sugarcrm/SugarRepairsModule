@@ -8,6 +8,8 @@ require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_ReportRepairs.php')
 require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_VarfdefRepairs.php');
 require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_EmailAddressRepairs.php');
 require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_ProcessAuthorRepairs.php');
+require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_ForecastWorksheetRepairs.php');
+
 class supp_SugarRepairs extends supp_SugarRepairs_sugar
 {
     /**
@@ -99,5 +101,16 @@ class supp_SugarRepairs extends supp_SugarRepairs_sugar
     {
         $processAuthorRepairs = new supp_ProcessAuthorRepairs();
         return $processAuthorRepairs->execute($args);
+    }
+
+    /**
+     * Repairs forecast worksheets
+     * @param array $args
+     * @return bool|void
+     */
+    public function repairForecasts(array $args)
+    {
+        $forecastWorksheetRepairs = new supp_ForecastWorksheetRepairs();
+        return $forecastWorksheetRepairs->execute($args);
     }
 }
