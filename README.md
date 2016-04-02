@@ -49,7 +49,7 @@ require_once("./modules/supp_SugarRepairs/cli.php");
 
 
 
-# Language Repairs
+#:wrench: Language Repairs
 Corrects common language file issues. The various issues addressed are shown below:
 
 ##Testing Command
@@ -109,7 +109,7 @@ If a flag is thrown, manual intervention will be required. Scenarios that can th
 
 
 
-#Team Set Repairs
+#:wrench: Team Set Repairs
 Corrects common issues with team sets.
 
 ##Testing Command
@@ -127,7 +127,7 @@ Corrects common issues with team sets.
 
 
 
-#Workflow Repairs
+#:wrench: Workflow Repairs
 Corrects common issues with workflows.
 
 ##Testing Command
@@ -142,7 +142,7 @@ Corrects common issues with workflows.
 
 
 
-#Process Author Repairs
+#:wrench: Process Author Repairs
 Corrects common issues with Process Author Definitions.
 
 ##Testing Command
@@ -160,7 +160,7 @@ Corrects common issues with Process Author Definitions.
 
 
 
-#Vardef Repairs
+#:wrench: Vardef Repairs
 Corrects common issues with vardefs.
 
 ##Testing Command
@@ -179,7 +179,7 @@ Corrects common issues with vardefs.
 
 
 
-#Report Repairs
+#:wrench: Report Repairs
 Corrects common issues with reports.
 
 ##Testing Command
@@ -195,7 +195,7 @@ Corrects common issues with reports.
    
    
    
-#Email Address Repairs
+#:wrench: Email Address Repairs
 Corrects common issues with Email Addresses.
 
 ##Testing Command
