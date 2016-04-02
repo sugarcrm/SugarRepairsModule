@@ -16,7 +16,7 @@ Repairs will need to be run differently based on your environment and can only b
 ##For Local & OnDemand ION
 For local instances and ION, you will need to change to the supp_SugarRepairs directory and run the cli.php directly.
 
-###Testing Command:
+###Testing Command
 ```
 cd "modules/supp_SugarRepairs/" && php cli.php --repair <action>
 ```
@@ -29,7 +29,7 @@ cd "modules/supp_SugarRepairs/" && php cli.php --repair <action> --test false
 ##For OnDemand MS
 For mothership, you will need to change to the instances directory and run shadow-shell:
 
-###Testing Command:
+###Testing Command
 ```
 $options = array(
      'repair' => '<action>'
@@ -46,10 +46,13 @@ $options = array(
 require_once("./modules/supp_SugarRepairs/cli.php");
 ```
 
+
+
+
 # Language Repairs
 Corrects common language file issues. The various issues addressed are shown below:
 
-##Testing Command:
+##Testing Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair lang`
 
 ##Execute Command:
@@ -104,13 +107,15 @@ If a flag is thrown, manual intervention will be required. Scenarios that can th
 * Runs the report repair.
 * Runs the process author repairs
 
+
+
 #Team Set Repairs
 Corrects common issues with team sets.
 
-##Testing Command:
+##Testing Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair team`
 
-##Execute Command:
+##Execute Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair team --test false`
 
 ##Issues Addressed
@@ -119,24 +124,28 @@ Corrects common issues with team sets.
        
 * Incorrect team counts on team sets
   * Correct any team sets with invalid team counts and relationships.
-    
+
+
+
 #Workflow Repairs
 Corrects common issues with workflows.
 
-##Testing Command:
+##Testing Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair workflow`
 
-##Execute Command:
+##Execute Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair workflow --test false`
 
 ##Issues Addressed
 * Workflows with invalid fields
   * Disables any workflows with missing or invalid fields.
 
+
+
 #Process Author Repairs
 Corrects common issues with Process Author Definitions.
 
-##Testing Command:
+##Testing Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair processAuthor`
 
 ##Execute Command:
@@ -149,10 +158,12 @@ Corrects common issues with Process Author Definitions.
 * Activities and Actions with invalid fields.
   * Disables any Process Author Definition with an activity or action referencing missing or invalid fields.
 
+
+
 #Vardef Repairs
 Corrects common issues with vardefs.
 
-##Testing Command:
+##Testing Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair vardef`
 
 ##Execute Command:
@@ -164,18 +175,36 @@ Corrects common issues with vardefs.
        
 * Enum/Multienum fields with invalid visibility gird.
   * Attempts to find a valid key. If no key is found, the grid is removed.
-       
+   
+
+
+
+#Report Repairs
+Corrects common issues with reports.
+
+##Testing Command
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair reports`
+
+##Execute Command:
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair reports --test false`
+
+##Issues Addressed
+* If a report is using a deleted field, it will be marked as broken.
+* If a field has a corrected language key, it will be updated.
+* If a report is using an invalid language key, it will be marked as broken,
+   
+   
+   
 #Email Address Repairs
 Corrects common issues with Email Addresses.
 
-##Testing Command:
+##Testing Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair emailAddresses`
 
 ##Execute Command:
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair emailAddresses --test false`
 
 ##Issues Addressed
-* Bean Records without a Primary Email Address
 * Bug [75588](https://web.sugarcrm.com/support/issues/75588) - Any Bean that has at least one email address, and no primary designation will get the oldest email address updated to be the primary.
     
 #Contributing
