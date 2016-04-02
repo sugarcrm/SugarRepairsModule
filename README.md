@@ -21,7 +21,7 @@ For local instances and ION, you will need to change to the supp_SugarRepairs di
 cd "modules/supp_SugarRepairs/" && php cli.php --repair <action>
 ```
 
-###Execute Command:
+###Execute Command
 ```
 cd "modules/supp_SugarRepairs/" && php cli.php --repair <action> --test false
 ```
@@ -37,7 +37,7 @@ $options = array(
 require_once("./modules/supp_SugarRepairs/cli.php");
 ```
 
-###Execute Command:
+###Execute Command
 ```
 $options = array(
     'repair' => '<action>',
@@ -55,7 +55,7 @@ Corrects common language file issues. The various issues addressed are shown bel
 ##Testing Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair lang`
 
-##Execute Command:
+##Execute Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair lang --test false`
 
 ##Issues Addressed
@@ -148,7 +148,7 @@ Corrects common issues with Process Author Definitions.
 ##Testing Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair processAuthor`
 
-##Execute Command:
+##Execute Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair processAuthor --test false`
 
 ##Issues Addressed
@@ -166,7 +166,7 @@ Corrects common issues with vardefs.
 ##Testing Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair vardef`
 
-##Execute Command:
+##Execute Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair vardef --test false`
 
 ##Issues Addressed
@@ -185,7 +185,7 @@ Corrects common issues with reports.
 ##Testing Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair reports`
 
-##Execute Command:
+##Execute Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair reports --test false`
 
 ##Issues Addressed
@@ -201,7 +201,7 @@ Corrects common issues with Email Addresses.
 ##Testing Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair emailAddresses`
 
-##Execute Command:
+##Execute Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair emailAddresses --test false`
 
 ##Issues Addressed
