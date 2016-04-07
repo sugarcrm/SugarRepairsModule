@@ -92,7 +92,7 @@ class supp_EmailAddressRepairs extends supp_Repairs
             }
             
             $results = $this->setPrimaryAddress($id);
-            if (!$results==true) {
+            if (!$results==true && !$this->isTesting) {
                 $this->logAction("-> Failed to update primary email address for {$bean_module}->{$bean_id}. This will have to be fixed manually.");
             }
         }
