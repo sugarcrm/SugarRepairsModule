@@ -88,12 +88,12 @@ class supp_EmailAddressRepairs extends supp_Repairs
                 );
             $id = $this->getNewPrimaryAddress($bean_module, $bean_id);
             if ($id===false) {
-                $this->logAction("-> Unable to find a primary email address for {$bean_module}->{$bean_id}. This will have to be fixed manaully.");
+                $this->logAction("-> Unable to find a primary email address for {$bean_module}->{$bean_id}. This will have to be fixed manually.");
             }
             
             $results = $this->setPrimaryAddress($id);
             if (!$results==true && !$this->isTesting) {
-                $this->logAction("-> Failed to update primary email address for {$bean_module}->{$bean_id}. This will have to be fixed manaully.");
+                $this->logAction("-> Failed to update primary email address for {$bean_module}->{$bean_id}. This will have to be fixed manually.");
             }
         }
 
