@@ -217,5 +217,7 @@ Everyone is welcome to be involved by creating or improving existing Sugar repai
 
 [Mark Everidge](https://github.com/meveridge)
 
+[Anthony Watson](https://github.com/crazytonyi)
+
 # Licensed under Apache
 © 2016 SugarCRM Inc.  Licensed by SugarCRM under the Apache 2.0 license.
