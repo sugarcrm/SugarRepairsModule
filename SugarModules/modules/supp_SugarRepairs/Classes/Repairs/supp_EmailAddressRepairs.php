@@ -59,7 +59,7 @@ class supp_EmailAddressRepairs extends supp_Repairs
     public function repairPrimaryEmailAddresses()
     {
 
-        $this->log("Starting email address repair.");
+        $this->logAll("Starting email address repair.");
 
         // select any email addresses tied to a bean
         // that do not have a primary email address specified
@@ -81,7 +81,7 @@ class supp_EmailAddressRepairs extends supp_Repairs
             $bean_module = $row['bean_module'];
             $bean_id = $row['bean_id'];
             
-            $this->logChange("-> Processing record :: {$bean_module}->{$bean_id}");
+            $this->log("-> Processing record :: {$bean_module}->{$bean_id}");
             $this->foundIssues[] = array(
                 "bean_module" => $bean_module,
                 "bean_id" => $bean_id,

@@ -31,6 +31,15 @@ abstract class supp_Repairs
      * Logs a change for the user to view
      * @param $message
      */
+    protected function logAll($message)
+    {
+        $this->log($message, "[Sugar Repairs][{$this->cycle_id}][{$this->loggerTitle}][All] ", "All");
+    }
+
+    /**
+     * Logs a change for the user to view
+     * @param $message
+     */
     protected function logChange($message)
     {
         $this->log($message, "[Sugar Repairs][{$this->cycle_id}][{$this->loggerTitle}][Change] ", "Change");
@@ -49,7 +58,7 @@ abstract class supp_Repairs
      * Logger Function
      * @param $message
      * @param string $prefix
-     * @param string $type
+     * @param string $type ('All', 'Combined, 'Action', 'Change')
      */
     protected function log($message, $prefix = '', $type = 'Combined')
     {
@@ -83,7 +92,7 @@ abstract class supp_Repairs
     /**
      * Flat File Logging System
      * @param string $entry
-     * @param string $type
+     * @param string $type ('All', 'Combined, 'Action', 'Change')
      * @param string $path
      */
     function logThis($entry, $type = 'Combined', $path = '')
@@ -92,8 +101,18 @@ abstract class supp_Repairs
             require_once('include/utils/sugar_file_utils.php');
         }
 
-        //We always write to the 'Combined' file
-        $fileArray = array_unique(array($type, 'Combined'));
+        //Make sure all messages end in a CR
+        if(substr($entry,-1)!="\n") {
+            $entry .= "\n";
+        }
+
+        if($type=='All') {
+            $fileArray=array('Combined',"Action","Change");
+        } else {
+            //We always write to the 'Combined' file
+            $fileArray = array_unique(array($type, 'Combined'));
+        }
+
         foreach ($fileArray as $fileType) {
             $log = empty($path) ? "SugarRepairModule-{$fileType}-{$this->cycle_id}.log" : $path;
 
@@ -638,7 +657,7 @@ abstract class supp_Repairs
             return true;
         }
 
-        $this->logChange("-> Update SQL: " . $sql);
+        $this->logChange("-> Ran Update SQL: " . $sql);
 
         $this->capture($this->cycle_id, $this->loggerTitle, 'Database', 'table', "The follow tables are backups:" . implode(',', $this->backupTables), $sql, "Capturing Update SQL'", 'Completed', 'P3');
         return $GLOBALS['db']->query($sql);
@@ -674,7 +693,7 @@ abstract class supp_Repairs
     {
         $paDefinition = BeanFactory::retrieveBean('pmse_Project', $id);
         if (is_object($paDefinition) === false) {
-            $this->logAction("-> Failed to locate definition {$id}.");
+            $this->logAction("-> Failed to locate PA Definition {$id}.");
             return false;
         }
 
@@ -692,7 +711,7 @@ abstract class supp_Repairs
     }
 
     /**
-     * Used to fetch the related module name from moduel and link
+     * Used to fetch the related module name from module and link
      * @param $module string
      * @param $link string
      * @return string

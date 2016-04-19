@@ -91,7 +91,9 @@ class supp_TeamSetRepairs extends supp_Repairs
             return false;
         }
 
-        //check for testing an other reapir generic params
+        $this->logAll('Begin TeamSet repairs');
+
+        //check for testing an other repair generic params
         parent::execute($args);
 
         $stamp = time();

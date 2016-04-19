@@ -32,7 +32,7 @@ class supp_VardefRepairs extends supp_Repairs
 
 
             if ($listKeys == false) {
-                $this->logAction("-> Metadata '{$defKey}' is using an invalid list'. This can be corrected by resaving the field in studio.");
+                $this->logAction("-> Metadata '{$defKey}' is using an invalid list. This can be corrected by resaving the field in studio.");
                 $this->foundMetadataIssues[$defKey] = $defKey;
                 continue;
             }
@@ -126,7 +126,7 @@ class supp_VardefRepairs extends supp_Repairs
             if (count($variables) == 1 && isset($variables['$dictionary'])) {
                 //proceed
             } else if (count($variables) > 1 && isset($variables['$dictionary'])) {
-                $this->logAction("-> File contains multiple variables. This will need to be manually corrected. Variables present are: " . print_r($variables));
+                $this->logAction("-> File ($relativePath) contains multiple variables. This will need to be manually corrected. Variables present are: " . print_r($variables));
                 continue;
             } else {
                 $append = '';
@@ -367,6 +367,8 @@ class supp_VardefRepairs extends supp_Repairs
     {
         //check for testing an other repair generic params
         parent::execute($args);
+
+        $this->logAll('Begin Vardef repairs');
 
         $stamp = time();
 

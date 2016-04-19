@@ -38,6 +38,8 @@ class supp_LanguageRepairs extends supp_Repairs
     {
         parent::execute($args);
 
+        $this->logAll('Begin Language file repairs');
+
         $customLanguageFiles = $this->getCustomLanguageFiles();
 
         $currentFileCount = 0;
@@ -48,28 +50,28 @@ class supp_LanguageRepairs extends supp_Repairs
             switch ($result) {
                 case self::TYPE_SYNTAXERROR:
                     $this->foundIssues[$fullPath] = $fullPath;
-                    $this->logAction("-> File has syntax error: {$this->syntaxError}. This will need to be corrected manually.");
+                    $this->logAction("-> File ({$fullPath}) has syntax error: {$this->syntaxError}. This will need to be corrected manually.");
                     break;
                 case self::TYPE_UNREADABLE:
                     $this->foundIssues[$fullPath] = $fullPath;
-                    $this->logAction("-> File is not readable. Please correct your filesystem permissions and try again.");
+                    $this->logAction("-> File ({$fullPath})is not readable. Please correct your filesystem permissions and try again.");
                     break;
                 case self::TYPE_UNWRITABLE:
                     $this->foundIssues[$fullPath] = $fullPath;
-                    $this->logAction("-> File is not writable. Please correct your filesystem permissions and try again.");
+                    $this->logAction("-> File ({$fullPath})is not writable. Please correct your filesystem permissions and try again.");
                     break;
                 case self::TYPE_EMPTY:
                     $this->foundIssues[$fullPath] = $fullPath;
                     if (!$this->isTesting) {
                         unlink($fullPath);
-                        $this->logChange("-> Deleted the file.");
+                        $this->logChange("-> Deleted the file ({$fullPath}).");
                     } else {
-                        $this->logChange("-> Will delete file.");
+                        $this->logChange("-> Will delete file ({$fullPath}).");
                     }
                     break;
                 case self::TYPE_DYNAMIC:
                     $this->foundIssues[$fullPath] = $fullPath;
-                    $this->logAction("-> File has code present. This will need to be corrected manually.");
+                    $this->logAction("-> File ({$fullPath}) has code present. This will need to be corrected manually.");
                     break;
                 case self::TYPE_STATIC:
                     $this->repairStaticFile($fullPath);

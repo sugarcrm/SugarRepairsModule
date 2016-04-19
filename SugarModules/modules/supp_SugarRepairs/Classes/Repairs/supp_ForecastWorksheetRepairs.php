@@ -74,7 +74,7 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
     }
 
     /**
-     * Gets all level 2+ users and managers by thier reports to id
+     * Gets all level 2+ users and managers by their reports to id
      * Run recursively until out of reports_to's
      * @param int $level Current level being processed
      * @param array $idFilter Ids of managers to get users by
@@ -208,7 +208,7 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
      */
     public function repairForecastWorksheets()
     {
-        $this->log('Begin forecast worksheet repairs');
+        $this->logAll('Begin forecast worksheet repairs');
 
         $userIdFilters = $this->getLevelOneManagers();
 
