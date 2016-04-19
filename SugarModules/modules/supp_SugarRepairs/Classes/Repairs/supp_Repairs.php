@@ -33,7 +33,7 @@ abstract class supp_Repairs
      */
     protected function logChange($message)
     {
-        $this->log($message, "[Sugar Repairs][{$this->cycle_id}][{$this->loggerTitle}][Change] ");
+        $this->log($message, "[Sugar Repairs][{$this->cycle_id}][{$this->loggerTitle}][Change] ", "Change");
     }
 
     /**
@@ -42,15 +42,16 @@ abstract class supp_Repairs
      */
     protected function logAction($message)
     {
-        $this->log($message, "[Sugar Repairs][{$this->cycle_id}][{$this->loggerTitle}][Action] ");
+        $this->log($message, "[Sugar Repairs][{$this->cycle_id}][{$this->loggerTitle}][Action] ", "Action");
     }
 
     /**
-     * Logger for repair actions
+     * Logger Function
      * @param $message
-     * @param string $level
+     * @param string $prefix
+     * @param string $type
      */
-    protected function log($message, $prefix = '')
+    protected function log($message, $prefix = '', $type = 'Combined')
     {
         if (empty($prefix)) {
             $log = "[Sugar Repairs][{$this->cycle_id}][{$this->loggerTitle}] ";
@@ -60,7 +61,8 @@ abstract class supp_Repairs
 
         $log .= $message;
 
-        $GLOBALS['log']->fatal($log);
+        //$GLOBALS['log']->fatal($log);
+        $this->logThis($log, $type);
 
         if (php_sapi_name() === 'cli') {
             if (
@@ -74,6 +76,41 @@ abstract class supp_Repairs
                 $this->unitTestLog[] = $log;
             } else {
                 echo $log . "\n";
+            }
+        }
+    }
+
+    /**
+     * Flat File Logging System
+     * @param string $entry
+     * @param string $type
+     * @param string $path
+     */
+    function logThis($entry, $type = 'Combined', $path = '')
+    {
+        if (file_exists('include/utils/sugar_file_utils.php')) {
+            require_once('include/utils/sugar_file_utils.php');
+        }
+
+        //We always write to the 'Combined' file
+        $fileArray = array_unique(array($type, 'Combined'));
+        foreach ($fileArray as $fileType) {
+            $log = empty($path) ? "SugarRepairModule-{$fileType}-{$this->cycle_id}.log" : $path;
+
+            // create if not exists
+            $fp = @fopen($log, 'a+');
+            if (!is_resource($fp)) {
+                $GLOBALS['log']->fatal('SugarRepairModule could not open/lock SugarRepairModule.log file');
+                die('SugarRepairModule could not open/lock SugarRepairModule.log file');
+            }
+
+            if (@fwrite($fp, $entry) === false) {
+                $GLOBALS['log']->fatal('SugarRepairModule could not write to SugarRepairModule.log: ' . $entry);
+                die('SugarRepairModule could not write to SugarRepairModule.log');
+            }
+
+            if (is_resource($fp)) {
+                fclose($fp);
             }
         }
     }
@@ -853,11 +890,11 @@ abstract class supp_Repairs
 
             //Build the cache, making sure the keys only appear once
             foreach ($app_list_strings as $listNames => $keys) {
-                if(!isset($this->listCache[$listNames])) {
-                    $this->listCache[$listNames]=array();
+                if (!isset($this->listCache[$listNames])) {
+                    $this->listCache[$listNames] = array();
                 }
-                if(!is_array($keys)) {
-                    $keys=array($keys=>$keys);
+                if (!is_array($keys)) {
+                    $keys = array($keys => $keys);
                 }
                 $this->listCache[$listNames] = array_unique(array_merge($this->listCache[$listNames], array_keys($keys)));
             }
