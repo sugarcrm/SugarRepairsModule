@@ -206,6 +206,25 @@ Corrects common issues with Email Addresses.
 
 ##Issues Addressed
 * Bug [75588](https://web.sugarcrm.com/support/issues/75588) - Any Bean that has at least one email address, and no primary designation will get the oldest email address updated to be the primary.
+
+
+
+#:wrench: Forecast Worksheet Repairs
+Corrects common issues with Forecast Worksheets by rolling through the user "reports_to" hierarchy and re-commits forecasts in the proper order.
+
+##Parameters
+* timeperiod_id -- Required
+  * Provide the specific timeperiod id to run the commit on
+  * ALL can be passed to run for all timeperiods
+
+##Testing Command
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair forecasts --timeperiod_id fd480109-081e-3c71-0941-56f032288e4f`
+
+##Execute Command
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair forecasts --timeperiod_id fd480109-081e-3c71-0941-56f032288e4f --test false`
+
+##Issues Addressed
+* Bug [75779](https://web.sugarcrm.com/support/issues/75779) - Forecast worksheets totals are not accurate after making hierarchy changes.
     
 #Contributing
 Everyone is welcome to be involved by creating or improving existing Sugar repairs. If you would like to contribute, please make sure to review the [CONTRIBUTOR TERMS](CONTRIBUTOR TERMS.pdf). When you update this [README](README.md), please check out the [contribution guidelines](CONTRIBUTING.md) for helpful hints and tips that will make it easier to accept your pull request.
