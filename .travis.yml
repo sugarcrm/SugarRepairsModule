@@ -7,7 +7,7 @@ env:
   matrix:
     - VERSION=7.6.2.1 EDITION=Ult
 before_install:
-  - echo -ne '\n' | sudo sh $TRAVIS_BUILD_DIR/travis-ci/install.sh
+  - sudo sh $TRAVIS_BUILD_DIR/travis-ci/install.sh
 install:
   - zip -r installer.zip $TRAVIS_BUILD_DIR
   - cd /var/www/
