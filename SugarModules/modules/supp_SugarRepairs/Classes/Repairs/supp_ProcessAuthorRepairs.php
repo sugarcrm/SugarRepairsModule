@@ -116,7 +116,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
      */
     public function validatePAOptionListExists($type, $base_module, $field, $paDef)
     {
-        // Validate dropdown or multiselect option list exsists
+        // Validate dropdown or multiselect option list exists
         if (in_array($type, array('enum', 'multienum'))) {
             $listKeys = $this->getFieldOptionKeys($base_module, $field);
 
@@ -224,7 +224,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                 $type = $this->validatePAFieldExists($base_module, $field, $paDef);
                 if ($type === false) continue;
 
-                // Validate dropdown or multiselect option list exsists
+                // Validate dropdown or multiselect option list exists
                 $listKeys = $this->validatePAOptionListExists($type, $base_module, $field, $paDef);
                 if ($listKeys === false) continue;
 
@@ -303,7 +303,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                     $type = $this->validatePAFieldExists($base_module, $field, $paDef);
                     if ($type === false) continue;
 
-                    // Validate dropdown or multiselect option list exsists
+                    // Validate dropdown or multiselect option list exists
                     $listKeys = $this->validatePAOptionListExists($type, $base_module, $field, $paDef);
                     if ($listKeys === false) continue;
                 }
@@ -428,7 +428,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                     $type = $this->validatePAFieldExists($base_module, $field, $paDef);
                     if ($type === false) continue;
 
-                    // Validate dropdown or multiselect option list exsists
+                    // Validate dropdown or multiselect option list exists
                     $listKeys = $this->validatePAOptionListExists($type, $base_module, $field, $paDef);
                     if ($listKeys === false) continue;
 
@@ -463,7 +463,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                             $type = $this->validatePAFieldExists($base_module, $field, $paDef);
                             if ($type === false) continue;
 
-                            // Validate dropdown or multiselect option list exsists
+                            // Validate dropdown or multiselect option list exists
                             $listKeys = $this->validatePAOptionListExists($type, $base_module, $field, $paDef);
                             if ($listKeys === false) continue;
                         }
@@ -483,7 +483,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                         $type = $this->validatePAFieldExists($base_module, $field, $paDef);
                         if ($type === false) continue;
 
-                        // Validate dropdown or multiselect option list exsists
+                        // Validate dropdown or multiselect option list exists
                         $listKeys = $this->validatePAOptionListExists($type, $base_module, $field, $paDef);
                         if ($listKeys === false) continue;
 
@@ -500,7 +500,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
             if ($new_rst_source_Definition !== $row['rst_source_Definition']) {
                 $results = $this->setBusinessRuleDefinition($brDefinition->id, $new_rst_source_Definition);
                 if (!$results == true) {
-                    $this->logAction("-> Failed to update Business Rule Criteria ID: {$brDefinition->id} for PA Definition: {$row['prj_id']}. This will have to be fixed manaully.");
+                    $this->logAction("-> Failed to update Business Rule Criteria ID: {$brDefinition->id} for PA Definition: {$row['prj_id']}. This will have to be fixed manually.");
                 }
             }
         }
@@ -515,14 +515,16 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
     public function execute(array $args)
     {
         if (!$this->isEnt() && !$this->isUlt()) {
-            $this->log('Repair ignored as it does not apply to this Edition.');
+            $this->log('PA Repair ignored as it does not apply to this Edition.');
             return false;
         }
 
         if (version_compare($GLOBALS['sugar_version'], '7.6', '<')) {
-            $this->log('Repair ignored as it does not apply to this version.');
+            $this->log('PA Repair ignored as it does not apply to this version.');
             return false;
         }
+
+        $this->logAll('Begin Process Author repairs');
 
         //check for testing an other repair generic params
         parent::execute($args);

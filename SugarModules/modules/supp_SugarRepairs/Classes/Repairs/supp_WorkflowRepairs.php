@@ -239,6 +239,8 @@ class supp_WorkflowRepairs extends supp_Repairs
             return false;
         }
 
+        $this->logAll('Begin Workflow repairs');
+
         //check for testing an other repair generic params
         parent::execute($args);
 

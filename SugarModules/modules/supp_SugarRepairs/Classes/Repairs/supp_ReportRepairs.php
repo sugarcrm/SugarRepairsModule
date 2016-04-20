@@ -245,6 +245,8 @@ class supp_ReportRepairs extends supp_Repairs
             return false;
         }
 
+        $this->logAll('Begin Report module repairs');
+
         //check for testing an other repair generic params
         parent::execute($args);
 
