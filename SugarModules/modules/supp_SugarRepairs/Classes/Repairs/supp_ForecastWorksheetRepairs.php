@@ -7,6 +7,7 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
     protected $loggerTitle = "Forecasts";
 
     public $usersToProcess = array();
+    public $timePeriodIdsToProcess = array();
 
     function __construct()
     {
@@ -34,6 +35,30 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
             $timePeriodIds[] = $row['id'];
         }
         return $timePeriodIds;
+    }
+
+    /**
+     * Validates timeperiod_id param
+     * @return boolean
+     */
+    public function validateTimePeriodId($timeperiod_id){
+
+        $query = new SugarQuery();
+        $query->select(array(
+            'id',
+        ));
+        $query->from(BeanFactory::newBean("TimePeriods"));
+        $query->where()
+            ->equals('deleted', '0')
+            ->equals('id', $timeperiod_id);
+        
+        $returnId = $query->getOne();
+
+        if($returnId == $timeperiod_id) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -205,8 +230,9 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
 
     /**
      * Executes the forecast repairs
+     * @param string $timeperiod_id Time period to re-commit
      */
-    public function repairForecastWorksheets()
+    public function repairForecastWorksheets($timeperiod_id)
     {
         $this->logAll('Begin forecast worksheet repairs');
 
@@ -218,11 +244,24 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
 
         krsort($this->usersToProcess);
 
-        $this->timePeriodIdsToProcess = $this->getAllTimePeriodIds();
-        foreach ($this->timePeriodIdsToProcess as $timePeriod) {
-            $this->log("-> Processing timeperiod id $timePeriod");
-            $results = $this->clearForecastWorksheet($timePeriod);
-            $this->processUserCommits($timePeriod);
+        if($timeperiod_id == "ALL") {
+            $this->timePeriodIdsToProcess = $this->getAllTimePeriodIds();
+        } else {
+            if($this->validateTimePeriodId($timeperiod_id)){
+                $this->timePeriodIdsToProcess = array($timeperiod_id);    
+            }else{
+                $this->logAction("-> Unable to find timeperiod_id '{$timeperiod_id}'. This will have to be fixed manually.");
+            }
+        }
+
+        if(is_array($this->timePeriodIdsToProcess) && count($this->timePeriodIdsToProcess) > 0) {
+            foreach ($this->timePeriodIdsToProcess as $timePeriod) {
+                $this->log("-> Processing timeperiod id $timePeriod");
+                $results = $this->clearForecastWorksheet($timePeriod);
+                $this->processUserCommits($timePeriod);
+            }
+        } else {
+            $this->log('-> No valid timeperiods found.');    
         }
         
         $this->log('End forecast worksheet repairs');
@@ -240,7 +279,7 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
         $stamp = time();
 
         if ($this->backupTable('forecast_manager_worksheets', $stamp)) {
-            $this->repairForecastWorksheets();
+            $this->repairForecastWorksheets($args['timeperiod_id']);
         } else {
             $this->log('Could not backup table');
         }

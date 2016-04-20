@@ -32,6 +32,13 @@ class suppSugarRepairsForecastWorksheetRepairsTest extends Sugar_PHPUnit_Framewo
         $bean->reports_to_id = '38c90c70-7788-13a2-668d-513e2b8df5e1';
         $bean->save();
 
+        $bean = BeanFactory::newBean("TimePeriods");
+        $bean->id = '736d000c-f79d-11e5-9b16-a19e342a368f';
+        $bean->start_date = '2015-01-01';
+        $bean->end_date = '2015-03-01';
+        $bean->new_with_id = true;
+        $bean->save();
+
         $sql_setup[] = "CREATE TABLE forecast_manager_worksheets_repairTemp LIKE forecast_manager_worksheets;";
         $sql_setup[] = "INSERT forecast_manager_worksheets_repairTemp SELECT * FROM forecast_manager_worksheets;";
         $sql_setup[] = "DELETE FROM forecast_manager_worksheets;";
@@ -58,9 +65,16 @@ class suppSugarRepairsForecastWorksheetRepairsTest extends Sugar_PHPUnit_Framewo
             )
         ";
 
-        // $sql_teardown[] = "DELETE FROM forecast_manager_worksheets;";
-        // $sql_teardown[] = "INSERT forecast_manager_worksheets SELECT * FROM forecast_manager_worksheets_repairTemp;";
-        // $sql_teardown[] = "DROP TABLE forecast_manager_worksheets_repairTemp;";
+        $sql_teardown[] = "
+            DELETE FROM timeperiods
+            WHERE id in (
+                '736d000c-f79d-11e5-9b16-a19e342a368f'
+            )
+        ";
+
+        $sql_teardown[] = "DELETE FROM forecast_manager_worksheets;";
+        $sql_teardown[] = "INSERT forecast_manager_worksheets SELECT * FROM forecast_manager_worksheets_repairTemp;";
+        $sql_teardown[] = "DROP TABLE forecast_manager_worksheets_repairTemp;";
 
         foreach ($sql_teardown as $q_teardown) {
             $res = $GLOBALS['db']->query($q_teardown);
@@ -79,6 +93,22 @@ class suppSugarRepairsForecastWorksheetRepairsTest extends Sugar_PHPUnit_Framewo
 
         $this->assertTrue(is_array($result));
         $this->assertGreaterThan(0,count($result));
+    }
+
+    /**
+     * Test for returning time period ids
+     * @covers supp_ForecastWorksheetRepairs::getAllTimePeriodIds
+     */
+    public function testValidateTimePeriodId()
+    {
+        $repairs = new supp_ForecastWorksheetRepairs();
+        $repairs->setTesting(false);
+        $result = $repairs->validateTimePeriodId("736d000c-f79d-11e5-9b16-a19e342a368f");
+
+        $this->assertTrue($result);
+        
+        $result = $repairs->validateTimePeriodId("fake_timeperiod_id_6468");
+        $this->assertFalse($result);
     }
 
     /**
@@ -147,7 +177,7 @@ class suppSugarRepairsForecastWorksheetRepairsTest extends Sugar_PHPUnit_Framewo
         $repairs = new supp_ForecastWorksheetRepairs();
         $repairs->setTesting(false);
 
-        $repairs->repairForecastWorksheets();
+        $repairs->repairForecastWorksheets("ALL");
 
         $sql = "
             SELECT id

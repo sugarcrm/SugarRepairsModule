@@ -23,8 +23,10 @@ if (empty($current_user) || empty($current_user->id)) {
 
 $sugarRepairs = BeanFactory::newBean('supp_SugarRepairs');
 
+$longopts = array("repair:", "test::");
+
 if (!isset($options)) {
-    $options = getopt('', array("repair:", "test::"));
+    $options = getopt('', $longopts);
 }
 
 if (isset($options['repair'])) {
@@ -43,7 +45,13 @@ if (isset($options['repair'])) {
     } else if ($options['repair'] == 'processAuthor') {
         $sugarRepairs->repairProcessAuthor($options);
     } else if ($options['repair'] == 'forecasts') {
-        $sugarRepairs->repairForecasts($options);
+        $longopts[] = "timeperiod_id:";
+        $options = getopt('', $longopts);
+        if (isset($options['timeperiod_id'])) {
+            $sugarRepairs->repairForecasts($options);
+        } else {
+            echo "Please specify the timeperiod_id parameter.\n";
+        }
     } else {
         echo "Invalid repair type. Please refer to the documentation.\n";
     }
