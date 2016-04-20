@@ -7,7 +7,8 @@ env:
   matrix:
     - VERSION=7.6.2.1 EDITION=Ult
 before_install:
-  - sudo sh $TRAVIS_BUILD_DIR/travis-ci/install.sh
+  - sudo curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/Files/install.sh -o install.sh
+  - sh install.sh
 install:
   - zip -r installer.zip $TRAVIS_BUILD_DIR
   - cd /var/www/
