@@ -26,7 +26,7 @@ $manifest = array(
     'name' => 'Sugar Repairs',
     'published_date' => '2016-01-30 19:27:01',
     'type' => 'module',
-    'version' => '1',
+    'version' => '1.3',
     'remove_tables' => 'prompt',
 );
 
