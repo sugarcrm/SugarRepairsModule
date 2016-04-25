@@ -31,21 +31,13 @@ For mothership, you will need to change to the instances directory and run shado
 
 ###Testing Command
 ```
-$options = array(
-     'repair' => '<action>'
-);
-require_once("./modules/supp_SugarRepairs/cli.php");
+$options = array('repair' => '<action>');require_once("./modules/supp_SugarRepairs/cli.php");
 ```
 
 ###Execute Command
 ```
-$options = array(
-    'repair' => '<action>',
-    'test' => false
-);
-require_once("./modules/supp_SugarRepairs/cli.php");
+$options = array('repair' => '<action>', 'test' => false);require_once("./modules/supp_SugarRepairs/cli.php");
 ```
-
 
 
 
