@@ -47,6 +47,10 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
             VALUES ('9ff025b6-e576-11e5-9261-fe497468edid',0,'9ff025b6-e576-11e5-9261-fe49746prjid','ACTIVE','START','Accounts','[{\"expType\":\"MODULE\",\"expSubtype\":\"DropDown\",\"expLabel\":\"Industry is equal to Apparel\",\"expValue\":\"Apparel\",\"expOperator\":\"equals\",\"expModule\":\"Accounts\",\"expField\":\"industry\"},{\"expType\":\"LOGIC\",\"expLabel\":\"OR\",\"expValue\":\"OR\"},{\"expType\":\"USER_ROLE\",\"expLabel\":\"Supervisor has not role Administrator\",\"expValue\":\"is_admin\",\"expOperator\":\"not_equals\",\"expField\":\"supervisor\"}]');
         ";
         $sql_setup[] = "
+            INSERT INTO `pmse_bpm_related_dependency` (`id`, `evn_id`,`deleted`,`prj_id`,`evn_status`,`evn_type`,`evn_module`,`evn_criteria`)
+            VALUES ('7d8a4f58-131e-11e6-bb94-80f85ad93479', '9ff025b6-e576-11e5-9261-fe497468edid',0,'9ff025b6-e576-11e5-9261-fe49746prjid','ACTIVE','START','Accounts','[{\"expType\":\"MODULE\",\"expSubtype\":\"DropDown\",\"expLabel\":\"Industry is equal to Apparel\",\"expValue\":\"Apparel\",\"expOperator\":\"equals\",\"expModule\":\"Accounts\",\"expField\":\"industry\"},{\"expType\":\"LOGIC\",\"expLabel\":\"OR\",\"expValue\":\"OR\"},{\"expType\":\"USER_ROLE\",\"expLabel\":\"Supervisor has not role Administrator\",\"expValue\":\"is_admin\",\"expOperator\":\"not_equals\",\"expField\":\"supervisor\"}]');
+        ";
+        $sql_setup[] = "
             INSERT INTO `pmse_bpmn_flow` (`id`,`deleted`,`prj_id`,`flo_element_origin`)
             VALUES ('9ff025b6-e576-11e5-9261-fe497468afid',0,'9ff025b6-e576-11e5-9261-fe49746prjid','9ff025b6-e576-11e5-9261-fe497468edid');
         ";
@@ -64,6 +68,10 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
         $sql_setup[] = "
             INSERT INTO `pmse_bpm_event_definition` (`id`,`deleted`,`prj_id`,`evn_status`,`evn_type`,`evn_module`,`evn_criteria`)
             VALUES ('38047c8e-e58c-11e5-9261-fe497468edid',0,'46d69d50-e58c-11e5-9261-fe49746prjid','ACTIVE','START','Accounts','[{\"expType\":\"MODULE\",\"expSubtype\":\"DropDown\",\"expLabel\":\"Industry is equal to nonexistantvalue56\",\"expValue\":\"nonexistantvalue56\",\"expOperator\":\"equals\",\"expModule\":\"Accounts\",\"expField\":\"industry\"},{\"expType\":\"LOGIC\",\"expLabel\":\"OR\",\"expValue\":\"OR\"},{\"expType\":\"USER_ROLE\",\"expLabel\":\"Supervisor has not role Administrator\",\"expValue\":\"is_admin\",\"expOperator\":\"not_equals\",\"expField\":\"supervisor\"}]');
+        ";
+        $sql_setup[] = "
+            INSERT INTO `pmse_bpm_related_dependency` (`id`, `evn_id`,`deleted`,`prj_id`,`evn_status`,`evn_type`,`evn_module`,`evn_criteria`)
+            VALUES ('8214af6e-131e-11e6-bb94-80f85ad93479', '38047c8e-e58c-11e5-9261-fe497468edid',0,'46d69d50-e58c-11e5-9261-fe49746prjid','ACTIVE','START','Accounts','[{\"expType\":\"MODULE\",\"expSubtype\":\"DropDown\",\"expLabel\":\"Industry is equal to nonexistantvalue56\",\"expValue\":\"nonexistantvalue56\",\"expOperator\":\"equals\",\"expModule\":\"Accounts\",\"expField\":\"industry\"},{\"expType\":\"LOGIC\",\"expLabel\":\"OR\",\"expValue\":\"OR\"},{\"expType\":\"USER_ROLE\",\"expLabel\":\"Supervisor has not role Administrator\",\"expValue\":\"is_admin\",\"expOperator\":\"not_equals\",\"expField\":\"supervisor\"}]');
         ";
         $sql_setup[] = "
             INSERT INTO `pmse_bpmn_flow` (`id`,`deleted`,`prj_id`,`flo_element_origin`)
@@ -84,6 +92,10 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
             VALUES ('3c8704ca-e58c-11e5-9261-fe497468edid',0,'46d69d51-e58c-11e5-9261-fe49746prjid','ACTIVE','START','Accounts','[{\"expType\":\"MODULE\",\"expSubtype\":\"DropDown\",\"expLabel\":\"Industry is equal to nonexistantvalue56\",\"expValue\":\"nonexistantvalue56\",\"expOperator\":\"equals\",\"expModule\":\"member_of\",\"expField\":\"industry\"},{\"expType\":\"LOGIC\",\"expLabel\":\"OR\",\"expValue\":\"OR\"},{\"expType\":\"USER_ROLE\",\"expLabel\":\"Supervisor has not role Administrator\",\"expValue\":\"is_admin\",\"expOperator\":\"not_equals\",\"expField\":\"supervisor\"}]');
         ";
         $sql_setup[] = "
+            INSERT INTO `pmse_bpm_related_dependency` (`id`, `evn_id`,`deleted`,`prj_id`,`evn_status`,`evn_type`,`evn_module`,`evn_criteria`)
+            VALUES ('84de2a72-131e-11e6-bb94-80f85ad93479', '3c8704ca-e58c-11e5-9261-fe497468edid',0,'46d69d51-e58c-11e5-9261-fe49746prjid','ACTIVE','START','Accounts','[{\"expType\":\"MODULE\",\"expSubtype\":\"DropDown\",\"expLabel\":\"Industry is equal to nonexistantvalue56\",\"expValue\":\"nonexistantvalue56\",\"expOperator\":\"equals\",\"expModule\":\"member_of\",\"expField\":\"industry\"},{\"expType\":\"LOGIC\",\"expLabel\":\"OR\",\"expValue\":\"OR\"},{\"expType\":\"USER_ROLE\",\"expLabel\":\"Supervisor has not role Administrator\",\"expValue\":\"is_admin\",\"expOperator\":\"not_equals\",\"expField\":\"supervisor\"}]');
+        ";
+        $sql_setup[] = "
             INSERT INTO `pmse_bpmn_flow` (`id`,`deleted`,`prj_id`,`flo_element_origin`)
             VALUES ('87a549d8-e58e-11e5-9261-fe497468afid',0,'46d69d51-e58c-11e5-9261-fe49746prjid','3c8704ca-e58c-11e5-9261-fe497468edid');
         ";
@@ -100,6 +112,10 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
         $sql_setup[] = "
             INSERT INTO `pmse_bpm_event_definition` (`id`,`deleted`,`prj_id`,`evn_status`,`evn_type`,`evn_module`,`evn_criteria`)
             VALUES ('4290f060-e58c-11e5-9261-fe497468edid',0,'46d69d52-e58c-11e5-9261-fe49746prjid','ACTIVE','START','Accounts','[{\"expType\":\"MODULE\",\"expSubtype\":\"DropDown\",\"expLabel\":\"Lead Source is equal to nonexistantvalue56\",\"expValue\":\"nonexistantvalue56\",\"expOperator\":\"equals\",\"expModule\":\"contacts\",\"expField\":\"lead_source\"},{\"expType\":\"LOGIC\",\"expLabel\":\"OR\",\"expValue\":\"OR\"},{\"expType\":\"USER_ROLE\",\"expLabel\":\"Supervisor has not role Administrator\",\"expValue\":\"is_admin\",\"expOperator\":\"not_equals\",\"expField\":\"supervisor\"}]');
+        ";
+        $sql_setup[] = "
+            INSERT INTO `pmse_bpm_related_dependency` (`id`, `evn_id`,`deleted`,`prj_id`,`evn_status`,`evn_type`,`evn_module`,`evn_criteria`)
+            VALUES ('87e29cee-131e-11e6-bb94-80f85ad93479', '4290f060-e58c-11e5-9261-fe497468edid',0,'46d69d52-e58c-11e5-9261-fe49746prjid','ACTIVE','START','Accounts','[{\"expType\":\"MODULE\",\"expSubtype\":\"DropDown\",\"expLabel\":\"Lead Source is equal to nonexistantvalue56\",\"expValue\":\"nonexistantvalue56\",\"expOperator\":\"equals\",\"expModule\":\"contacts\",\"expField\":\"lead_source\"},{\"expType\":\"LOGIC\",\"expLabel\":\"OR\",\"expValue\":\"OR\"},{\"expType\":\"USER_ROLE\",\"expLabel\":\"Supervisor has not role Administrator\",\"expValue\":\"is_admin\",\"expOperator\":\"not_equals\",\"expField\":\"supervisor\"}]');
         ";
         $sql_setup[] = "
             INSERT INTO `pmse_bpmn_flow` (`id`,`deleted`,`prj_id`,`flo_element_origin`)
@@ -120,6 +136,10 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
             VALUES ('46d69d50-e58c-11e5-9261-fe497468edid',0,'46d69d53-e58c-11e5-9261-fe49746prjid','ACTIVE','START','Accounts','[{\"expType\":\"MODULE\",\"expSubtype\":\"DropDown\",\"expLabel\":\"nonexistantfield56 is equal to 3\",\"expValue\":\"3\",\"expOperator\":\"equals\",\"expModule\":\"Accounts\",\"expField\":\"nonexistantfield56_c\"},{\"expType\":\"LOGIC\",\"expLabel\":\"OR\",\"expValue\":\"OR\"},{\"expType\":\"USER_ROLE\",\"expLabel\":\"Supervisor has not role Administrator\",\"expValue\":\"is_admin\",\"expOperator\":\"not_equals\",\"expField\":\"supervisor\"}]');
         ";
         $sql_setup[] = "
+            INSERT INTO `pmse_bpm_related_dependency` (`id`, `evn_id`,`deleted`,`prj_id`,`evn_status`,`evn_type`,`evn_module`,`evn_criteria`)
+            VALUES ('8c1b021a-131e-11e6-bb94-80f85ad93479', '46d69d50-e58c-11e5-9261-fe497468edid',0,'46d69d53-e58c-11e5-9261-fe49746prjid','ACTIVE','START','Accounts','[{\"expType\":\"MODULE\",\"expSubtype\":\"DropDown\",\"expLabel\":\"nonexistantfield56 is equal to 3\",\"expValue\":\"3\",\"expOperator\":\"equals\",\"expModule\":\"Accounts\",\"expField\":\"nonexistantfield56_c\"},{\"expType\":\"LOGIC\",\"expLabel\":\"OR\",\"expValue\":\"OR\"},{\"expType\":\"USER_ROLE\",\"expLabel\":\"Supervisor has not role Administrator\",\"expValue\":\"is_admin\",\"expOperator\":\"not_equals\",\"expField\":\"supervisor\"}]');
+        ";
+        $sql_setup[] = "
             INSERT INTO `pmse_bpmn_flow` (`id`,`deleted`,`prj_id`,`flo_element_origin`)
             VALUES ('8e736524-e58e-11e5-9261-fe497468afid',0,'46d69d53-e58c-11e5-9261-fe49746prjid','46d69d50-e58c-11e5-9261-fe497468edid');
         ";
@@ -138,8 +158,16 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
             VALUES ('ea9db4a4-f1ef-11e5-a564-2c531c938b02',0,'b25f1060-f1ef-11e5-a564-2c531c938b02','ACTIVE','START','Accounts','');
         ";
         $sql_setup[] = "
+            INSERT INTO `pmse_bpm_related_dependency` (`id`, `evn_id`,`deleted`,`prj_id`,`evn_status`,`evn_type`,`evn_module`,`evn_criteria`)
+            VALUES ('8ff59e90-131e-11e6-bb94-80f85ad93479', 'ea9db4a4-f1ef-11e5-a564-2c531c938b02',0,'b25f1060-f1ef-11e5-a564-2c531c938b02','ACTIVE','START','Accounts','');
+        ";
+        $sql_setup[] = "
             INSERT INTO `pmse_bpm_event_definition` (`id`,`deleted`,`prj_id`,`evn_status`,`evn_type`,`evn_module`,`evn_criteria`)
             VALUES ('31366564-f1f0-11e5-a564-2c531c938b02',0,'b25f1060-f1ef-11e5-a564-2c531c938b02','ACTIVE','INTERMEDIATE','Accounts','2b9633a0-f1f0-11e5-a564-2c531c938b02');
+        ";
+        $sql_setup[] = "
+            INSERT INTO `pmse_bpm_related_dependency` (`id`, `evn_id`,`deleted`,`prj_id`,`evn_status`,`evn_type`,`evn_module`,`evn_criteria`)
+            VALUES ('92f08498-131e-11e6-bb94-80f85ad93479', '31366564-f1f0-11e5-a564-2c531c938b02',0,'b25f1060-f1ef-11e5-a564-2c531c938b02','ACTIVE','INTERMEDIATE','Accounts','2b9633a0-f1f0-11e5-a564-2c531c938b02');
         ";
         $sql_setup[] = "
             INSERT INTO `pmse_bpmn_flow` (`id`,`deleted`,`prj_id`,`flo_element_origin`)
@@ -660,6 +688,36 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
             VALUES ('db853c48-ed68-11e5-94a1-736088870fb3',0,'c0e866a8-ed68-11e5-94a1-736088870fb3','d2a0a644-ed68-11e5-94a1-736088870fb3');
         ";
 
+        // records for blacklisted functions to update
+        $sql_setup[] = "
+            INSERT INTO `pmse_bpm_event_definition` (`id`,`deleted`,`prj_id`,`evn_status`,`evn_type`,`evn_module`,`evn_criteria`)
+            VALUES ('43c9fefc-12f2-11e6-bb94-80f85ad93479',0,'9ff025b6-e576-11e5-9261-fe49746prjid','ACTIVE','START','Accounts','test');
+        ";
+        $sql_setup[] = "
+            INSERT INTO `pmse_bpm_related_dependency` (`id`, `evn_id`,`deleted`,`prj_id`,`evn_status`,`evn_type`,`evn_module`,`evn_criteria`)
+            VALUES ('6d544a1a-1320-11e6-bb94-80f85ad93479', '43c9fefc-12f2-11e6-bb94-80f85ad93479',0,'9ff025b6-e576-11e5-9261-fe49746prjid','ACTIVE','START','Accounts','test');
+        ";
+
+        $sql_setup[] = "
+            INSERT INTO `pmse_bpm_activity_definition` (`id`,`deleted`,`name`,`act_field_module`,`act_fields`)
+            VALUES ('b37672ac-12f3-11e6-bb94-80f85ad93479',0,'Change Field','Accounts','test');
+        ";
+
+        $sql_setup[] = "
+            INSERT INTO `pmse_business_rules` (`id`,`deleted`,`name`,`rst_module`,`rst_source_definition`)
+            VALUES ('d27a7a0e-12f3-11e6-bb94-80f85ad93479',0,'Business Rule','Accounts','test');
+        ";
+        $sql_setup[] = "
+            INSERT INTO `pmse_bpm_activity_definition` (`id`,`deleted`,`name`,`act_field_module`,`act_fields`)
+            VALUES ('e26e474c-12f3-11e6-bb94-80f85ad93479',0,'Change Field','Accounts','test');
+        ";
+
+        // test deleteBusinessRuleDefinition
+        $sql_setup[] = "
+            INSERT INTO `pmse_business_rules` (`id`,`deleted`,`name`,`rst_module`,`rst_source_definition`)
+            VALUES ('4aa147ca-1325-11e6-bb94-80f85ad93479',0,'Business Rule','Accounts','test');
+        ";
+
         // execute sql statements
         foreach ($sql_setup as $q_setup) {
             $res = $GLOBALS['db']->query($q_setup);
@@ -682,7 +740,21 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
                 '4290f060-e58c-11e5-9261-fe497468edid',
                 '46d69d50-e58c-11e5-9261-fe497468edid',
                 'ea9db4a4-f1ef-11e5-a564-2c531c938b02',
-                '31366564-f1f0-11e5-a564-2c531c938b02'
+                '31366564-f1f0-11e5-a564-2c531c938b02',
+                '43c9fefc-12f2-11e6-bb94-80f85ad93479'
+            )
+        ";
+        $sql_teardown[] = "
+            DELETE FROM pmse_bpm_related_dependency
+            WHERE id in (
+                '7d8a4f58-131e-11e6-bb94-80f85ad93479',
+                '8214af6e-131e-11e6-bb94-80f85ad93479',
+                '84de2a72-131e-11e6-bb94-80f85ad93479',
+                '87e29cee-131e-11e6-bb94-80f85ad93479',
+                '8c1b021a-131e-11e6-bb94-80f85ad93479',
+                '8ff59e90-131e-11e6-bb94-80f85ad93479',
+                '92f08498-131e-11e6-bb94-80f85ad93479',
+                '6d544a1a-1320-11e6-bb94-80f85ad93479'
             )
         ";
         $sql_teardown[] = "
@@ -776,6 +848,8 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
                 'e9c27a1a-ed67-11e5-94a1-736088870fb3',
                 '7a801436-ed68-11e5-94a1-736088870fb3',
                 'd2a0a644-ed68-11e5-94a1-736088870fb3',
+                'b37672ac-12f3-11e6-bb94-80f85ad93479',
+                'e26e474c-12f3-11e6-bb94-80f85ad93479'
             )
         ";
 
@@ -817,7 +891,9 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
                 '7abf6440-ed60-11e5-94a1-736088870fb3',
                 'df46a8c2-ed67-11e5-94a1-736088870fb3',
                 '6902404e-ed68-11e5-94a1-736088870fb3',
-                'c85934b2-ed68-11e5-94a1-736088870fb3'
+                'c85934b2-ed68-11e5-94a1-736088870fb3',
+                'd27a7a0e-12f3-11e6-bb94-80f85ad93479',
+                '4aa147ca-1325-11e6-bb94-80f85ad93479'
             )
         ";
 
@@ -985,7 +1061,7 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
     }
 
     /**
-     * Test for validating PS fields exist
+     * Test for validating PA fields exist
      * @covers supp_ProcessAuthorRepairs::validatePAOptionListExists
      */
     public function testValidatePAOptionListExists()
@@ -1066,7 +1142,8 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
         $return1 = $supp_ProcessAuthorRepairsTest->validatePASelectedKey($selectedKey, $listKeys, $fieldString, $paDef);
 
         // should return true
-        $this->assertTrue($return1);
+        // $this->assertTrue($return1);
+        $this->assertEquals($fieldString, $return1);
 
         // Invalid item in list
         $selectedKey = "nonexistantvalue56";
@@ -1076,7 +1153,8 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
         $return2 = $supp_ProcessAuthorRepairsTest->validatePASelectedKey($selectedKey, $listKeys, $fieldString, $paDef);
 
         // should return false
-        $this->assertFalse($return2);
+        // $this->assertFalse($return2);
+        $this->assertEquals($fieldString, $return2);
 
         // Invalid item in list, but corrected
         $selectedKey = "ëxpField*";
@@ -1232,5 +1310,188 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
         $paDefinition = BeanFactory::retrieveBean('pmse_Project', "0ac139be-ed3f-11e5-94a1-736088870fb3");
         $this->assertEquals("ACTIVE", $paDefinition->prj_status);
 
+    }
+
+    /**
+     * Test for checking blacklisted fields
+     * @covers supp_ProcessAuthorRepairs::isBlacklistedPAField
+     */
+    public function testIsBlacklistedPAField()
+    {
+        $repairs = new supp_ProcessAuthorRepairs();
+        if (!$repairs->isEnt() && !$repairs->isUlt()) {
+            $this->markTestSkipped('Skipping test');
+            return;
+        }
+
+        $base_module = "Notes";
+        $paDef = array(
+            'id' => "testid",
+            'name' => "testname"
+        );
+
+        // non-blacklisted field
+        $field = "description";
+
+        $supp_ProcessAuthorRepairsTest = new supp_ProcessAuthorRepairs();
+        $supp_ProcessAuthorRepairsTest->setTesting(false);
+        $return1 = $supp_ProcessAuthorRepairsTest->isBlacklistedPAField($base_module, $field, $paDef);
+
+        $this->assertFalse($return1);
+
+        // blacklisted field
+        $field = "deleted";
+
+        $supp_ProcessAuthorRepairsTest = new supp_ProcessAuthorRepairs();
+        $supp_ProcessAuthorRepairsTest->setTesting(false);
+        $return2 = $supp_ProcessAuthorRepairsTest->isBlacklistedPAField($base_module, $field, $paDef);
+
+        $this->assertTrue($return2);
+
+    }
+
+    /**
+     * Test for checking blacklisted field types
+     * @covers supp_ProcessAuthorRepairs::isBlacklistedPAFieldType
+     */
+    public function testIsBlacklistedPAFieldType()
+    {
+        $repairs = new supp_ProcessAuthorRepairs();
+        if (!$repairs->isEnt() && !$repairs->isUlt()) {
+            $this->markTestSkipped('Skipping test');
+            return;
+        }
+
+        $base_module = "Notes";
+        $paDef = array(
+            'id' => "testid",
+            'name' => "testname"
+        );
+
+        // non-blacklisted field type
+        $field = "description";
+        $type = "TextArea";
+
+        $supp_ProcessAuthorRepairsTest = new supp_ProcessAuthorRepairs();
+        $supp_ProcessAuthorRepairsTest->setTesting(false);
+        $return1 = $supp_ProcessAuthorRepairsTest->isBlacklistedPAFieldType($type, $base_module, $field, $paDef);
+
+        $this->assertFalse($return1);
+
+        // blacklisted field type
+        $field = "filename";
+        $type = "file";
+
+        $supp_ProcessAuthorRepairsTest = new supp_ProcessAuthorRepairs();
+        $supp_ProcessAuthorRepairsTest->setTesting(false);
+        $return2 = $supp_ProcessAuthorRepairsTest->isBlacklistedPAFieldType($type, $base_module, $field, $paDef);
+
+        $this->assertTrue($return2);
+
+    }
+
+    /**
+     * Test for deleting the 3 different types of blacklisted actions
+     * @covers supp_ProcessAuthorRepairs::deleteBlacklistedDefinition
+     */
+    public function testDeleteBlacklistedDefinition()
+    {
+        $repairs = new supp_ProcessAuthorRepairs();
+        if (!$repairs->isEnt() && !$repairs->isUlt()) {
+            $this->markTestSkipped('Skipping test');
+            return;
+        }
+
+        $base_module = "Notes";
+        $paDef = array(
+            'id' => "testid",
+            'name' => "testname"
+        );
+
+        // blacklisted event definition
+        $paDef['source_table'] = "pmse_bpm_event_definition";
+        $paDef['source_id'] = "43c9fefc-12f2-11e6-bb94-80f85ad93479";
+
+        // blacklisted field
+        $field = "deleted";
+
+        $supp_ProcessAuthorRepairsTest = new supp_ProcessAuthorRepairs();
+        $supp_ProcessAuthorRepairsTest->setTesting(false);
+        $return1 = $supp_ProcessAuthorRepairsTest->deleteBlacklistedDefinition($field, $paDef);
+
+        $this->assertTrue($return1);
+
+        // blacklisted activity definition
+        $paDef['source_table'] = "pmse_bpm_activity_definition";
+        $paDef['source_id'] = "b37672ac-12f3-11e6-bb94-80f85ad93479";
+        $paDef['action_array'] = array(
+            0 => array(
+                "name" => "Industry",
+                "field" => "industry",
+                "value" => "Apparel",
+                "type" => "DropDown"
+                ),
+            1 => array(
+                "name" => "deleted",
+                "field" => "deleted",
+                "value" => "1",
+                "type" => "int"
+                ),
+            );
+
+        // blacklisted field
+        $field = "deleted";
+
+        $supp_ProcessAuthorRepairsTest = new supp_ProcessAuthorRepairs();
+        $supp_ProcessAuthorRepairsTest->setTesting(false);
+        $return1 = $supp_ProcessAuthorRepairsTest->deleteBlacklistedDefinition($field, $paDef);
+
+        $this->assertTrue($return1);
+
+        // blacklisted business rule
+        $paDef['source_table'] = "pmse_business_rules";
+        $paDef['source_id'] = "d27a7a0e-12f3-11e6-bb94-80f85ad93479";
+        $paDef['activity_id'] = "e26e474c-12f3-11e6-bb94-80f85ad93479";
+
+        // blacklisted field
+        $field = "deleted";
+
+        $supp_ProcessAuthorRepairsTest = new supp_ProcessAuthorRepairs();
+        $supp_ProcessAuthorRepairsTest->setTesting(false);
+        $return1 = $supp_ProcessAuthorRepairsTest->deleteBlacklistedDefinition($field, $paDef);
+
+        $this->assertTrue($return1);
+    }
+
+    /**
+     * Test for deleting a business rule definition
+     * @covers supp_ProcessAuthorRepairs::deleteBusinessRuleDefinition
+     */
+    public function testDeleteBusinessRuleDefinition()
+    {
+        $repairs = new supp_ProcessAuthorRepairs();
+        if (!$repairs->isEnt() && !$repairs->isUlt()) {
+            $this->markTestSkipped('Skipping test');
+            return;
+        }
+
+        $ruleId = "4aa147ca-1325-11e6-bb94-80f85ad93479";
+
+        $supp_ProcessAuthorRepairsTest = new supp_ProcessAuthorRepairs();
+        $supp_ProcessAuthorRepairsTest->setTesting(false);
+        $results = $supp_ProcessAuthorRepairsTest->deleteBusinessRuleDefinition($ruleId);
+
+        // should return true
+        $this->assertTrue($results);
+
+        $sql = "
+            SELECT deleted
+            FROM pmse_business_rules
+            WHERE id = '$ruleId'
+        ";
+        $returnedDeleted = $GLOBALS['db']->getOne($sql);
+
+        // should return updated deleted field
+        $this->assertEquals(1, $returnedDeleted);
     }
 }
