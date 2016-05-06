@@ -60,10 +60,10 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
         if ($result == true) {
             $this->logAction("-> PA Definition '{$paDef['name']}' ({$paDef['id']}) is utilizing a blacklisted field on {$base_module} / {$field}. You should review this definition.");
             $this->foundIssues[][$paDef['id']] = "Blacklisted field: {$base_module} / {$field}";
-            if(isset($paDef['source_table']) && isset($paDef['source_id'])){
-                $this->deleteBlacklistedDefinition($field, $paDef);    
+            if (isset($paDef['source_table']) && isset($paDef['source_id'])) {
+                $this->deleteBlacklistedDefinition($field, $paDef);
             }
-            if(isset($paDef['id'])){
+            if (isset($paDef['id'])) {
                 $this->disablePADefinition($paDef['id']);
             }
             return true;
@@ -88,10 +88,10 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
         if ($result == true) {
             $this->logAction("-> PA Definition '{$paDef['name']}' ({$paDef['id']}) is utilizing a blacklisted field type {$type} on {$base_module} / {$field}. You should review this definition.");
             $this->foundIssues[][$paDef['id']] = "Blacklisted field type: {$base_module} / {$field} :: {$type}";
-            if(isset($paDef['source_table']) && isset($paDef['source_id'])){
-                $this->deleteBlacklistedDefinition($field, $paDef);    
+            if (isset($paDef['source_table']) && isset($paDef['source_id'])) {
+                $this->deleteBlacklistedDefinition($field, $paDef);
             }
-            if(isset($paDef['id'])){
+            if (isset($paDef['id'])) {
                 $this->disablePADefinition($paDef['id']);
             }
             return true;
@@ -110,20 +110,19 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
         $source_table = $paDef['source_table'];
         $source_id = $paDef['source_id'];
 
-        switch($source_table){
+        switch ($source_table) {
             case "pmse_bpm_event_definition":
                 // TODO:: filter through criteria, find the culprit field, remove it safely leaving remaining criteria
                 $results = $this->setEventDefinition($source_id, "[]");
                 if (!$results) {
                     $this->logAction("-> Failed to update Event Definition: {$source_id} for PA Definition: {$paDef['id']}. This will have to be fixed manaully.");
                 }
-            break;
+                break;
             case "pmse_bpm_activity_definition":
-
                 $action_required_fields = $paDef['action_array'];
 
-                foreach($action_required_fields as $key => $field_meta){
-                    if($field_meta['field'] == $field){
+                foreach ($action_required_fields as $key => $field_meta) {
+                    if ($field_meta['field'] == $field) {
                         unset($action_required_fields[$key]);
                     }
                 }
@@ -134,7 +133,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                 if (!$results) {
                     $this->logAction("-> Failed to update Action Fields ID: {$source_id} for PA Definition: {$paDef['id']}. This will have to be fixed manaully.");
                 }
-            break;
+                break;
             case "pmse_business_rules":
                 // TODO:: filter through, find the culprit field, remove it safely leaving remaining fields intact
                 $results = $this->deleteBusinessRuleDefinition($source_id);
@@ -146,7 +145,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                     $this->logAction("-> Failed to update Activity ID: {$paDef['activity_id']} for PA Definition: {$paDef['id']}. This will have to be fixed manaully.");
                     $results = $results2;
                 }
-            break;
+                break;
         }
         return $results;
     }
@@ -178,17 +177,13 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
             $results2 = $this->updateQuery($sql2);
             $results2_count = $GLOBALS['db']->getAffectedRowCount($results2);
 
-            _ppl($results_count);
-            _ppl($results2_count);
-
-            if (
-                $results && 
+            if ($results &&
                 $results_count > 0 &&
-                $results2 && 
+                $results2 &&
                 $results2_count > 0
             ) {
                 $results = true;
-            }else{
+            } else {
                 $results = false;
             }
 
@@ -216,9 +211,9 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
         if (!$this->isTesting) {
             $this->logChange("-> Updating PA Action Definition '{$actionId}' to: '{$new_action_fields}'");
             $results = $this->updateQuery($sql);
-            if ($results && $GLOBALS['db']->getAffectedRowCount($results) > 0){
+            if ($results && $GLOBALS['db']->getAffectedRowCount($results) > 0) {
                 $results = true;
-            }else{
+            } else {
                 $results = false;
             }
         } else {
@@ -246,9 +241,9 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
         if (!$this->isTesting) {
             $this->logChange("-> Updating PA Business Rule '{$ruleId}' to: '{$new_rst_source_Definition}'");
             $results = $this->updateQuery($sql);
-            if ($results && $GLOBALS['db']->getAffectedRowCount($results) > 0){
+            if ($results && $GLOBALS['db']->getAffectedRowCount($results) > 0) {
                 $results = true;
-            }else{
+            } else {
                 $results = false;
             }
         } else {
@@ -275,9 +270,9 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
         if (!$this->isTesting) {
             $this->logChange("-> Deleting PA Business Rule '{$ruleId}' due to blacklisting.");
             $results = $this->updateQuery($sql);
-            if ($results && $GLOBALS['db']->getAffectedRowCount($results) > 0){
+            if ($results && $GLOBALS['db']->getAffectedRowCount($results) > 0) {
                 $results = true;
-            }else{
+            } else {
                 $results = false;
             }
         } else {
@@ -366,7 +361,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
     }
 
     /**
-     * Repairs or disables Process Author Definitions 
+     * Repairs or disables Process Author Definitions
      * with various issues in the criteria
      */
     public function repairEventCriteria()
@@ -466,7 +461,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
     }
 
     /**
-     * Repairs or disables Process Author Definitions 
+     * Repairs or disables Process Author Definitions
      * with various issues in the activities
      */
     public function repairActivities()
@@ -508,7 +503,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                 );
 
             // Action Required Fields are for Activity Forms, act_task_type = 'USERTASK'
-            if($row['act_task_type'] == "USERTASK"){
+            if ($row['act_task_type'] == "USERTASK") {
                 $action_required_fields = $new_action_required_fields = json_decode(html_entity_decode(base64_decode($row['act_required_fields'])));
 
                 if ($action_required_fields==false || $action_required_fields == null) {
@@ -532,7 +527,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                 }
 
             // Action Fields are for Actions, act_script_type = 'CHANGE_FIELD' or 'ADD_RELATED_RECORD'
-            }elseif($row['act_script_type'] == "CHANGE_FIELD" || $row['act_script_type'] == "ADD_RELATED_RECORD"){
+            } elseif ($row['act_script_type'] == "CHANGE_FIELD" || $row['act_script_type'] == "ADD_RELATED_RECORD") {
                 $action_fields = $new_action_fields = $row['act_fields'];
                 $actionsArray = json_decode(html_entity_decode($action_fields), true);
 
@@ -584,9 +579,9 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                     }
                 }
             // Unknown / unhadled action type
-            }else{
+            } else {
                 $this->logAction("-> PA Definition '{$row['name']}' has an action with an unknown type: '{$row['act_task_type']}/{$row['act_script_type']}'. Please review this definition manually.");
-            }            
+            }
         }
         $foundIssuesCount = count($this->foundIssues);
         $this->totalIssues += $foundIssuesCount;
@@ -594,7 +589,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
     }
 
     /**
-     * Repairs or disables Process Author Definitions 
+     * Repairs or disables Process Author Definitions
      * with various issues in related business rules
      */
     public function repairBusinessRules()
@@ -650,7 +645,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                 continue;
             }
 
-            foreach($brDefinition->ruleset as $rule_record){
+            foreach ($brDefinition->ruleset as $rule_record) {
 
                 // conditions
                 foreach ($rule_record->conditions as $condition) {
@@ -681,7 +676,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                         $listKeys = $this->validatePAOptionListExists($type, $base_module, $field, $paDef);
                         if ($listKeys === false) continue;
 
-                        foreach($condition->value as $value){
+                        foreach ($condition->value as $value) {
                             $selectedKey = $value->expValue;
 
                             // Validate selected key is in list
@@ -693,12 +688,12 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                 // conclusions
                 foreach ($rule_record->conclusions as $conclusions) {
 
-                    if($conclusions->conclusion_type == "return"){
+                    if ($conclusions->conclusion_type == "return") {
                         // return types can have multiple fields...
 
-                        foreach($conclusions->value as $value){
+                        foreach ($conclusions->value as $value) {
 
-                            if($value->expType != "VARIABLE") continue;
+                            if ($value->expType != "VARIABLE") continue;
 
                             $base_module = $value->expModule;
                             $field = $value->expValue;
@@ -728,7 +723,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                             }
                         }
 
-                    }else{
+                    } else {
 
                         $base_module = $conclusions->variable_module;
                         $field = $conclusions->conclusion_value;
@@ -756,7 +751,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                             $listKeys = $this->validatePAOptionListExists($type, $base_module, $field, $paDef);
                             if ($listKeys === false) continue;
 
-                            foreach($conclusions->value as $value){
+                            foreach ($conclusions->value as $value) {
                                 $selectedKey = $value->expValue;
 
                                 // Validate selected key is in list

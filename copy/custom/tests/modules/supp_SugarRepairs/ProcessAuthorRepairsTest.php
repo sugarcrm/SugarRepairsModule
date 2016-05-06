@@ -1047,7 +1047,7 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
         $supp_ProcessAuthorRepairsTest->setTesting(false);
         $return1 = $supp_ProcessAuthorRepairsTest->validatePAFieldExists($base_module, $field, $paDef);
 
-        $this->assertEquals("enum",$return1);
+        $this->assertEquals("enum", $return1);
 
         // invalid dropdown field in stock accounts
         $field = "nonexistantfield56_c";
@@ -1141,8 +1141,7 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
         $supp_ProcessAuthorRepairsTest->setTesting(false);
         $return1 = $supp_ProcessAuthorRepairsTest->validatePASelectedKey($selectedKey, $listKeys, $fieldString, $paDef);
 
-        // should return true
-        // $this->assertTrue($return1);
+        // should return the fields string
         $this->assertEquals($fieldString, $return1);
 
         // Invalid item in list
@@ -1152,8 +1151,7 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
         $supp_ProcessAuthorRepairsTest->setTesting(false);
         $return2 = $supp_ProcessAuthorRepairsTest->validatePASelectedKey($selectedKey, $listKeys, $fieldString, $paDef);
 
-        // should return false
-        // $this->assertFalse($return2);
+        // should return the fields string
         $this->assertEquals($fieldString, $return2);
 
         // Invalid item in list, but corrected
@@ -1347,7 +1345,6 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
         $return2 = $supp_ProcessAuthorRepairsTest->isBlacklistedPAField($base_module, $field, $paDef);
 
         $this->assertTrue($return2);
-
     }
 
     /**
@@ -1387,7 +1384,6 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
         $return2 = $supp_ProcessAuthorRepairsTest->isBlacklistedPAFieldType($type, $base_module, $field, $paDef);
 
         $this->assertTrue($return2);
-
     }
 
     /**
