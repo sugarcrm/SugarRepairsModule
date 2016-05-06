@@ -1,5 +1,5 @@
 # Sugar Repairs Module [![Build Status](https://travis-ci.com/sugarcrm/SugarRepairsModule.svg?token=ApQ7hyuyE1rftpStfgbN&branch=master)](https://travis-ci.com/sugarcrm/SugarRepairsModule)
-This module is designed to help assist with repairing common issues in a Sugar instance. You should always tests any repairs against a cloned enviroment before run on a production instance. This tool is to be used at your own risk.
+This module is designed to help assist with repairing common issues in a Sugar instance. You should always test the repairs against a cloned enviroment before executing on a production instance. This tool is to be used at your own risk.
 
 # Usage
 This repo is a module loadable package that can be installed to Sugar through the module loader. Once installed repairs can only be run from the command line. By default, all repairs are run in test mode. Test mode will not make any changes to your system and only output information on changes that will be made. To turn off test mode you will need to pass `--test false` to the cli command.
