@@ -8,12 +8,12 @@ When testing mode is off, the repair actions will backup any modified tables to 
 
 ##Things to note
 * It is highly recommended to remove the Sugar Repairs module before upgrading.
-* This package can not be installed to the Sugar OnDemand envrionment by customers as it will not pass package scanner and you will not have direct access to the command line. If you are experiencing an issue with your instance, please open a [support ticket](https://web.sugarcrm.com/support/cases).
+* This package can not be installed to the Sugar On-Demand envrionment by customers as it will not pass package scanner and you will not have direct access to the command line. If you are experiencing an issue with your instance, please open a [support ticket](https://web.sugarcrm.com/support/cases).
 
 ## Running Repairs
 Repairs will need to be run differently based on your environment and can only be executed from the command line.
 
-##For Local & OnDemand ION
+##For Local & On-Demand ION
 For local instances and ION, you will need to change to the supp_SugarRepairs directory and run the cli.php directly.
 
 ###Testing Command
@@ -26,7 +26,7 @@ cd "modules/supp_SugarRepairs/" && php cli.php --repair <action>
 cd "modules/supp_SugarRepairs/" && php cli.php --repair <action> --test false
 ```
 
-##For OnDemand MS
+##For On-Demand Mothership
 For mothership, you will need to change to the instances directory and run shadow-shell:
 
 ###Testing Command
