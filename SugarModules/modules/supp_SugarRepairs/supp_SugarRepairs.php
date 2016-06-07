@@ -93,6 +93,17 @@ class supp_SugarRepairs extends supp_SugarRepairs_sugar
     }
 
     /**
+     * Repairs email addresses
+     * @param array $args
+     * @return bool|void
+     */
+    public function scanPackageScanner(array $args)
+    {
+        $packageScanner = new supp_PackageScanner();
+        return $packageScanner->execute($args);
+    }
+
+    /**
      * Repairs or disable process author definitions
      * @param array $args
      * @return bool|void

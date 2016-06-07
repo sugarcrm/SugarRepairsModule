@@ -23,7 +23,7 @@ if (empty($current_user) || empty($current_user->id)) {
 
 $sugarRepairs = BeanFactory::newBean('supp_SugarRepairs');
 
-$longopts = array("repair:", "test::");
+$longopts = array("repair:", "test::", "path::");
 
 if (!isset($options)) {
     $options = getopt('', $longopts);
@@ -42,6 +42,8 @@ if (isset($options['repair'])) {
         $sugarRepairs->repairVardefs($options);
     } else if ($options['repair'] == 'emailAddresses') {
         $sugarRepairs->repairEmailAddresses($options);
+    } else if ($options['repair'] == 'packageScanner') {
+        $sugarRepairs->scanPackageScanner($options);
     } else if ($options['repair'] == 'processAuthor') {
         $sugarRepairs->repairProcessAuthor($options);
     } else if ($options['repair'] == 'forecasts') {

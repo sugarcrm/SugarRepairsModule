@@ -1069,6 +1069,13 @@ abstract class supp_Repairs
         }
     }
 
+    /**
+     * Returns ROOT directory from the SugarRepair module
+     * @return string
+     */
+    public function getrwd() {
+        return str_ireplace("/modules/supp_SugarRepairs","",getcwd());
+    }
 
     /**
      * Executes the repairs

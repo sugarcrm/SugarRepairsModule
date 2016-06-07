@@ -207,7 +207,16 @@ Corrects common issues with Email Addresses.
 ##Issues Addressed
 * Bug [75588](https://web.sugarcrm.com/support/issues/75588) - Any Bean that has at least one email address, and no primary designation will get the oldest email address updated to be the primary.
 
+#:wrench: Package Scanner
+Runs all the instances files through the ModuleInstaller package scanner and checks the database for stored functions and procedures
 
+##Testing Command
+There is no "testing" version of this repair
+
+##Execute Command
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair packageScanner`
+
+##Issues Addressed
 
 #:wrench: Forecast Worksheet Repairs
 Corrects common issues with Forecast Worksheets by rolling through the user "reports_to" hierarchy and re-commits forecasts in the proper order.
