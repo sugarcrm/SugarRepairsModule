@@ -10,14 +10,14 @@ When testing mode is off, the repair actions will backup any modified tables to 
 * It is highly recommended to remove the Sugar Repairs module before upgrading.
 * This package can not be installed to the Sugar On-Demand envrionment by customers as it will not pass package scanner and you will not have direct access to the command line. If you are experiencing an issue with your instance, please open a [support ticket](https://web.sugarcrm.com/support/cases).
 
-#Building Installer Package
+##Building Installer Package
 To build the installer package, you will need to download the contents on this repository and execute:
 ```
 php build.php
 ```
 Once completed, the installer .zip package will be located under `./builds/`.
 
-## Running Repairs
+##Running Repairs
 Repairs will need to be run differently based on your environment and can only be executed from the command line.
 
 ##For Local & On-Demand ION
