@@ -391,6 +391,11 @@ abstract class supp_Repairs
             return;
         }
 
+        if (version_compare($GLOBALS['sugar_version'], '6.8', '<') && version_compare($GLOBALS['sugar_version'], '6.7', '>=')) {
+            $this->logAction("You will need to run a Quick Repair & Rebuild after the repair has completed.");
+            return;
+        }
+
         $this->log("Running a Quick Repair & Rebuild...");
         require_once('modules/Administration/QuickRepairAndRebuild.php');
         $RAC = new RepairAndClear();
