@@ -48,6 +48,20 @@ class suppSugarRepairsForecastWorksheetRepairsTest extends Sugar_PHPUnit_Framewo
             VALUES ('6b542c24-f79d-11e5-9b16-a19e342a368f','736d000c-f79d-11e5-9b16-a19e342a368f')
         ";
 
+        $sql_setup[] = "CREATE TABLE quotas_repairTemp LIKE quotas;";
+        $sql_setup[] = "INSERT quotas_repairTemp SELECT * FROM quotas;";
+        $sql_setup[] = "DELETE FROM quotas;";
+
+        $sql_setup[] = "
+            INSERT INTO quotas(id,timeperiod_id,quota_type) 
+            VALUES ('151cf64c-3ee7-11e6-a35d-31e3e1bb05e5','736d000c-f79d-11e5-9b16-a19e342a368f','Rollup')
+        ";
+
+        $sql_setup[] = "
+            INSERT INTO quotas(id,timeperiod_id,quota_type) 
+            VALUES ('6e5be8a8-3ee7-11e6-a35d-31e3e1bb05e5','736d000c-f79d-11e5-9b16-a19e342a368f','Direct')
+        ";
+
         foreach ($sql_setup as $q_setup) {
             $res = $GLOBALS['db']->query($q_setup);
         }
@@ -75,6 +89,10 @@ class suppSugarRepairsForecastWorksheetRepairsTest extends Sugar_PHPUnit_Framewo
         $sql_teardown[] = "DELETE FROM forecast_manager_worksheets;";
         $sql_teardown[] = "INSERT forecast_manager_worksheets SELECT * FROM forecast_manager_worksheets_repairTemp;";
         $sql_teardown[] = "DROP TABLE forecast_manager_worksheets_repairTemp;";
+
+        $sql_teardown[] = "DELETE FROM quotas;";
+        $sql_teardown[] = "INSERT quotas SELECT * FROM quotas_repairTemp;";
+        $sql_teardown[] = "DROP TABLE quotas_repairTemp;";
 
         foreach ($sql_teardown as $q_teardown) {
             $res = $GLOBALS['db']->query($q_teardown);
@@ -166,6 +184,28 @@ class suppSugarRepairsForecastWorksheetRepairsTest extends Sugar_PHPUnit_Framewo
         $affected_row_count =  $GLOBALS['db']->getAffectedRowCount($result);
 
         $this->assertEquals(0,$affected_row_count);
+    }
+
+    /**
+     * Test for clearing the quotas table
+     * @covers supp_ForecastWorksheetRepairs::clearRollupQuotas
+     */
+    public function testClearRollupQuotas()
+    {
+        $repairs = new supp_ForecastWorksheetRepairs();
+        $repairs->setTesting(false);
+        $results = $repairs->clearRollupQuotas('736d000c-f79d-11e5-9b16-a19e342a368f');
+
+        $this->assertEquals(1,$results['affected_row_count']);
+
+        $sql = "
+            SELECT id
+            FROM quotas
+        ";
+        $result = $GLOBALS['db']->query($sql);
+        $affected_row_count =  $GLOBALS['db']->getAffectedRowCount($result);
+
+        $this->assertEquals(1,$affected_row_count);
     }
 
     /**

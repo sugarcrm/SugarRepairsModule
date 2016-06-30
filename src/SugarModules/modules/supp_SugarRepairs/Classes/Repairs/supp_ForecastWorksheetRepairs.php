@@ -18,7 +18,8 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
      * Gets all time period IDs not deleted
      * @return array $timePeriodIds
      */
-    public function getAllTimePeriodIds(){
+    public function getAllTimePeriodIds()
+    {
 
         $query = new SugarQuery();
         $query->select(array(
@@ -41,7 +42,8 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
      * Validates timeperiod_id param
      * @return boolean
      */
-    public function validateTimePeriodId($timeperiod_id){
+    public function validateTimePeriodId($timeperiod_id)
+    {
 
         $query = new SugarQuery();
         $query->select(array(
@@ -54,7 +56,7 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
         
         $returnId = $query->getOne();
 
-        if($returnId == $timeperiod_id) {
+        if ($returnId == $timeperiod_id) {
             return true;
         } else {
             return false;
@@ -65,24 +67,25 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
      * Gets all level 1 (top level) managers
      * @return array $levelOneIds
      */
-    public function getLevelOneManagers(){
+    public function getLevelOneManagers()
+    {
 
         $levelOneIds = array();
         $level = 1;
 
         //Get level 1 -- managers with no reports_to
         $sql = "
-        SELECT u.id,u.user_name,u.reports_to_id,IFNULL(u_boss.num_workers,0) as num_workers
-        FROM users u
-            LEFT JOIN (
-                SELECT reports_to_id manager_id,count(*) num_workers
-                FROM users
-                WHERE deleted = '0' AND (reports_to_id IS NOT NULL AND reports_to_id <> '')
-                GROUP BY reports_to_id
-            ) u_boss
-                ON
-                    u_boss.manager_id = u.id
-        WHERE u.deleted = '0' and num_workers > 0 AND (reports_to_id IS NULL OR reports_to_id = '')
+            SELECT u.id,u.user_name,u.reports_to_id,IFNULL(u_boss.num_workers,0) as num_workers
+            FROM users u
+                LEFT JOIN (
+                    SELECT reports_to_id manager_id,count(*) num_workers
+                    FROM users
+                    WHERE deleted = '0' AND (reports_to_id IS NOT NULL AND reports_to_id <> '')
+                    GROUP BY reports_to_id
+                ) u_boss
+                    ON
+                        u_boss.manager_id = u.id
+            WHERE u.deleted = '0' and num_workers > 0 AND (reports_to_id IS NULL OR reports_to_id = '')
         ";
         $res = $GLOBALS['db']->query($sql);
         while ($row = $GLOBALS['db']->fetchByAssoc($res)) {
@@ -104,11 +107,12 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
      * @param int $level Current level being processed
      * @param array $idFilter Ids of managers to get users by
      */
-    public function getNextLevelUsersByManager($level, $idFilter){
+    public function getNextLevelUsersByManager($level, $idFilter)
+    {
 
         $userIdFilters = array();
 
-        $idFilterString = "'" . implode("','",$idFilter) . "'";
+        $idFilterString = "'" . implode("','", $idFilter) . "'";
 
         $sql = "
             SELECT u.id,u.user_name,u.reports_to_id,IFNULL(u_boss.num_workers,0) as num_workers
@@ -131,18 +135,18 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
             
             $userIdFilters[] = $id;
 
-            if($row['num_workers'] > 0){
+            if ($row['num_workers'] > 0) {
                 $commit_type = "manager";
                 $forecast_type = "Rollup";
-            }else{
+            } else {
                 $commit_type = "sales_rep";
                 $forecast_type = "Direct";
             }
 
             $this->usersToProcess[$level][$id] = array(
-                    "commit_type" => $commit_type,
-                    "forecast_type" => $forecast_type
-                );
+                "commit_type" => $commit_type,
+                "forecast_type" => $forecast_type
+            );
         }
 
         $level++;
@@ -155,7 +159,7 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
      * Removes all forecast_manager_worksheets records for
      * the specified timeperiod
      * @param string $timeperiod_id Time Period Id to remove forecast data
-     * @return array 
+     * @return array
      */
     public function clearForecastWorksheet($timeperiod_id)
     {
@@ -181,10 +185,40 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
     }
 
     /**
+     * Removes all quotas records for
+     * the specified timeperiod and quota_type of Rollup
+     * @param string $timeperiod_id Time Period Id to remove forecast data
+     * @return array
+     */
+    public function clearRollupQuotas($timeperiod_id)
+    {
+        $sql = "
+            DELETE
+            FROM quotas 
+            WHERE quota_type = 'Rollup' AND timeperiod_id = '$timeperiod_id'
+        ";
+        
+        if (!$this->isTesting) {
+            $this->logChange("-> Clearing Rollup quotas table for timeperiod_id '{$timeperiod_id}'");
+            $results = $this->updateQuery($sql);
+            $affected_row_count =  $GLOBALS['db']->getAffectedRowCount($results);
+            $this->logChange('-> Deleted '.$affected_row_count.' from quotas table.');
+        } else {
+            $this->logChange("-> Will clear Rollup quotas table for timeperiod_id '{$timeperiod_id}'");
+            $affected_row_count = 0;
+        }
+        
+        return array(
+            'affected_row_count' => $affected_row_count
+            );
+    }
+
+    /**
      * Recommits users' worksheets for the specified time period
      * @param string $timeperiod_id Time period to re-commit
      */
-    public function processUserCommits($timeperiod_id){
+    public function processUserCommits($timeperiod_id)
+    {
 
         global $current_user;
 
@@ -219,7 +253,7 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
                 if (!$this->isTesting) {
                     $this->logChange("-> Saving new Forecast Commits for user '{$user_id}', timeperiod '{$timeperiod_id}'");
                     $results = $obj->save();
-                }else{
+                } else {
                     $this->logChange("-> Will Save new Forecast Commits for user '{$user_id}, timeperiod '{$timeperiod_id}'");
                 }
             }
@@ -239,29 +273,30 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
         $userIdFilters = $this->getLevelOneManagers();
 
         if (count($userIdFilters) > 0 && is_array($userIdFilters)) {
-            $this->getNextLevelUsersByManager(2,$userIdFilters);
+            $this->getNextLevelUsersByManager(2, $userIdFilters);
         }
 
         krsort($this->usersToProcess);
 
-        if($timeperiod_id == "ALL") {
+        if ($timeperiod_id == "ALL") {
             $this->timePeriodIdsToProcess = $this->getAllTimePeriodIds();
         } else {
-            if($this->validateTimePeriodId($timeperiod_id)){
-                $this->timePeriodIdsToProcess = array($timeperiod_id);    
-            }else{
+            if ($this->validateTimePeriodId($timeperiod_id)) {
+                $this->timePeriodIdsToProcess = array($timeperiod_id);
+            } else {
                 $this->logAction("-> Unable to find timeperiod_id '{$timeperiod_id}'. This will have to be fixed manually.");
             }
         }
 
-        if(is_array($this->timePeriodIdsToProcess) && count($this->timePeriodIdsToProcess) > 0) {
+        if (is_array($this->timePeriodIdsToProcess) && count($this->timePeriodIdsToProcess) > 0) {
             foreach ($this->timePeriodIdsToProcess as $timePeriod) {
                 $this->log("-> Processing timeperiod id $timePeriod");
-                $results = $this->clearForecastWorksheet($timePeriod);
+                $cfw_results = $this->clearForecastWorksheet($timePeriod);
+                $crq_results = $this->clearRollupQuotas($timePeriod);
                 $this->processUserCommits($timePeriod);
             }
         } else {
-            $this->log('-> No valid timeperiods found.');    
+            $this->log('-> No valid timeperiods found.');
         }
         
         $this->log('End forecast worksheet repairs');
@@ -278,11 +313,13 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
 
         $stamp = time();
 
-        if ($this->backupTable('forecast_manager_worksheets', $stamp)) {
+        if ($this->backupTable('forecast_manager_worksheets', $stamp) &&
+            $this->backupTable('forecast_worksheets', $stamp) &&
+            $this->backupTable('quotas', $stamp)
+        ) {
             $this->repairForecastWorksheets($args['timeperiod_id']);
         } else {
             $this->log('Could not backup table');
         }
     }
-
 }
