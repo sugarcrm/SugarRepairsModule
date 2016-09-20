@@ -7,8 +7,10 @@ env:
   matrix:
     - VERSION=7.6.2.1 EDITION=Ult
 before_install:
-  - echo -ne '\n' | sudo sh $TRAVIS_BUILD_DIR/travis-ci/install.sh
+
 install:
+  - sudo curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/Files/install.sh -o install.sh
+  - sudo sh install.sh
   - zip -r installer.zip $TRAVIS_BUILD_DIR
   - cd /var/www/
   - sudo curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION.zip -o sugar.zip

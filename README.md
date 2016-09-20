@@ -1,5 +1,5 @@
 # Sugar Repairs Module [![Build Status](https://travis-ci.com/sugarcrm/SugarRepairsModule.svg?token=ApQ7hyuyE1rftpStfgbN&branch=master)](https://travis-ci.com/sugarcrm/SugarRepairsModule)
-This module is designed to help assist with repairing common issues in a Sugar instance. You should always tests any repairs against a cloned enviroment before run on a production instance. This tool is to be used at your own risk.
+This module is designed to help assist with repairing common issues in a Sugar instance. You should always test the repairs against a cloned enviroment before executing on a production instance. This tool is to be used at your own risk.
 
 # Usage
 This repo is a module loadable package that can be installed to Sugar through the module loader. Once installed repairs can only be run from the command line. By default, all repairs are run in test mode. Test mode will not make any changes to your system and only output information on changes that will be made. To turn off test mode you will need to pass `--test false` to the cli command.
@@ -8,12 +8,19 @@ When testing mode is off, the repair actions will backup any modified tables to 
 
 ##Things to note
 * It is highly recommended to remove the Sugar Repairs module before upgrading.
-* This package can not be installed to the Sugar OnDemand envrionment as it will not pass package scanner and you will not have access to the command line. If you are experiencing an issue with your instance, please open a [support ticket](https://web.sugarcrm.com/support/cases).
+* This package can not be installed to the Sugar On-Demand envrionment by customers as it will not pass package scanner and you will not have direct access to the command line. If you are experiencing an issue with your instance, please open a [support ticket](https://web.sugarcrm.com/support/cases).
 
-## Running Repairs
+##Building Installer Package
+To build the installer package, you will need to download the contents on this repository and execute:
+```
+php build.php
+```
+Once completed, the installer .zip package will be located under `./builds/`.
+
+##Running Repairs
 Repairs will need to be run differently based on your environment and can only be executed from the command line.
 
-##For Local & OnDemand ION
+##For Local & On-Demand ION
 For local instances and ION, you will need to change to the supp_SugarRepairs directory and run the cli.php directly.
 
 ###Testing Command
@@ -26,26 +33,18 @@ cd "modules/supp_SugarRepairs/" && php cli.php --repair <action>
 cd "modules/supp_SugarRepairs/" && php cli.php --repair <action> --test false
 ```
 
-##For OnDemand MS
+##For On-Demand Mothership
 For mothership, you will need to change to the instances directory and run shadow-shell:
 
 ###Testing Command
 ```
-$options = array(
-     'repair' => '<action>'
-);
-require_once("./modules/supp_SugarRepairs/cli.php");
+$options = array('repair' => '<action>');require_once("./modules/supp_SugarRepairs/cli.php");
 ```
 
 ###Execute Command
 ```
-$options = array(
-    'repair' => '<action>',
-    'test' => false
-);
-require_once("./modules/supp_SugarRepairs/cli.php");
+$options = array('repair' => '<action>', 'test' => false);require_once("./modules/supp_SugarRepairs/cli.php");
 ```
-
 
 
 
