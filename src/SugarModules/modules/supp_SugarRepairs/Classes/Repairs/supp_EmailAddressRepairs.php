@@ -60,7 +60,7 @@ class supp_EmailAddressRepairs extends supp_Repairs
     public function repairPrimaryEmailAddresses()
     {
 
-        $this->logAll("Starting email address repair.");
+        $this->logAll("Repairing records with no primary email address.");
 
         // select any email addresses tied to a bean
         // that do not have a primary email address specified
@@ -102,6 +102,41 @@ class supp_EmailAddressRepairs extends supp_Repairs
         $this->log("Found {$foundIssuesCount} beans missing a primary email address.");
     }
 
+    public function repairMultiplePrimaryAddresses()
+    {
+        $this->logAll("Repairing records with multiple primary email addresses.");
+        //This query returns all records that are part of a multiple primary address group and
+        // the most recent email address which will be used as the primary.
+        $sql = "
+          SELECT count(id) AS howMany, bean_id, bean_module, email_address_id
+          FROM email_addr_bean_rel
+          WHERE primary_address=1 AND deleted=0
+          GROUP BY bean_id
+          HAVING howMany>1
+          ORDER BY date_modified";
+        $result = $GLOBALS['db']->query($sql);
+        while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
+            //Get all the email address relationship records EXCEPT the one we are
+            //  keeping for the primary
+            $findSQL = "SELECT id FROM email_addr_bean_rel
+                        WHERE bean_id = '{$row['bean_id']}' AND
+                              email_address_id != '{$row['email_address_id']}' AND
+                              deleted = 0";
+            $findResult = $GLOBALS['db']->query($findSQL);
+            while ($findRow = $GLOBALS['db']->fetchByAssoc($findResult)) {
+                $repairSQL = "UPDATE email_addr_bean_rel
+                              SET primary_address=0
+                              WHERE id = '{$findRow['id']}'";
+                if (!$this->isTesting) {
+                    $this->logChange("-> Updating the primary email address for {$row['bean_module']}->{$row['bean_id']}");
+                    $this->updateQuery($repairSQL);
+                } else {
+                    $this->logChange("-> Will update the primary email address for {$row['bean_module']}->{$row['bean_id']}");
+                }
+            }
+        }
+    }
+
 
     /**
      * Executes the EmailAddress repairs
@@ -116,6 +151,7 @@ class supp_EmailAddressRepairs extends supp_Repairs
 
         if ($this->backupTable('email_addr_bean_rel', $stamp)) {
             $this->repairPrimaryEmailAddresses();
+            $this->repairMultiplePrimaryAddresses();
         }
     }
 }
