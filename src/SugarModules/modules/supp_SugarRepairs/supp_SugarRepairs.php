@@ -9,6 +9,7 @@ require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_VarfdefRepairs.php'
 require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_EmailAddressRepairs.php');
 require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_ProcessAuthorRepairs.php');
 require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_ForecastWorksheetRepairs.php');
+require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_packageScanner.php');
 
 class supp_SugarRepairs extends supp_SugarRepairs_sugar
 {
