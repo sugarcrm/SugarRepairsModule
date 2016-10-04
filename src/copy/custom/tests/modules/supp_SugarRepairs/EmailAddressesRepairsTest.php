@@ -10,7 +10,7 @@ class suppSugarRepairsEmailAddressesRepairsTest extends Sugar_PHPUnit_Framework_
 {
 
     protected $reportIDs = array();
-
+    
     public function setUp()
     {
         parent::setUp();
@@ -123,7 +123,7 @@ class suppSugarRepairsEmailAddressesRepairsTest extends Sugar_PHPUnit_Framework_
         // should return false
         $id2 = $supp_EmailAddressTest->getNewPrimaryAddress("supp_doesnt_exist", "6a983312-e270-11e5-8409-1e78fe93fake");
         $this->assertFalse($id2);
-        
+
     }
 
     /**

@@ -131,10 +131,10 @@ class supp_EmailAddressRepairs extends supp_Repairs
                               SET primary_address=0
                               WHERE id = '{$findRow['id']}'";
                 if (!$this->isTesting) {
-                    $this->logChange("-> Updating the primary email address for {$bean_module}->{$bean_id}");
+                    $this->logChange("-> Updating the primary email address for {$row['bean_module']}->{$row['bean_id']}");
                     $this->updateQuery($repairSQL);
                 } else {
-                    $this->logChange("-> Will update the primary email address for {$bean_module}->{$bean_id})";
+                    $this->logChange("-> Will update the primary email address for {$row['bean_module']}->{$row['bean_id']}");
                 }
             }
         }
