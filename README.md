@@ -205,6 +205,7 @@ Corrects common issues with Email Addresses.
 
 ##Issues Addressed
 * Bug [75588](https://web.sugarcrm.com/support/issues/75588) - Any Bean that has at least one email address, and no primary designation will get the oldest email address updated to be the primary.
+* Bug [77404](https://web.sugarcrm.com/support/issues/77404) - Having multiple primary email addresses results in duplicate listview rows
 
 #:wrench: Package Scanner
 Runs all the instances files through the ModuleInstaller package scanner and checks the database for stored functions and procedures
