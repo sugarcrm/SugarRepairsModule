@@ -60,7 +60,7 @@ $installdefs = array(
             'language' => 'en_us',
         ),
     ),
-    'post_execute' => array(
+    'post_install' => array(
         0 => '<basepath>/post_execute/0.php',
     ),
 );
