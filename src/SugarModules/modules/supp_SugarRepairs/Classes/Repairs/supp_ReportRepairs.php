@@ -178,10 +178,39 @@ class supp_ReportRepairs extends supp_Repairs
     }
 
     /**
+     * Repairs TeamSets references in Report contents
+     * - Resolves Bug 72483
+     * - Only for 7.x+
+     * @param $content
+     * @param $report
+     */
+    public function repairTeamSets(&$JSONcontent,$report){
+        $update = FALSE;
+        $patterns = array('/\"team_sets\"/', '/\:team_sets\"/', '/Team Set/', '/\"relationship_name\":\"(\w+)_team_sets\"/');
+        $replacements = array('"team_link"', ':team_link"', 'Teams', '"relationship_name":"${1}_team_link"');
+        foreach($patterns as $pattern){
+            if (preg_match($pattern,$JSONcontent)){
+                $update = TRUE;
+                break;
+            }
+        }
+        if ($update){
+            if (!$this->isTesting) {
+                $this->logChange("Fixing Report '{$report->name}' ({$report->id}) TeamSet References");
+                $JSONcontent = preg_replace($patterns,$replacements,$JSONcontent,-1,$count);
+                $this->logChange("$count TeamSet References were fixed in Report '{$report->name}' ({$report->id})");
+            } else {
+                $this->logChange("Will fix Report '{$report->name}' ({$report->id}) TeamSet references.");
+            }
+        }
+    }
+
+    /**
      * Repairs various issues in reports
      */
     public function repairReports()
     {
+        global $sugar_version;
         $_REQUEST['module'] = 'supp_SugarRepairs'; //hack to prevent the reports module from rebuilding the language files
 
         //remove report cache filters
@@ -213,6 +242,10 @@ class supp_ReportRepairs extends supp_Repairs
             }
 
             $afterJson = $jsonObj->encode($content, false);
+
+            if (version_compare($sugar_version,'7.0','>=')){
+                $this->repairTeamSets($afterJson,$savedReport);
+            }
 
             if ($beforeJson !== $afterJson) {
                 $this->foundIssues[$savedReport->id] = $savedReport->id;
