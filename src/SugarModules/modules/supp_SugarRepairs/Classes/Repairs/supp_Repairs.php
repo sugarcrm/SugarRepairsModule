@@ -1090,4 +1090,28 @@ abstract class supp_Repairs
             $this->log("Running in test mode.");
         }
     }
+
+    public function getCustomModules(){
+        $custMods = array();
+        
+        //check language file for new module names
+        $extLang = 'custom/application/Ext/Include/modules.ext.php';
+        if (file_exists($extLang)) {
+            include $extLang;
+
+                //check to see if modules are declared in the app_list_string array of the language file
+            if (!empty($moduleList)) {
+                foreach ($moduleList as $key => $moduleName) {
+                    //check path to see if it's valid
+                    $modPath = 'modules/'.$moduleName;
+                    if (file_exists($modPath)) {
+                        $custMods[$moduleName] = $modPath;
+                    }
+                }
+             }
+         }
+ 
+ 
+         return $custMods;
+    }
 }

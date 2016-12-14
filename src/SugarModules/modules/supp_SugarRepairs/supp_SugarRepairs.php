@@ -9,6 +9,7 @@ require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_VarfdefRepairs.php'
 require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_EmailAddressRepairs.php');
 require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_ProcessAuthorRepairs.php');
 require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_ForecastWorksheetRepairs.php');
+require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_MetadataRepairs.php');
 
 class supp_SugarRepairs extends supp_SugarRepairs_sugar
 {
@@ -112,5 +113,16 @@ class supp_SugarRepairs extends supp_SugarRepairs_sugar
     {
         $forecastWorksheetRepairs = new supp_ForecastWorksheetRepairs();
         return $forecastWorksheetRepairs->execute($args);
+    }
+
+    /**
+     * Repairs forecast worksheets
+     * @param array $args
+     * @return bool|void
+     */
+    public function repairMetadata(array $args)
+    {
+        $metadataRepairs = new supp_MetadataRepairs();
+        return $metadataRepairs->execute($args);
     }
 }
