@@ -10,23 +10,24 @@ class suppSugarRepairsEmailAddressesRepairsTest extends Sugar_PHPUnit_Framework_
 {
 
     protected $reportIDs = array();
-
+    
     public function setUp()
     {
         parent::setUp();
         SugarTestHelper::setUp("current_user");
 
-        $bean_module = "supp_unitTest";
+        $bean_module = "supp_unitTest" . time();
         $bean_id = "3272dd2c-e26e-11e5-8409-1e78fe93e4be";
 
         // newer record
         $record_id = "b1c36934-e26e-11e5-8409-1e78fe93e4be";
         $deleted = 0;
         $date_created = "2016-02-29";
+        $date_modified = "2016-02-29";
 
         $sql = "
-            INSERT INTO email_addr_bean_rel(id,bean_module,bean_id,email_address_id ,deleted, date_created, primary_address) 
-            VALUES('$record_id','$bean_module','$bean_id','fakeemailaddrid' ,'$deleted','$date_created','0')
+            INSERT INTO email_addr_bean_rel(id,bean_module,bean_id,email_address_id ,deleted, date_modified, date_created, primary_address)
+            VALUES('$record_id','$bean_module','$bean_id','fakeemailaddrid' ,'$deleted','$date_modified','$date_created','0')
         ";
         $res = $GLOBALS['db']->query($sql);
 
@@ -34,10 +35,11 @@ class suppSugarRepairsEmailAddressesRepairsTest extends Sugar_PHPUnit_Framework_
         $record_id = "d891c182-e26e-11e5-8409-1e78fe93e4be";
         $deleted = 0;
         $date_created = "2015-12-28";
+        $date_modified = "2015-12-28";
 
         $sql = "
-            INSERT INTO email_addr_bean_rel(id,bean_module,bean_id,email_address_id ,deleted, date_created, primary_address) 
-            VALUES('$record_id','$bean_module','$bean_id','fakeemailaddrid' ,'$deleted','$date_created','0')
+            INSERT INTO email_addr_bean_rel(id,bean_module,bean_id,email_address_id ,deleted, date_modified, date_created, primary_address)
+            VALUES('$record_id','$bean_module','$bean_id','fakeemailaddrid' ,'$deleted','$date_modified','$date_created','0')
         ";
         $res = $GLOBALS['db']->query($sql);
 
@@ -45,10 +47,11 @@ class suppSugarRepairsEmailAddressesRepairsTest extends Sugar_PHPUnit_Framework_
         $record_id = "5266af86-e26f-11e5-8409-1e78fe93e4be";
         $deleted = 1;
         $date_created = "2014-01-01";
+        $date_modified = "2014-01-01";
 
         $sql = "
-            INSERT INTO email_addr_bean_rel(id,bean_module,bean_id,email_address_id ,deleted, date_created, primary_address) 
-            VALUES('$record_id','$bean_module','$bean_id','fakeemailaddrid' ,'$deleted','$date_created','0')
+            INSERT INTO email_addr_bean_rel(id,bean_module,bean_id,email_address_id ,deleted, date_modified, date_created, primary_address)
+            VALUES('$record_id','$bean_module','$bean_id','fakeemailaddrid' ,'$deleted','$date_modified','$date_created','0')
         ";
         $res = $GLOBALS['db']->query($sql);
 
@@ -57,22 +60,46 @@ class suppSugarRepairsEmailAddressesRepairsTest extends Sugar_PHPUnit_Framework_
         $bean_id = "standalone26e-11e5-8409-1e78fe93e4be";
         $deleted = 0;
         $date_created = "2016-02-29";
+        $date_modified = "2016-02-29";
 
         $sql = "
-            INSERT INTO email_addr_bean_rel(id,bean_module,bean_id,email_address_id ,deleted, date_created, primary_address) 
-            VALUES('$record_id','$bean_module','$bean_id','fakeemailaddrid' ,'$deleted','$date_created','0')
+            INSERT INTO email_addr_bean_rel(id,bean_module,bean_id,email_address_id ,deleted, date_modified, date_created, primary_address)
+            VALUES('$record_id','$bean_module','$bean_id','fakeemailaddrid' ,'$deleted','$date_modified','$date_created','0')
         ";
         $res = $GLOBALS['db']->query($sql);
+
+        // add a couple of primary=1 records for repairMultiplePrimaryAddresses()
+        $record_id = "7d1da3a8-kenb-11e5-9c96-fc4c85ba1538";
+        $bean_id = "standalone26e-kenb-8409-1e78fe93e4be";
+        $deleted = 0;
+        $date_created = "2016-02-29";
+        $date_modified = "2016-02-29";
+
+        $sql = "
+            INSERT INTO email_addr_bean_rel(id,bean_module,bean_id,email_address_id ,deleted, date_modified, date_created, primary_address)
+            VALUES('$record_id','$bean_module','$bean_id','fakeemailaddrid' ,'$deleted','$date_modified','$date_created','1')
+        ";
+        $res = $GLOBALS['db']->query($sql);
+
+        $record_id = "7d1da3a8-kenb-11e5-9c96-fc4c85ba2222";
+        $bean_id = "standalone26e-kenb-8409-1e78fe932222";
+        $deleted = 0;
+        $date_created = "2016-05-29";
+        $date_modified = "2016-05-29";
+
+        $sql = "
+            INSERT INTO email_addr_bean_rel(id,bean_module,bean_id,email_address_id ,deleted, date_modified, date_created, primary_address)
+            VALUES('$record_id','$bean_module','$bean_id','fakeemailaddrid' ,'$deleted','$date_modified','$date_created','1')
+        ";
+        $res = $GLOBALS['db']->query($sql);
+
     }
 
     public function tearDown()
     {
         parent::tearDown();
 
-        $sql = "
-            DELETE FROM email_addr_bean_rel
-            WHERE id in ('b1c36934-e26e-11e5-8409-1e78fe93e4be','d891c182-e26e-11e5-8409-1e78fe93e4be','5266af86-e26f-11e5-8409-1e78fe93e4be','7d1da3a8-e4ac-11e5-9c96-fc4c85ba1538')
-        ";
+        $sql = "DELETE FROM email_addr_bean_rel WHERE bean_module = {$bean_module}";
         $res = $GLOBALS['db']->query($sql);
     }
 
@@ -96,7 +123,7 @@ class suppSugarRepairsEmailAddressesRepairsTest extends Sugar_PHPUnit_Framework_
         // should return false
         $id2 = $supp_EmailAddressTest->getNewPrimaryAddress("supp_doesnt_exist", "6a983312-e270-11e5-8409-1e78fe93fake");
         $this->assertFalse($id2);
-        
+
     }
 
     /**
@@ -129,6 +156,7 @@ class suppSugarRepairsEmailAddressesRepairsTest extends Sugar_PHPUnit_Framework_
     /**
      * Test for running entire repair
      * @covers supp_EmailAddressRepairs::repairPrimaryEmailAddresses
+     * @covers supp_EmailAddressRepairs::repairMultiplePrimaryAddresses
      * @covers supp_EmailAddressRepairs::execute
      */
     public function testRepairPrimaryEmailAddresses()
@@ -150,5 +178,27 @@ class suppSugarRepairsEmailAddressesRepairsTest extends Sugar_PHPUnit_Framework_
 
         // should return "1"
         $this->assertEquals("1", $returnedPrimary);
+
+        $id = "7d1da3a8-kenb-11e5-9c96-fc4c85ba2222";
+        $sql = "
+            SELECT primary_address
+            FROM email_addr_bean_rel
+            WHERE id = '$id'
+        ";
+        $returnedPrimary = $GLOBALS['db']->getOne($sql);
+
+        // should return "1"
+        $this->assertEquals("1", $returnedPrimary);
+
+        $id = "7d1da3a8-kenb-11e5-9c96-fc4c85ba1538";
+        $sql = "
+            SELECT primary_address
+            FROM email_addr_bean_rel
+            WHERE id = '$id'
+        ";
+        $returnedPrimary = $GLOBALS['db']->getOne($sql);
+
+        // should return "0"
+        $this->assertEquals("0", $returnedPrimary);
     }
 }
