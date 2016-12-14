@@ -1,4 +1,4 @@
-# Sugar Repairs Module [![Build Status](https://travis-ci.com/sugarcrm/SugarRepairsModule.svg?token=ApQ7hyuyE1rftpStfgbN&branch=master)](https://travis-ci.com/sugarcrm/SugarRepairsModule)
+# Sugar Repairs Module
 This module is designed to help assist with repairing common issues in a Sugar instance. You should always test the repairs against a cloned enviroment before executing on a production instance. This tool is to be used at your own risk.
 
 # Usage
@@ -191,6 +191,7 @@ Corrects common issues with reports.
 * If a report is using a deleted field, it will be marked as broken.
 * If a field has a corrected language key, it will be updated.
 * If a report is using an invalid language key, it will be marked as broken,
+* If a report has a legacy Team Set definition ([Bug 72483](https://web.sugarcrm.com/support/issues/72483)) in 7.x, it is converted to proper definition.
    
    
    
