@@ -4,7 +4,7 @@ require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_ReportRepairs.php')
 
 /**
  * @group support
- * @group team
+ * @group report
  */
 class suppSugarRepairsReportsRepairsTest extends Sugar_PHPUnit_Framework_TestCase
 {
@@ -87,6 +87,35 @@ class suppSugarRepairsReportsRepairsTest extends Sugar_PHPUnit_Framework_TestCas
         $savedReport = BeanFactory::getBean('Reports', $reportID);
         $message = "Broken: ";
         $this->assertEquals($message, substr($savedReport->name, 0, strlen($message)));
+    }
+
+    public function testLegacyTeamSetDefinitionRepair()
+    {
+        $jsonObj = getJSONobj();
+        $reportBean = BeanFactory::newBean('Reports');
+        $reportBean->name = 'Legacy TeamSet Report Test';
+        $reportBean->report_type = 'tabular';
+        $reportBean->content = $jsonObj->encode($this->legacyTeamSetDefinition(), false);
+        $reportBean->module = 'Accounts';
+        $reportBean->chart_type = 'none';
+        $reportBean->schedule_type = 'pro';
+        $reportBean->assigned_user_id = $GLOBALS['current_user']->id;
+        $reportBean->team_id = '1';
+        $reportBean->team_set_id = '1';
+        $reportID = $reportBean->save();
+        $this->reportIDs[] = $reportID;
+
+        $reportTest = new supp_ReportRepairs();
+        $reportTest->setTesting(false);
+        $reportTest->execute(array('test' => false));
+
+        $savedReport = BeanFactory::getBean('Reports', $reportID);
+        $patterns = array('/\"team_sets\"/', '/\:team_sets\"/', '/Team Set/', '/\"relationship_name\":\"(\w+)_team_sets\"/');
+        $replacements = array('/\"team_link\"/', '/\:team_link\"/', '/Teams/', '/\"relationship_name":\"(\w+)_team_link\"/');
+        foreach($patterns as $key => $pattern){
+            $this->assertEquals(0,preg_match($pattern,$savedReport->content));
+            $this->assertEquals(1,preg_match($replacements[$key],$savedReport->content));
+        }
     }
 
 
@@ -407,6 +436,91 @@ class suppSugarRepairsReportsRepairsTest extends Sugar_PHPUnit_Framework_TestCas
                                 ),
                         ),
                 ),
+        );
+    }
+
+    private function legacyTeamSetDefinition(){
+        return array (
+            'display_columns' =>
+                array (
+                    0 =>
+                        array (
+                            'name' => 'name',
+                            'label' => 'Name',
+                            'table_key' => 'self',
+                        ),
+                    1 =>
+                        array (
+                            'name' => 'billing_address_state',
+                            'label' => 'Billing State',
+                            'table_key' => 'self',
+                        ),
+                    2 =>
+                        array (
+                            'name' => 'phone_office',
+                            'label' => 'Office Phone',
+                            'table_key' => 'self',
+                        ),
+                ),
+            'module' => 'Accounts',
+            'group_defs' =>
+                array (
+                ),
+            'summary_columns' =>
+                array (
+                ),
+            'report_name' => 'Legacy TeamSet Report Test',
+            'do_round' => 1,
+            'numerical_chart_column' => '',
+            'numerical_chart_column_type' => '',
+            'assigned_user_id' => '1',
+            'report_type' => 'tabular',
+            'full_table_list' =>
+                array (
+                    'self' =>
+                        array (
+                            'value' => 'Accounts',
+                            'module' => 'Accounts',
+                            'label' => 'Accounts',
+                        ),
+                    'Accounts:team_sets' =>
+                        array (
+                            'name' => 'Accounts  >  Team Set',
+                            'parent' => 'self',
+                            'link_def' =>
+                                array (
+                                    'name' => 'team_sets',
+                                    'relationship_name' => 'accounts_team_sets',
+                                    'bean_is_lhs' => false,
+                                    'link_type' => 'many',
+                                    'label' => 'Team Set',
+                                    'module' => 'Teams',
+                                    'table_key' => 'Accounts:team_sets',
+                                ),
+                            'dependents' =>
+                                array (
+                                    0 => 'Filter.1_table_filter_row_1',
+                                ),
+                            'module' => 'Teams',
+                            'label' => 'Team Set',
+                        ),
+                ),
+            'filters_def' =>
+                array (
+                    'Filter_1' =>
+                        array (
+                            'operator' => 'AND',
+                            0 =>
+                                array (
+                                    'name' => 'name',
+                                    'table_key' => 'Accounts:team_sets',
+                                    'qualifier_name' => 'is',
+                                    'input_name0' => 'East',
+                                    'input_name1' => 'East',
+                                ),
+                        ),
+                ),
+            'chart_type' => 'none',
         );
     }
 
