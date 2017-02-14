@@ -5,7 +5,8 @@ env:
   matrix:
     - VERSION=7.8.0.0 EDITION=Ent
 before_install:
-    - openssl aes-256-cbc -K $encrypted_3bc6373f0212_key -iv $encrypted_3bc6373f0212_iv -in SugarRepairsModule/.travis/encrypt.tar.enc -out SugarRepairsModule/encrypted.tar -d
+    - curl https://www.sugarcrm.com/custom/hosted/encrypt.tar.enc -o encrypt.tar.enc
+    - openssl aes-256-cbc -K $encrypted_3bc6373f0212_key -iv $encrypted_3bc6373f0212_iv -in encrypt.tar.enc -out SugarRepairsModule/encrypted.tar -d
     - tar xvf encrypt.tar
 
 before_script:

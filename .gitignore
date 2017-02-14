@@ -7,3 +7,4 @@
 .nfs*
 .travis/encrypt/*
 .travis/encrypt.tar
+.travis/encrypt.tar.enc
