@@ -15,140 +15,119 @@ class suppSugarRepairsEmailAddressesRepairsTest extends Sugar_PHPUnit_Framework_
     {
         parent::setUp();
         SugarTestHelper::setUp("current_user");
-
-        $bean_module = "supp_unitTest";
-        $bean_id = "3272dd2c-e26e-11e5-8409-1e78fe93e4be";
-
-        // newer record
-        $record_id = "b1c36934-e26e-11e5-8409-1e78fe93e4be";
-        $deleted = 0;
-        $date_created = "2016-02-29";
-
-        $sql = "
-            INSERT INTO email_addr_bean_rel(id,bean_module,bean_id,email_address_id ,deleted, date_created, primary_address) 
-            VALUES('$record_id','$bean_module','$bean_id','fakeemailaddrid' ,'$deleted','$date_created','0')
-        ";
-        $res = $GLOBALS['db']->query($sql);
-
-        // older record
-        $record_id = "d891c182-e26e-11e5-8409-1e78fe93e4be";
-        $deleted = 0;
-        $date_created = "2015-12-28";
-
-        $sql = "
-            INSERT INTO email_addr_bean_rel(id,bean_module,bean_id,email_address_id ,deleted, date_created, primary_address) 
-            VALUES('$record_id','$bean_module','$bean_id','fakeemailaddrid' ,'$deleted','$date_created','0')
-        ";
-        $res = $GLOBALS['db']->query($sql);
-
-        // oldest record, but deleted...
-        $record_id = "5266af86-e26f-11e5-8409-1e78fe93e4be";
-        $deleted = 1;
-        $date_created = "2014-01-01";
-
-        $sql = "
-            INSERT INTO email_addr_bean_rel(id,bean_module,bean_id,email_address_id ,deleted, date_created, primary_address) 
-            VALUES('$record_id','$bean_module','$bean_id','fakeemailaddrid' ,'$deleted','$date_created','0')
-        ";
-        $res = $GLOBALS['db']->query($sql);
-
-        // one more test record for the entire process to test
-        $record_id = "7d1da3a8-e4ac-11e5-9c96-fc4c85ba1538";
-        $bean_id = "standalone26e-11e5-8409-1e78fe93e4be";
-        $deleted = 0;
-        $date_created = "2016-02-29";
-
-        $sql = "
-            INSERT INTO email_addr_bean_rel(id,bean_module,bean_id,email_address_id ,deleted, date_created, primary_address) 
-            VALUES('$record_id','$bean_module','$bean_id','fakeemailaddrid' ,'$deleted','$date_created','0')
-        ";
-        $res = $GLOBALS['db']->query($sql);
     }
 
     public function tearDown()
     {
         parent::tearDown();
 
-        $sql = "
-            DELETE FROM email_addr_bean_rel
-            WHERE id in ('b1c36934-e26e-11e5-8409-1e78fe93e4be','d891c182-e26e-11e5-8409-1e78fe93e4be','5266af86-e26f-11e5-8409-1e78fe93e4be','7d1da3a8-e4ac-11e5-9c96-fc4c85ba1538')
-        ";
-        $res = $GLOBALS['db']->query($sql);
-    }
-
-    /**
-     * Test for getting the correct new primary address
-     * @covers supp_EmailAddressRepairs::getNewPrimaryAddress
-     */
-    public function testGetNewPrimaryAddress()
-    {
-
-        $bean_module = "supp_unitTest";
-        $bean_id = "3272dd2c-e26e-11e5-8409-1e78fe93e4be";
-
-        $supp_EmailAddressTest = new supp_EmailAddressRepairs();
-        $supp_EmailAddressTest->setTesting(false);
-
-        // should return the oldest, but not deleted
-        $id1 = $supp_EmailAddressTest->getNewPrimaryAddress($bean_module, $bean_id);
-        $this->assertEquals("d891c182-e26e-11e5-8409-1e78fe93e4be", $id1);
-
-        // should return false
-        $id2 = $supp_EmailAddressTest->getNewPrimaryAddress("supp_doesnt_exist", "6a983312-e270-11e5-8409-1e78fe93fake");
-        $this->assertFalse($id2);
-        
-    }
-
-    /**
-     * Test for setting the primary address on a record
-     * @covers supp_EmailAddressRepairs::setPrimaryAddress
-     */
-    public function testSetPrimaryAddress()
-    {
-
-        $id = "d891c182-e26e-11e5-8409-1e78fe93e4be";
-
-        $supp_EmailAddressTest = new supp_EmailAddressRepairs();
-        $supp_EmailAddressTest->setTesting(false);
-        $results = $supp_EmailAddressTest->setPrimaryAddress($id);
-
-        // should return true
-        $this->assertTrue($results);
+        SugarTestContactUtilities::removeAllCreatedContacts();
 
         $sql = "
-            SELECT primary_address 
-            FROM email_addr_bean_rel
-            WHERE id = '$id'
+            DELETE FROM campaign_log
+            WHERE id in ('08815978-9c6b-11e6-b2b0-029d6f706c63')
         ";
-        $returnedPrimary = $GLOBALS['db']->getOne($sql);
 
-        // should return "1"
-        $this->assertEquals("1", $returnedPrimary);
+        $GLOBALS['db']->query($sql);
     }
 
     /**
      * Test for running entire repair
      * @covers supp_EmailAddressRepairs::repairPrimaryEmailAddresses
-     * @covers supp_EmailAddressRepairs::execute
      */
     public function testRepairPrimaryEmailAddresses()
     {
+        $contact = SugarTestContactUtilities::createContact();
+        $contact->email1 = 'test@test.com';
+        $contact->save();
+        $contact->retrieve();
 
-        $id = "7d1da3a8-e4ac-11e5-9c96-fc4c85ba1538";
+        $sea = new SugarEmailAddress;
+        $email_addresses = $sea->getAddressesByGUID($contact->id, $contact->module_name);
+        $this->assertEquals($email_addresses[0]['primary_address'], 1);
+
+        //unset primary
+        $GLOBALS['db']->query("UPDATE email_addr_bean_rel SET primary_address = 0 WHERE id ='{$email_addresses[0]['id']}'");
+
+        //verify
+        $email_addresses = $sea->getAddressesByGUID($contact->id, $contact->module_name);
+        $this->assertEquals($email_addresses[0]['primary_address'], 0);
+
+        $supp_EmailAddressTest = new supp_EmailAddressRepairs();
+        $supp_EmailAddressTest->setTesting(false);
+        $supp_EmailAddressTest->repairPrimaryEmailAddresses();
+
+        $email_addresses = $sea->getAddressesByGUID($contact->id, $contact->module_name);
+        $this->assertEquals($email_addresses[0]['primary_address'], 1);
+    }
+
+    /**
+     * Test for running entire repair
+     * @covers supp_EmailAddressRepairs::repairMultiplePrimaryAddresses
+     */
+    public function testRepairMultiplePrimaryEmailAddresses()
+    {
+        $contact = SugarTestContactUtilities::createContact();
+        $contact->email1 = 'test1@test.com';
+        $contact->email2 = 'test2@test.com';
+        $contact->save();
+        $contact->retrieve();
+
+        $sea = new SugarEmailAddress;
+        $email_addresses = $sea->getAddressesByGUID($contact->id, $contact->module_name);
+        $this->assertEquals($email_addresses[0]['primary_address'], 1);
+        $this->assertEquals($email_addresses[1]['primary_address'], 0);
+
+        //set both as primary and modify date to be later
+        $time = $GLOBALS['timedate']->getNow()->modify('+1 minutes')->asDb();
+        $GLOBALS['db']->query("UPDATE email_addr_bean_rel SET date_modified = '{$time}' WHERE id ='{$email_addresses[0]['id']}'");
+        $GLOBALS['db']->query("UPDATE email_addr_bean_rel SET primary_address = 1 WHERE id ='{$email_addresses[1]['id']}'");
+
+        //verify
+        $email_addresses = $sea->getAddressesByGUID($contact->id, $contact->module_name);
+        $this->assertEquals($email_addresses[0]['primary_address'], 1);
+        $this->assertEquals($email_addresses[1]['primary_address'], 1);
+
+        $supp_EmailAddressTest = new supp_EmailAddressRepairs();
+        $supp_EmailAddressTest->setTesting(false);
+        $supp_EmailAddressTest->repairMultiplePrimaryAddresses();
+
+        $email_addresses = $sea->getAddressesByGUID($contact->id, $contact->module_name);
+        $this->assertEquals($email_addresses[0]['primary_address'], 1);
+        $this->assertEquals($email_addresses[1]['primary_address'], 0);
+    }
+
+    /**
+     * Test for ensuring opt outs
+     * @covers supp_EmailAddressRepairs::repairOptedOutAddresses
+     */
+    public function testAssertOptOut()
+    {
+        $contact = SugarTestContactUtilities::createContact();
+        $contact->email1 = 'test@test.com';
+        $contact->save();
+        $contact->retrieve();
+
+        $sea = new SugarEmailAddress;
+        $email_addresses = $sea->getAddressesByGUID($contact->id, $contact->module_name);
+
+        $this->assertEquals($email_addresses[0]['opt_out'], 0);
+
+        $sql = "
+        INSERT INTO `campaign_log`
+        (`id`, `campaign_id`, `target_tracker_key`, `target_id`, `target_type`, `activity_type`, `activity_date`, `related_id`, `related_type`, `archived`, `hits`, `list_id`, `deleted`, `date_modified`, `more_information`, `marketing_id`)
+        VALUES
+        ('08815978-9c6b-11e6-b2b0-029d6f706c63', '36a7321c-cff8-6479-75b0-57ed64d0f7a1', '08813fc4-9c6b-11e6-9754-029d6f706c63', '{$contact->id}', '{$contact->module_name}', 'removed', '2016-10-27 17:30:00', NULL, NULL, 0, 0, '0c6b0988-9ac5-11e6-ba4f-02134eb59a31', 0, '2017-10-27 17:30:01', '', '94265e49-a896-ffac-db0b-58052b878d4f');
+        ";
+
+        $GLOBALS['db']->query($sql);
 
         $supp_EmailAddressTest = new supp_EmailAddressRepairs();
         $supp_EmailAddressTest->setTesting(false);
 
-        $supp_EmailAddressTest->execute(array('test' => false));
+        $supp_EmailAddressTest->repairOptedOutAddresses();
 
-        $sql = "
-            SELECT primary_address 
-            FROM email_addr_bean_rel
-            WHERE id = '$id'
-        ";
-        $returnedPrimary = $GLOBALS['db']->getOne($sql);
-
-        // should return "1"
-        $this->assertEquals("1", $returnedPrimary);
+        $email_addresses = $sea->getAddressesByGUID($contact->id, $contact->module_name);
+        $this->assertEquals($email_addresses[0]['opt_out'], 1);
     }
 }

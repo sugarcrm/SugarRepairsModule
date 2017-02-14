@@ -782,12 +782,12 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
     public function execute(array $args)
     {
         if (!$this->isEnt() && !$this->isUlt()) {
-            $this->log('PA Repair ignored as it does not apply to this Edition.');
+            $this->log('Repair ignored as it does not apply to this Edition.');
             return false;
         }
 
         if (version_compare($GLOBALS['sugar_version'], '7.6', '<')) {
-            $this->log('PA Repair ignored as it does not apply to this version.');
+            $this->log('Repair ignored as it does not apply to this version.');
             return false;
         }
 

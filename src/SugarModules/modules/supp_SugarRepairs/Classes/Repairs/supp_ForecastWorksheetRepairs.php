@@ -314,6 +314,16 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
 
         $stamp = time();
 
+        if (!$this->isEnt() && !$this->isUlt()) {
+            $this->log('Repair ignored as it does not apply to this Edition.');
+            return false;
+        }
+
+        if (version_compare($GLOBALS['sugar_version'], '7.6', '<')) {
+            $this->log('Repair ignored as it does not apply to this version.');
+            return false;
+        }
+
         if ($this->backupTable('forecast_manager_worksheets', $stamp) &&
             $this->backupTable('forecast_worksheets', $stamp) &&
             $this->backupTable('quotas', $stamp)

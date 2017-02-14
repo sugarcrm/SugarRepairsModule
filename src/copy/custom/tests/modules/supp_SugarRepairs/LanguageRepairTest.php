@@ -71,6 +71,8 @@ EOT;
 
     public function writeDropDown($name, $list)
     {
+        create_dropdown_type($name, 'en_us');
+
         $dropdownHelper = new DropDownHelper();
 
         $parameters = array();

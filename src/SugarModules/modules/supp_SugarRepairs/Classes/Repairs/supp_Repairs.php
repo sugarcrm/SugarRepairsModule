@@ -263,20 +263,24 @@ abstract class supp_Repairs
 
     /**
      * Backs up a database table
-     * @param $table
+     *
+     * @param $tables
+     * @param string $stamp
+     * @return bool
      */
-    protected function backupTable($table, $stamp = '')
+    protected function backupTable($tables, $stamp = '')
     {
         if ($this->isTesting) {
             return true;
         }
 
+        if (!is_array($tables)) {
+            $tables = array($tables);
+        }
+
         if (empty($stamp)) {
             $stamp = time();
         }
-
-        $this->log("Backing up {$table}...");
-        $backupTable = preg_replace('{/$}', '', "{$table}_srm_{$stamp}");
 
         global $sugar_config;
 
@@ -291,44 +295,50 @@ abstract class supp_Repairs
             $maxTableLength = 128;
         }
 
-        if (strlen($backupTable) > $maxTableLength) {
-            //limit table name - max length for oracle is 30
-            $backupTable = substr($backupTable, 0, $maxTableLength);
+        foreach($tables as $table) {
+            $this->log("Backing up {$table}...");
+            $backupTable = preg_replace('{/$}', '', "{$table}_srm_{$stamp}");
+
+            if (strlen($backupTable) > $maxTableLength) {
+                //limit table name - max length for oracle is 30
+                $backupTable = substr($backupTable, 0, $maxTableLength);
+            }
+
+            $result = $GLOBALS['db']->tableExists($backupTable);
+            if ($result) {
+                $this->log("Database table '{$backupTable}' already exists. Renaming.");
+                $backupTable . '_' . time();
+            }
+
+            if ($sugar_config['dbconfig']['db_type'] == 'mysql') {
+                $GLOBALS['db']->query("CREATE TABLE {$backupTable} LIKE {$table}");
+                $GLOBALS['db']->query("INSERT {$backupTable} SELECT * FROM {$table}");
+            } else if ($sugar_config['dbconfig']['db_type'] == 'oci8') {
+                $GLOBALS['db']->query("CREATE TABLE {$backupTable} AS SELECT * {$table}");
+            } else if ($sugar_config['dbconfig']['db_type'] == 'mssql') {
+                $GLOBALS['db']->query("SELECT * INTO {$backupTable} FROM {$table}");
+            } else if ($sugar_config['dbconfig']['db_type'] == 'ibm_db2') {
+                $GLOBALS['db']->query("CREATE TABLE {$backupTable} LIKE {$table}");
+                $GLOBALS['db']->query("INSERT INTO {$backupTable} (SELECT * FROM {$table})");
+            } else {
+                $this->log("Database type '{$sugar_config['dbconfig']['db_type']}' not yet supported.");
+                return false;
+            }
+
+            //capture list
+            $this->backupTables[$backupTable] = $table;
+
+            $result = $GLOBALS['db']->tableExists($backupTable);
+
+            if ($result) {
+                $this->logChange("Created {$backupTable} from {$table}.");
+            } else {
+                $this->log("Could not create {$backupTable} from {$table}!");
+                return false;
+            }
         }
 
-        $result = $GLOBALS['db']->tableExists($backupTable);
-        if ($result) {
-            $this->log("Database table '{$backupTable}' already exists. Renaming.");
-            $backupTable . '_' . time();
-        }
-
-        if ($sugar_config['dbconfig']['db_type'] == 'mysql') {
-            $GLOBALS['db']->query("CREATE TABLE {$backupTable} LIKE {$table}");
-            $GLOBALS['db']->query("INSERT {$backupTable} SELECT * FROM {$table}");
-        } else if ($sugar_config['dbconfig']['db_type'] == 'oci8') {
-            $GLOBALS['db']->query("CREATE TABLE {$backupTable} AS SELECT * {$table}");
-        } else if ($sugar_config['dbconfig']['db_type'] == 'mssql') {
-            $GLOBALS['db']->query("SELECT * INTO {$backupTable} FROM {$table}");
-        } else if ($sugar_config['dbconfig']['db_type'] == 'ibm_db2') {
-            $GLOBALS['db']->query("CREATE TABLE {$backupTable} LIKE {$table}");
-            $GLOBALS['db']->query("INSERT INTO {$backupTable} (SELECT * FROM {$table})");
-        } else {
-            $this->log("Database type '{$sugar_config['dbconfig']['db_type']}' not yet supported.");
-            return false;
-        }
-
-        //capture list
-        $this->backupTables[$backupTable] = $table;
-
-        $result = $GLOBALS['db']->tableExists($backupTable);
-        if ($result) {
-            $this->logChange("Created {$backupTable} from {$table}.");
-        } else {
-            $this->log("Could not create {$backupTable} from {$table}!");
-            die();
-        }
-
-        return $result;
+        return true;
     }
 
     /**
@@ -665,7 +675,7 @@ abstract class supp_Repairs
 
         $this->logChange("-> Ran Update SQL: " . $sql);
 
-        $this->capture($this->cycle_id, $this->loggerTitle, 'Database', 'table', "The follow tables are backups:" . implode(',', $this->backupTables), $sql, "Capturing Update SQL'", 'Completed', 'P3');
+        $this->capture($this->cycle_id, $this->loggerTitle, 'Database', 'table', '', '', "Update SQL:\n{$sql}\n\nThe following tables are backed up:\n" . print_r($this->backupTables, true), 'Completed', 'P3');
         return $GLOBALS['db']->query($sql);
     }
 
