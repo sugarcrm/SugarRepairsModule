@@ -52,7 +52,7 @@ if (isset($options['repair'])) {
         } else {
             echo "Please specify the timeperiod_id parameter.\n";
         }
-    }  else if ($options['repair'] == 'metadata') {
+    } else if ($options['repair'] == 'metadata') {
         $sugarRepairs->repairMetadata($options);
     } else {
         echo "Invalid repair type. Please refer to the documentation.\n";

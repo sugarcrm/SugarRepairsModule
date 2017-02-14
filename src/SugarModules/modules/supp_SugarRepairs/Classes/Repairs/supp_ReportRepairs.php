@@ -184,20 +184,21 @@ class supp_ReportRepairs extends supp_Repairs
      * @param $content
      * @param $report
      */
-    public function repairTeamSets(&$JSONcontent,$report){
+    public function repairTeamSets(&$JSONcontent, $report)
+    {
         $update = FALSE;
         $patterns = array('/\"team_sets\"/', '/\:team_sets\"/', '/Team Set/', '/\"relationship_name\":\"(\w+)_team_sets\"/');
         $replacements = array('"team_link"', ':team_link"', 'Teams', '"relationship_name":"${1}_team_link"');
-        foreach($patterns as $pattern){
-            if (preg_match($pattern,$JSONcontent)){
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $JSONcontent)) {
                 $update = TRUE;
                 break;
             }
         }
-        if ($update){
+        if ($update) {
             if (!$this->isTesting) {
                 $this->logChange("Fixing Report '{$report->name}' ({$report->id}) TeamSet References");
-                $JSONcontent = preg_replace($patterns,$replacements,$JSONcontent,-1,$count);
+                $JSONcontent = preg_replace($patterns, $replacements, $JSONcontent, -1, $count);
                 $this->logChange("$count TeamSet References were fixed in Report '{$report->name}' ({$report->id})");
             } else {
                 $this->logChange("Will fix Report '{$report->name}' ({$report->id}) TeamSet references.");
@@ -243,8 +244,8 @@ class supp_ReportRepairs extends supp_Repairs
 
             $afterJson = $jsonObj->encode($content, false);
 
-            if (version_compare($sugar_version,'7.0','>=')){
-                $this->repairTeamSets($afterJson,$savedReport);
+            if (version_compare($sugar_version, '7.0', '>=')) {
+                $this->repairTeamSets($afterJson, $savedReport);
             }
 
             if ($beforeJson !== $afterJson) {

@@ -22,7 +22,8 @@ class MetadataRepairsTest extends Sugar_PHPUnit_Framework_TestCase
         parent::tearDown();
     }
 
-    protected function getMethod($name) {
+    protected function getMethod($name)
+    {
         $class = new ReflectionClass($this->class);
         $method = $class->getMethod($name);
         $method->setAccessible(true);
@@ -32,7 +33,8 @@ class MetadataRepairsTest extends Sugar_PHPUnit_Framework_TestCase
     /**
      * Tests the hasAuditBtnDef method
      */
-    public function testHasAuditBtnDef(){
+    public function testHasAuditBtnDef()
+    {
         $method = $this->getMethod('hasAuditBtnDef');
         $Repair = new supp_MetadataRepairs();
 
@@ -44,7 +46,7 @@ class MetadataRepairsTest extends Sugar_PHPUnit_Framework_TestCase
         );
 
 
-        $this->assertEquals($method->invokeArgs($Repair, array($definition)),$btnDefinition);
+        $this->assertEquals($method->invokeArgs($Repair, array($definition)), $btnDefinition);
 
         $definition = array(
             array(
@@ -53,7 +55,7 @@ class MetadataRepairsTest extends Sugar_PHPUnit_Framework_TestCase
             $btnDefinition
         );
 
-        $this->assertEquals($method->invokeArgs($Repair, array($definition)),$btnDefinition);
+        $this->assertEquals($method->invokeArgs($Repair, array($definition)), $btnDefinition);
 
         $definition = array(
             array(
@@ -66,7 +68,7 @@ class MetadataRepairsTest extends Sugar_PHPUnit_Framework_TestCase
                 )
             )
         );
-        $this->assertEquals($method->invokeArgs($Repair, array($definition)),$btnDefinition);
+        $this->assertEquals($method->invokeArgs($Repair, array($definition)), $btnDefinition);
 
         $definition = array(
             array(
@@ -76,16 +78,17 @@ class MetadataRepairsTest extends Sugar_PHPUnit_Framework_TestCase
                 'name' => 'cancel_button'
             )
         );
-        $this->assertEquals($method->invokeArgs($Repair, array($definition)),FALSE);
+        $this->assertEquals($method->invokeArgs($Repair, array($definition)), FALSE);
 
     }
 
     /**
      * Tests the repairMissingAuditButtons Repair
      */
-    public function testRepairMissingAuditButtons(){
+    public function testRepairMissingAuditButtons()
+    {
         global $sugar_version;
-        if(!version_compare($sugar_version,'7.7','>=')){
+        if (!version_compare($sugar_version, '7.7', '>=')) {
             $this->markTestSkipped('Skipping test');
             return;
         }
@@ -94,7 +97,7 @@ class MetadataRepairsTest extends Sugar_PHPUnit_Framework_TestCase
         $Repair->setTesting(false);
         $Repair->repairMissingAuditButtons(array('supp_SugarRepairs' => 'modules/supp_SugarRepairs/'));
         include 'modules/supp_SugarRepairs/clients/base/views/record/record.php';
-        $this->assertArrayHasKey('buttons',$viewdefs['supp_SugarRepairs']['base']['view']['record']);
+        $this->assertArrayHasKey('buttons', $viewdefs['supp_SugarRepairs']['base']['view']['record']);
 
 
     }

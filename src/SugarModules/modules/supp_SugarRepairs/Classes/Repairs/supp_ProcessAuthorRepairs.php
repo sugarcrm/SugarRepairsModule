@@ -34,7 +34,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
      * List of field types that are blacklisted throughout Process Author
      * @var array
      */
-    protected $blacklistedPAFieldTypes = array('image','password','file');
+    protected $blacklistedPAFieldTypes = array('image', 'password', 'file');
 
     /**
      *
@@ -398,14 +398,14 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                 'name' => $row['name'],
                 'source_id' => $row['event_id'],
                 'source_table' => "pmse_bpm_event_definition"
-                );
+            );
 
             $new_evn_criteria = $row['evn_criteria'];
 
             $eventArray = json_decode(html_entity_decode($row['evn_criteria']));
 
             if ($eventArray == false || $eventArray == null) {
-                $this->logAction("-> PA Definition '{$row['name']}' Event Criteria failed to process::".$this->getJSONLastError());
+                $this->logAction("-> PA Definition '{$row['name']}' Event Criteria failed to process::" . $this->getJSONLastError());
                 continue;
             }
 
@@ -418,7 +418,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
 
                 $base_module = $event->expModule;
                 $field = $event->expField;
-                
+
                 // process author expModule will sometimes be the module we are in
                 // and sometimes will be a related module
                 if ($row['prj_module'] != $base_module) {
@@ -443,7 +443,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                     if ($listKeys === false) continue;
 
                     $selectedKey = $event->expValue;
-                    
+
                     // Validate selected key is in list
                     $new_evn_criteria = $this->validatePASelectedKey($selectedKey, $listKeys, $new_evn_criteria, $paDef);
 
@@ -501,14 +501,14 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                 'name' => $row['name'],
                 'source_id' => $row['activity_id'],
                 'source_table' => "pmse_bpm_activity_definition"
-                );
+            );
 
             // Action Required Fields are for Activity Forms, act_task_type = 'USERTASK'
             if ($row['act_task_type'] == "USERTASK") {
                 $action_required_fields = $new_action_required_fields = json_decode(html_entity_decode(base64_decode($row['act_required_fields'])));
 
-                if ($action_required_fields==false || $action_required_fields == null) {
-                    $this->logAction("-> PA Definition '{$row['name']}' Activity Required Fields failed to process::".$this->getJSONLastError());
+                if ($action_required_fields == false || $action_required_fields == null) {
+                    $this->logAction("-> PA Definition '{$row['name']}' Activity Required Fields failed to process::" . $this->getJSONLastError());
                     continue;
                 }
 
@@ -527,13 +527,13 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                     }
                 }
 
-            // Action Fields are for Actions, act_script_type = 'CHANGE_FIELD' or 'ADD_RELATED_RECORD'
+                // Action Fields are for Actions, act_script_type = 'CHANGE_FIELD' or 'ADD_RELATED_RECORD'
             } elseif ($row['act_script_type'] == "CHANGE_FIELD" || $row['act_script_type'] == "ADD_RELATED_RECORD") {
                 $action_fields = $new_action_fields = $row['act_fields'];
                 $actionsArray = json_decode(html_entity_decode($action_fields), true);
 
                 if ($actionsArray == false || $actionsArray == null || !is_array($actionsArray)) {
-                    $this->logAction("-> PA Definition '{$row['name']}' Action Fields failed to process::".$this->getJSONLastError());
+                    $this->logAction("-> PA Definition '{$row['name']}' Action Fields failed to process::" . $this->getJSONLastError());
                     continue;
                 }
                 $paDef['action_array'] = $actionsArray;
@@ -542,7 +542,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
 
                     $base_module = $row['act_field_module'];
                     $field = $action['field'];
-                    
+
                     // process author expModule will sometimes be the module we are in
                     // and sometimes will be a related module
                     if ($row['prj_module'] != $base_module) {
@@ -579,7 +579,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                         }
                     }
                 }
-            // Unknown / unhadled action type
+                // Unknown / unhadled action type
             } else {
                 $this->logAction("-> PA Definition '{$row['name']}' has an action with an unknown type: '{$row['act_task_type']}/{$row['act_script_type']}'. Please review this definition manually.");
             }
@@ -636,13 +636,13 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                 'source_id' => $row['br_id'],
                 'source_table' => "pmse_business_rules",
                 'activity_id' => $row['activity_id']
-                );
+            );
 
             $new_rst_source_Definition = $row['rst_source_Definition'];
             $brDefinition = json_decode(html_entity_decode($new_rst_source_Definition));
 
-            if ($brDefinition==false || $brDefinition == null) {
-                $this->logAction("-> PA Definition '{$row['name']}' Business Rule Criteria failed to process::".$this->getJSONLastError());
+            if ($brDefinition == false || $brDefinition == null) {
+                $this->logAction("-> PA Definition '{$row['name']}' Business Rule Criteria failed to process::" . $this->getJSONLastError());
                 continue;
             }
 
@@ -653,7 +653,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
 
                     $base_module = $condition->variable_module;
                     $field = $condition->variable_name;
-                    
+
                     // process author module will sometimes be the module we are in
                     // and sometimes will be a related module
                     if ($row['prj_module'] != $base_module) {
@@ -698,7 +698,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
 
                             $base_module = $value->expModule;
                             $field = $value->expValue;
-                            
+
                             // process author module will sometimes be the module we are in
                             // and sometimes will be a related module
                             if ($row['prj_module'] != $base_module) {
@@ -728,7 +728,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
 
                         $base_module = $conclusions->variable_module;
                         $field = $conclusions->conclusion_value;
-                        
+
                         // process author module will sometimes be the module we are in
                         // and sometimes will be a related module
                         if ($row['prj_module'] != $base_module) {

@@ -182,7 +182,7 @@ class supp_WorkflowRepairs extends supp_Repairs
                             $this->disableWorkflow($row['workflow_id']);
                             continue;
                         }
-                            //try to fix the key if it was updated in the lang repair script
+                        //try to fix the key if it was updated in the lang repair script
                         if ($testKey !== $selectedKey) {
                             if (in_array($testKey, $listKeys)) {
                                 $issue = false;

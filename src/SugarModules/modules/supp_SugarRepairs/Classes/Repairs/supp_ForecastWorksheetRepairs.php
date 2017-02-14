@@ -21,7 +21,6 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
      */
     public function getAllTimePeriodIds()
     {
-
         $query = new SugarQuery();
         $query->select(array(
             'id',
@@ -54,7 +53,7 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
         $query->where()
             ->equals('deleted', '0')
             ->equals('id', $timeperiod_id);
-        
+
         $returnId = $query->getOne();
 
         if ($returnId == $timeperiod_id) {
@@ -94,9 +93,9 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
 
             $levelOneIds[] = $id;
             $this->usersToProcess[$level][$id] = array(
-                    "commit_type" => "manager",
-                    "forecast_type" => "Rollup"
-                );
+                "commit_type" => "manager",
+                "forecast_type" => "Rollup"
+            );
         }
 
         return $levelOneIds;
@@ -133,7 +132,7 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
         while ($row = $GLOBALS['db']->fetchByAssoc($res)) {
 
             $id = $row['id'];
-            
+
             $userIdFilters[] = $id;
 
             if ($row['num_workers'] > 0) {
@@ -169,20 +168,20 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
             FROM forecast_manager_worksheets 
             WHERE timeperiod_id = '$timeperiod_id'
         ";
-        
+
         if (!$this->isTesting) {
             $this->logChange("-> Clearing forecast_manager_worksheets table for timeperiod_id '{$timeperiod_id}'");
             $results = $this->updateQuery($sql);
-            $affected_row_count =  $GLOBALS['db']->getAffectedRowCount($results);
-            $this->logChange('-> Deleted '.$affected_row_count.' from forecast_manager_worksheets table.');
+            $affected_row_count = $GLOBALS['db']->getAffectedRowCount($results);
+            $this->logChange('-> Deleted ' . $affected_row_count . ' from forecast_manager_worksheets table.');
         } else {
             $this->logChange("-> Will clear forecast_manager_worksheets table for timeperiod_id '{$timeperiod_id}'");
             $affected_row_count = 0;
         }
-        
+
         return array(
             'affected_row_count' => $affected_row_count
-            );
+        );
     }
 
     /**
@@ -198,20 +197,20 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
             FROM quotas 
             WHERE quota_type = 'Rollup' AND timeperiod_id = '$timeperiod_id'
         ";
-        
+
         if (!$this->isTesting) {
             $this->logChange("-> Clearing Rollup quotas table for timeperiod_id '{$timeperiod_id}'");
             $results = $this->updateQuery($sql);
-            $affected_row_count =  $GLOBALS['db']->getAffectedRowCount($results);
-            $this->logChange('-> Deleted '.$affected_row_count.' from quotas table.');
+            $affected_row_count = $GLOBALS['db']->getAffectedRowCount($results);
+            $this->logChange('-> Deleted ' . $affected_row_count . ' from quotas table.');
         } else {
             $this->logChange("-> Will clear Rollup quotas table for timeperiod_id '{$timeperiod_id}'");
             $affected_row_count = 0;
         }
-        
+
         return array(
             'affected_row_count' => $affected_row_count
-            );
+        );
     }
 
     /**
@@ -226,7 +225,7 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
         foreach ($this->usersToProcess as $level => $userArray) {
 
             foreach ($userArray as $user_id => $forecastSettigns) {
-                $this->log('-> Starting process for user: '.$user_id.'...');
+                $this->log('-> Starting process for user: ' . $user_id . '...');
 
                 // New Process -- Set global current_user, run class code
                 $current_user = new User();
@@ -299,7 +298,7 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
         } else {
             $this->log('-> No valid timeperiods found.');
         }
-        
+
         $this->log('End forecast worksheet repairs');
     }
 
@@ -314,12 +313,7 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
 
         $stamp = time();
 
-        if (!$this->isEnt() && !$this->isUlt()) {
-            $this->log('Repair ignored as it does not apply to this Edition.');
-            return false;
-        }
-
-        if (version_compare($GLOBALS['sugar_version'], '7.6', '<')) {
+        if (version_compare($GLOBALS['sugar_version'], '7.2', '<')) {
             $this->log('Repair ignored as it does not apply to this version.');
             return false;
         }

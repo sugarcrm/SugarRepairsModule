@@ -25,6 +25,7 @@ To setup you environment for unit tests, you will need to do the following:
 * Download the 7.x unit tests from: https://github.com/sugarcrm/unit-tests/releases
 * Extract the content of the tests folder from the zip that are applicable to your edition `<extract folder>/<edition>/tests/` into `./tests/`.
 * Install composer to the root of your Sugar directory. `composer install`
+* Set permissions on your entire Sugar instance
 * Create your new unit test in `./custom/tests/modules/supp_SugarRepairs/` and make sure to add it to the `@group support` in the header comment:
 ```
 /**

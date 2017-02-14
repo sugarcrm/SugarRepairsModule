@@ -1,5 +1,5 @@
 <?php
- if(!defined('sugarEntry') || !sugarEntry) die('Not A Valid Entry Point');
+if (!defined('sugarEntry') || !sugarEntry) die('Not A Valid Entry Point');
 /*
  * Your installation or use of this SugarCRM file is subject to the applicable
  * terms available at
@@ -14,10 +14,10 @@ $module_name = 'supp_SugarRepairs';
 $viewdefs[$module_name]['mobile']['layout']['edit'] = array(
     'type' => 'edit',
     'components' =>
-    array(
-        0 =>
         array(
-            'view' => 'edit',
-        )
-    ),
+            0 =>
+                array(
+                    'view' => 'edit',
+                )
+        ),
 );

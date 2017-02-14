@@ -110,7 +110,7 @@ class suppSugarRepairsForecastWorksheetRepairsTest extends Sugar_PHPUnit_Framewo
         $result = $repairs->getAllTimePeriodIds();
 
         $this->assertTrue(is_array($result));
-        $this->assertGreaterThan(0,count($result));
+        $this->assertGreaterThan(0, count($result));
     }
 
     /**
@@ -124,7 +124,7 @@ class suppSugarRepairsForecastWorksheetRepairsTest extends Sugar_PHPUnit_Framewo
         $result = $repairs->validateTimePeriodId("736d000c-f79d-11e5-9b16-a19e342a368f");
 
         $this->assertTrue($result);
-        
+
         $result = $repairs->validateTimePeriodId("fake_timeperiod_id_6468");
         $this->assertFalse($result);
     }
@@ -140,12 +140,12 @@ class suppSugarRepairsForecastWorksheetRepairsTest extends Sugar_PHPUnit_Framewo
         $result = $repairs->getLevelOneManagers();
 
         $this->assertTrue(is_array($result));
-        $this->assertGreaterThan(0,count($result));
+        $this->assertGreaterThan(0, count($result));
 
         $this->assertTrue(is_array($repairs->usersToProcess));
-        $this->assertGreaterThan(0,count($repairs->usersToProcess));
+        $this->assertGreaterThan(0, count($repairs->usersToProcess));
 
-        $this->assertArrayHasKey('38c90c70-7788-13a2-668d-513e2b8df5e1',$repairs->usersToProcess[1]);
+        $this->assertArrayHasKey('38c90c70-7788-13a2-668d-513e2b8df5e1', $repairs->usersToProcess[1]);
     }
 
     /**
@@ -156,12 +156,12 @@ class suppSugarRepairsForecastWorksheetRepairsTest extends Sugar_PHPUnit_Framewo
     {
         $repairs = new supp_ForecastWorksheetRepairs();
         $repairs->setTesting(false);
-        $repairs->getNextLevelUsersByManager(2,array('38c90c70-7788-13a2-668d-513e2b8df5e1'));
+        $repairs->getNextLevelUsersByManager(2, array('38c90c70-7788-13a2-668d-513e2b8df5e1'));
 
         $this->assertTrue(is_array($repairs->usersToProcess));
-        $this->assertGreaterThan(0,count($repairs->usersToProcess));
+        $this->assertGreaterThan(0, count($repairs->usersToProcess));
 
-        $this->assertArrayHasKey('2c78445c-f795-11e5-9b16-a19e342a368f',$repairs->usersToProcess[2]);
+        $this->assertArrayHasKey('2c78445c-f795-11e5-9b16-a19e342a368f', $repairs->usersToProcess[2]);
     }
 
     /**
@@ -174,16 +174,16 @@ class suppSugarRepairsForecastWorksheetRepairsTest extends Sugar_PHPUnit_Framewo
         $repairs->setTesting(false);
         $results = $repairs->clearForecastWorksheet('736d000c-f79d-11e5-9b16-a19e342a368f');
 
-        $this->assertEquals(1,$results['affected_row_count']);
+        $this->assertEquals(1, $results['affected_row_count']);
 
         $sql = "
             SELECT id
             FROM forecast_manager_worksheets
         ";
         $result = $GLOBALS['db']->query($sql);
-        $affected_row_count =  $GLOBALS['db']->getAffectedRowCount($result);
+        $affected_row_count = $GLOBALS['db']->getAffectedRowCount($result);
 
-        $this->assertEquals(0,$affected_row_count);
+        $this->assertEquals(0, $affected_row_count);
     }
 
     /**
@@ -196,16 +196,16 @@ class suppSugarRepairsForecastWorksheetRepairsTest extends Sugar_PHPUnit_Framewo
         $repairs->setTesting(false);
         $results = $repairs->clearRollupQuotas('736d000c-f79d-11e5-9b16-a19e342a368f');
 
-        $this->assertEquals(1,$results['affected_row_count']);
+        $this->assertEquals(1, $results['affected_row_count']);
 
         $sql = "
             SELECT id
             FROM quotas
         ";
         $result = $GLOBALS['db']->query($sql);
-        $affected_row_count =  $GLOBALS['db']->getAffectedRowCount($result);
+        $affected_row_count = $GLOBALS['db']->getAffectedRowCount($result);
 
-        $this->assertEquals(1,$affected_row_count);
+        $this->assertEquals(1, $affected_row_count);
     }
 
     /**
@@ -224,9 +224,9 @@ class suppSugarRepairsForecastWorksheetRepairsTest extends Sugar_PHPUnit_Framewo
             FROM forecast_manager_worksheets
         ";
         $result = $GLOBALS['db']->query($sql);
-        $affected_row_count =  $GLOBALS['db']->getAffectedRowCount($result);
+        $affected_row_count = $GLOBALS['db']->getAffectedRowCount($result);
 
-        $this->assertGreaterThan(0,$affected_row_count);
+        $this->assertGreaterThan(0, $affected_row_count);
 
     }
 }

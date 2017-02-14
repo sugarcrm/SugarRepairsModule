@@ -14,7 +14,7 @@ class suppSugarRepairsLanguageRepairs extends Sugar_PHPUnit_Framework_TestCase
     {
         parent::setUp();
         SugarTestHelper::setUp("current_user");
-        $GLOBALS['current_user']->is_admin=1;
+        $GLOBALS['current_user']->is_admin = 1;
     }
 
     public function tearDown()
@@ -79,11 +79,10 @@ EOT;
         $parameters['dropdown_name'] = $name;
 
         $count = 0;
-        foreach ($list as $key=>$value)
-        {
-            $parameters['slot_'. $count] = $count;
-            $parameters['key_'. $count] = $key;
-            $parameters['value_'. $count] = $value;
+        foreach ($list as $key => $value) {
+            $parameters['slot_' . $count] = $count;
+            $parameters['key_' . $count] = $key;
+            $parameters['value_' . $count] = $value;
             //set 'use_push' to true to update/add values while keeping old values
             //$parameters['use_push'] = true;
             $count++;
@@ -91,6 +90,7 @@ EOT;
 
         $dropdownHelper->saveDropDown($parameters);
     }
+
     /**
      * In this test we are checking to make sure and the characters &,/,-,( and ) are replaced with underscores or nothing
      */
@@ -146,7 +146,7 @@ EOT;
 
         $newRepairTest = new supp_LanguageRepairs();
         $newRepairTest->setTesting(false);
-        $fieldData = array('Accounts' => array(0=>'industry'));
+        $fieldData = array('Accounts' => array(0 => 'industry'));
         $newRepairTest->updateDatabase($fieldData, "one&one", "one and one");
 
         $account->retrieve();
@@ -160,7 +160,7 @@ EOT;
     {
         $newRepairTest = new supp_LanguageRepairs();
         $testFieldDefLookup = $newRepairTest->findListField('industry_dom');
-        $this->assertTrue($testFieldDefLookup['Accounts'] == array(0=>'industry'));
+        $this->assertTrue($testFieldDefLookup['Accounts'] == array(0 => 'industry'));
     }
 
     /**
@@ -217,7 +217,7 @@ EOT;
 
     private function setUpCustomMultiEnums()
     {
-        $custom_field=array(
+        $custom_field = array(
             'name' => 'unittest517',
             'label' => 'LBL_UNITTEST517',
             'type' => 'multienum',
@@ -235,11 +235,11 @@ EOT;
         );
 
         $this->writeDropDown('unittest517_list', array(
-            ''=>'',
-            '(One)'=>'One',
-            '-Two-'=>'Two',
-            ',Three,'=>'Three',
-            '+Four+'=>'Four'
+            '' => '',
+            '(One)' => 'One',
+            '-Two-' => 'Two',
+            ',Three,' => 'Three',
+            '+Four+' => 'Four'
         ));
 
         //$langFileText = "<?php\n\$app_list_strings['unittest517_list']=array(''=>'',\n'(One)'=>'One',\n'-Two-'=>'Two',\n'&Three&'=>'Three',\n'+Four+'=>'Four'\n);";
@@ -257,7 +257,7 @@ EOT;
 
     private function setUpCustomSharingEnums()
     {
-        $custom_field1=array(
+        $custom_field1 = array(
             'name' => 'unittest517a',
             'label' => 'LBL_UNITTEST517a',
             'type' => 'multienum',
@@ -273,7 +273,7 @@ EOT;
             'importable' => 'true', // 'true', 'false', 'required'
             'duplicate_merge' => false, // true or false
         );
-        $custom_field2=array(
+        $custom_field2 = array(
             'name' => 'unittest517b',
             'label' => 'LBL_UNITTEST517b',
             'type' => 'enum',
@@ -291,11 +291,11 @@ EOT;
         );
 
         $this->writeDropDown('unittest517a_list', array(
-            ''=>'',
-            '(One)'=>'One',
-            '-Two-'=>'Two',
-            ',Three,'=>'Three',
-            '+Four+'=>'Four'
+            '' => '',
+            '(One)' => 'One',
+            '-Two-' => 'Two',
+            ',Three,' => 'Three',
+            '+Four+' => 'Four'
         ));
 
         //$langFileText = "<?php\n\$app_list_strings['unittest517a_list']=array(''=>'',\n'(One)'=>'One',\n'-Two-'=>'Two',\n'&Three&'=>'Three',\n'+Four+'=>'Four'\n);";
@@ -314,7 +314,7 @@ EOT;
     private function tearDownCustomMultiEnums()
     {
         //the Account and the account_cstm record will be deleted in the tearDown() function
-        $custom_field=array(
+        $custom_field = array(
             'name' => 'unittest517_c',
             'module' => 'Accounts',
         );
@@ -330,11 +330,11 @@ EOT;
         //@unlink("custom/Extension/modules/Accounts/Ext/Vardefs/sugarfield_unittest517a_c.php");
         //@unlink("custom/Extension/modules/Accounts/Ext/Vardefs/sugarfield_unittest517b_c.php");
         //@unlink("custom/Extension/application/Ext/Language/en_us.sugar_unittest517_list.php");
-        $custom_field1=array(
+        $custom_field1 = array(
             'name' => 'unittest517a_c',
             'module' => 'Accounts',
         );
-        $custom_field2=array(
+        $custom_field2 = array(
             'name' => 'unittest517b_c',
             'module' => 'Accounts',
         );
@@ -352,6 +352,7 @@ EOT;
         $actions = array('clearAll');
         $RAC->repairAndClearAll($actions, array('All Modules'), false, false);
     }
+
     public static function setUpBeforeClass()
     {
         suppSugarRepairsLanguageRepairs::tearDownCustomMultiEnums();

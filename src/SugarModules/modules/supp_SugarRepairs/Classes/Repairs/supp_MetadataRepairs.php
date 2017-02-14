@@ -3,7 +3,8 @@
 
 require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_Repairs.php');
 
-class supp_MetadataRepairs extends supp_Repairs {
+class supp_MetadataRepairs extends supp_Repairs
+{
 
     protected $loggerTitle = "Metadata";
     protected $foundIssues = array();
@@ -15,12 +16,12 @@ class supp_MetadataRepairs extends supp_Repairs {
 
     /**
      * Executes the TeamSet repairs
+     *
      * @param array $args
      */
     public function execute(array $args)
     {
-        global $sugar_version;
-        if (version_compare($sugar_version,'7.0','<')){
+        if (version_compare($GLOBALS['sugar_version'], '7.0', '<')) {
             $this->logAll('Metadata repairs only available for Sugar 7 instances.');
             return;
         }
@@ -30,18 +31,21 @@ class supp_MetadataRepairs extends supp_Repairs {
 
         $this->logAll('Begin Metadata repairs');
 
-        if (version_compare($sugar_version,'7.7','>=')){
+        if (version_compare($GLOBALS['sugar_version'], '7.7', '>=')) {
             $customModules = $this->getCustomModules();
 
-            if (!empty($customModules)){
+            if (!empty($customModules)) {
                 $this->repairMissingAuditButtons($customModules);
             }
         }
-
-
     }
 
-    public function repairMissingAuditButtons(array $customModules){
+    /**
+     * Repairs missing audit buttons
+     * @param array $customModules
+     */
+    public function repairMissingAuditButtons(array $customModules)
+    {
         foreach ($customModules as $moduleName => $modulePath) {
             $bean = BeanFactory::getBean($moduleName);
             if ($bean->is_AuditEnabled()) {
@@ -53,42 +57,42 @@ class supp_MetadataRepairs extends supp_Repairs {
                         if (!empty($viewdefs[$moduleName]['base']['view']['record'])) {
                             $defsToWrite = $viewdefs[$moduleName]['base']['view']['record'];
                             $auditBtnUpdate = 'full';
-                            if (!empty($defsToWrite['buttons'])){
-                                if ($this->hasAuditBtnDef($defsToWrite['buttons']) !== FALSE){
+                            if (!empty($defsToWrite['buttons'])) {
+                                if ($this->hasAuditBtnDef($defsToWrite['buttons']) !== FALSE) {
                                     $auditBtnUpdate = FALSE;
-                                }else {
+                                } else {
                                     $auditBtnUpdate = 'merge';
                                 }
                             }
-                            if ($auditBtnUpdate !== FALSE){
-                                if ($this->isTesting){
+                            if ($auditBtnUpdate !== FALSE) {
+                                if ($this->isTesting) {
                                     $this->logChange("Will update $recordViewDef to include Change Log Button.");
                                     continue;
-                                }else{
+                                } else {
                                     $this->logChange("Updating $recordViewDef to include Change Log Button.");
                                 }
-                                $templateFile = $this->getModuleTemplateFile($moduleName,'clients/base/views/record/record.php');
+                                $templateFile = $this->getModuleTemplateFile($moduleName, 'clients/base/views/record/record.php');
                                 if ($templateFile) {
                                     $viewdefs = array();
                                     include $templateFile;
                                     if (!empty($viewdefs['<module_name>']['base']['view']['record']['buttons'])) {
                                         $templateButtonsDef = $viewdefs['<module_name>']['base']['view']['record']['buttons'];
 
-                                        if ($auditBtnUpdate == 'merge'){
+                                        if ($auditBtnUpdate == 'merge') {
                                             $auditBtnDef = $this->hasAuditBtnDef($templateButtonsDef);
-                                            foreach($defsToWrite['buttons'] as $key => $button){
-                                                if ($button['type'] == 'actiondropdown' && $button['name'] == 'main_dropdown'){
+                                            foreach ($defsToWrite['buttons'] as $key => $button) {
+                                                if ($button['type'] == 'actiondropdown' && $button['name'] == 'main_dropdown') {
                                                     $defsToWrite['buttons'][$key][] = array(
                                                         'type' => 'divider',
                                                     );
                                                     $defsToWrite['buttons'][$key][] = $auditBtnDef;
                                                 }
                                             }
-                                        }else{
+                                        } else {
                                             $defsToWrite['buttons'] = $templateButtonsDef;
                                         }
-                                        $contents = "<?php\n\n\$module_name = '$moduleName';\n\$viewdefs[\$module_name]['base']['view']['record'] = ".var_export($defsToWrite,true).";";
-                                        $this->writeFile($recordViewDef,$contents);
+                                        $contents = "<?php\n\n\$module_name = '$moduleName';\n\$viewdefs[\$module_name]['base']['view']['record'] = " . var_export($defsToWrite, true) . ";";
+                                        $this->writeFile($recordViewDef, $contents);
                                     }
                                 }
                             }
@@ -101,15 +105,21 @@ class supp_MetadataRepairs extends supp_Repairs {
         }
     }
 
-    protected function hasAuditBtnDef(array $definition){
-        foreach($definition as $buttonDef){
-            if (isset($buttonDef['name']) && $buttonDef['name'] == 'audit_button'){
+    /**
+     * Determines if audit button exists
+     * @param array $definition
+     * @return array|bool
+     */
+    protected function hasAuditBtnDef(array $definition)
+    {
+        foreach ($definition as $buttonDef) {
+            if (isset($buttonDef['name']) && $buttonDef['name'] == 'audit_button') {
                 return $buttonDef;
             }
-            if (isset($buttonDef['type']) && $buttonDef['type'] == 'actiondropdown'){
-                if (isset($buttonDef['buttons']) && is_array($buttonDef['buttons'])){
+            if (isset($buttonDef['type']) && $buttonDef['type'] == 'actiondropdown') {
+                if (isset($buttonDef['buttons']) && is_array($buttonDef['buttons'])) {
                     $definition = $this->hasAuditBtnDef($buttonDef['buttons']);
-                    if ($definition !== FALSE){
+                    if ($definition !== FALSE) {
                         return $definition;
                     }
                 }

@@ -1,4 +1,5 @@
 <?php
+
 // Copyright 2016 SugarCRM Inc.  Licensed by SugarCRM under the Apache 2.0 license.
 
 abstract class supp_Repairs
@@ -103,12 +104,12 @@ abstract class supp_Repairs
         }
 
         //Make sure all messages end in a CR
-        if(substr($entry,-1)!="\n") {
+        if (substr($entry, -1) != "\n") {
             $entry .= "\n";
         }
 
-        if($type=='All') {
-            $fileArray=array('Combined',"Action","Change");
+        if ($type == 'All') {
+            $fileArray = array('Combined', "Action", "Change");
         } else {
             //We always write to the 'Combined' file
             $fileArray = array_unique(array($type, 'Combined'));
@@ -295,7 +296,7 @@ abstract class supp_Repairs
             $maxTableLength = 128;
         }
 
-        foreach($tables as $table) {
+        foreach ($tables as $table) {
             $this->log("Backing up {$table}...");
             $backupTable = preg_replace('{/$}', '', "{$table}_srm_{$stamp}");
 
@@ -1101,7 +1102,8 @@ abstract class supp_Repairs
         }
     }
 
-    public function getCustomModules(){
+    public function getCustomModules()
+    {
         $custMods = array();
 
         //check language file for new module names
@@ -1113,7 +1115,7 @@ abstract class supp_Repairs
             if (!empty($moduleList)) {
                 foreach ($moduleList as $key => $moduleName) {
                     //check path to see if it's valid
-                    $modPath = 'modules/'.$moduleName;
+                    $modPath = 'modules/' . $moduleName;
                     if (file_exists($modPath)) {
                         $custMods[$moduleName] = $modPath;
                     }
@@ -1125,11 +1127,11 @@ abstract class supp_Repairs
         return $custMods;
     }
 
-    public function getModuleTemplateFile($moduleName,$file)
+    public function getModuleTemplateFile($moduleName, $file)
     {
         $template = StudioModuleFactory::getStudioModule($moduleName)->getType();
 
-        $templateFile = "include/SugarObjects/templates/$template/".$file;
+        $templateFile = "include/SugarObjects/templates/$template/" . $file;
         if (file_exists($templateFile)) {
             return $templateFile;
         }

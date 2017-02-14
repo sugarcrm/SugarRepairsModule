@@ -8,14 +8,15 @@
 
 require_once 'include/SugarObjects/templates/issue/Issue.php';
 
-class supp_SugarRepairs_sugar extends Issue {
+class supp_SugarRepairs_sugar extends Issue
+{
     public $new_schema = true;
     public $module_dir = 'supp_SugarRepairs';
     public $object_name = 'supp_SugarRepairs';
     public $table_name = 'supp_sugarrepairs';
     public $importable = false;
-        public $disable_row_level_security = true;
-    
+    public $disable_row_level_security = true;
+
     /**
      * This is a deprecated method, please start using __construct() as this
      * method will be removed in a future version.
@@ -23,20 +24,24 @@ class supp_SugarRepairs_sugar extends Issue {
      * @see __construct
      * @deprecated
      */
-    public function supp_SugarRepairs_sugar(){
+    public function supp_SugarRepairs_sugar()
+    {
         $GLOBALS['log']->deprecated('Calls to supp_SugarRepairs::supp_SugarRepairs are deprecated.');
         self::__construct();
     }
 
-    public function __construct(){
+    public function __construct()
+    {
         parent::__construct();
     }
-    
-    public function bean_implements($interface){
-        switch($interface){
-            case 'ACL': return true;
+
+    public function bean_implements($interface)
+    {
+        switch ($interface) {
+            case 'ACL':
+                return true;
         }
         return false;
     }
-    
+
 }

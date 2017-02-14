@@ -240,7 +240,7 @@ class supp_LanguageRepairs extends supp_Repairs
         $this->changed = false;
         $tokensByLine = array();
         $lineNumber = 0;
-        $tokenListName="";
+        $tokenListName = "";
 
         $this->tokenList = $this->getAnnotatedTokenList($fileContents);
 
@@ -249,20 +249,20 @@ class supp_LanguageRepairs extends supp_Repairs
                 $lineNumber = $keyList[2];
                 switch ($keyList['TOKEN_NAME']) {
                     case 'T_ARRAY_NAME':
-                        $tokenListName = trim($keyList[1],"'\"");
+                        $tokenListName = trim($keyList[1], "'\"");
                         break;
                     case 'T_ARRAY_KEY':
                         $oldKeyInQuotes = $keyList[1];
-                        if(token_name($keyList[0])=='T_LNUMBER') {
+                        if (token_name($keyList[0]) == 'T_LNUMBER') {
                             //If the key is an integer then set its type
                             // and skip the rest of the processing
                             settype($keyList[1], 'integer');
                             continue;
                         }
-                        if(token_name($keyList[0])=='T_DNUMBER') {
+                        if (token_name($keyList[0]) == 'T_DNUMBER') {
                             //if there is a decimal, then convert to a string with quotes, we may
                             // skip the rest of the processing here too
-                            $keyList[1]="'{$keyList[1]}'";
+                            $keyList[1] = "'{$keyList[1]}'";
                             continue;
                         }
                         $cleanOldKey = trim($oldKeyInQuotes, "'\"");

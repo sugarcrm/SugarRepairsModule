@@ -1426,14 +1426,14 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
                 "field" => "industry",
                 "value" => "Apparel",
                 "type" => "DropDown"
-                ),
+            ),
             1 => array(
                 "name" => "deleted",
                 "field" => "deleted",
                 "value" => "1",
                 "type" => "int"
-                ),
-            );
+            ),
+        );
 
         // blacklisted field
         $field = "deleted";

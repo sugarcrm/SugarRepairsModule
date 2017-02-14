@@ -1,5 +1,5 @@
 <?php
- if(!defined('sugarEntry') || !sugarEntry) die('Not A Valid Entry Point');
+if (!defined('sugarEntry') || !sugarEntry) die('Not A Valid Entry Point');
 /*
  * Your installation or use of this SugarCRM file is subject to the applicable
  * terms available at
@@ -12,50 +12,50 @@
  */
 
 $viewdefs['supp_SugarRepairs']['base']['filter']['basic'] = array(
-    'create'               => true,
-    'quicksearch_field'    => array('name'),
+    'create' => true,
+    'quicksearch_field' => array('name'),
     'quicksearch_priority' => 1,
     'quicksearch_split_terms' => false,
-    'filters'              => array(
+    'filters' => array(
         array(
-            'id'                => 'all_records',
-            'name'              => 'LBL_LISTVIEW_FILTER_ALL',
+            'id' => 'all_records',
+            'name' => 'LBL_LISTVIEW_FILTER_ALL',
             'filter_definition' => array(),
-            'editable'          => false
+            'editable' => false
         ),
         array(
-            'id'                => 'assigned_to_me',
-            'name'              => 'LBL_ASSIGNED_TO_ME',
+            'id' => 'assigned_to_me',
+            'name' => 'LBL_ASSIGNED_TO_ME',
             'filter_definition' => array(
                 '$owner' => '',
             ),
-            'editable'          => false
+            'editable' => false
         ),
         array(
-            'id'                => 'favorites',
-            'name'              => 'LBL_FAVORITES',
+            'id' => 'favorites',
+            'name' => 'LBL_FAVORITES',
             'filter_definition' => array(
                 '$favorite' => '',
             ),
-            'editable'          => false
+            'editable' => false
         ),
         array(
-            'id'                => 'recently_viewed',
-            'name'              => 'LBL_RECENTLY_VIEWED',
+            'id' => 'recently_viewed',
+            'name' => 'LBL_RECENTLY_VIEWED',
             'filter_definition' => array(
                 '$tracker' => '-7 DAY',
             ),
-            'editable'          => false
+            'editable' => false
         ),
         array(
-            'id'                => 'recently_created',
-            'name'              => 'LBL_NEW_RECORDS',
+            'id' => 'recently_created',
+            'name' => 'LBL_NEW_RECORDS',
             'filter_definition' => array(
                 'date_entered' => array(
                     '$dateRange' => 'last_7_days',
                 ),
             ),
-            'editable'          => false
+            'editable' => false
         ),
     ),
 );

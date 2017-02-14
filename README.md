@@ -206,7 +206,7 @@ Corrects common issues with Email Addresses.
 
 ##Issues Addressed
 * Bug [75588](https://web.sugarcrm.com/support/issues/75588) - Any Bean that has at least one email address, and no primary designation will get the oldest email address updated to be the primary.
-
+* Bug [77929](https://web.sugarcrm.com/support/issues/77929) - Opting out from a campaigns does not update opt out email address.
 
 
 #:wrench: Forecast Worksheet Repairs
@@ -237,7 +237,7 @@ Corrects common issues with metadata files for Sidecar.
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair metadata --test false`
 
 ##Issues Addressed
-* Modules created in 7.6.x, did not have Buttons definitions in RecordView, after upgrades to 7.7+ these modules would no longer have Change Log button ([Bug 77005](https://web.sugarcrm.com/support/issues/77005)). Places Change Log button, and default button definitions back on Record View if missing.
+* Bug [77005](https://web.sugarcrm.com/support/issues/77005) Modules created in 7.6.x, did not have Buttons definitions in RecordView, after upgrades to 7.7+ these modules would no longer have Change Log button. Places Change Log button, and default button definitions back on Record View if missing.
     
 #Contributing
 Everyone is welcome to be involved by creating or improving existing Sugar repairs. If you would like to contribute, please make sure to review the [CONTRIBUTOR TERMS](CONTRIBUTOR TERMS.pdf). When you update this [README](README.md), please check out the [contribution guidelines](CONTRIBUTING.md) for helpful hints and tips that will make it easier to accept your pull request.

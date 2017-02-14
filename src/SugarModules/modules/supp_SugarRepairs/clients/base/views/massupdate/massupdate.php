@@ -31,10 +31,9 @@ $viewdefs[$module_name]['base']['view']['massupdate'] = array(
         ),
     ),
     'panels' =>
-    array(
         array(
-            'fields' => array(
+            array(
+                'fields' => array()
             )
         )
-    )
 );
