@@ -1,33 +1,47 @@
 env:
-  global:
-    - secure: "Ylv6W7NDuQWi84TZU0EIspHZ5S4Nep0Dhvq5xZLA//9i+UiMadakWHpDoeZfbh0jkv0CN2xaWs6qJRTQmEAJjvJ29dWL/jX6T5ZUAwausSkhihKt6v6rKmIFj/GbB2BAR8hnRP8GS3nwEqJ6QcJR7uGq3HFcTfUbIdfhA3PnxuxSfZasqnCzDG1LAtD3321vCzA94hG5CIht9O2KnT6v23feOeIDJUnszRxINZQBTOkBU5ZdVVw2i+bHhKGd5KMhO0JhmusPuUozgz412WhwKGrG2DYi+366u0yx7l1M6fPE4erdArpn72QFxgP7mJz+gGPLn25/zis2/ujW2NSUk8dObq17WexWRH5/fImFBNnpPwb3mQ1ig/BOax/oHVMFCsR1TPBTl8Jcm1QqfE8HwEF95hSFiE2DJ7qCtuYFqLYg7v6A49ZReDsqZuzKs0YsJphxRvXq1l0IWnhCAwNfLolYRSD20qUCekoGxxr/62XkZDo9zjWHjCULvJXF2pZdJ5fZZJoEYqnWrLf2IOT/iFVrPSIMVob/sNDJoW8OIHWe01af4zfJ2gBJ3nt/7frNphPBCb1LpqMKVRVHzFtVg8UmuUIEI0/B1HIZNf96gMMSb/ZzpLwU1E27XnK9vPz/PSCfMkWo4rma2/8n8WZe8QsOAAi459VoxMPFxJF0vxI="
-    - secure: "W2ZOalpeWqQ5Xw4opNdeP4n2msmmL1Xql06S6fAb7acE7BtNF4jD9yI3433Ls6lZ/cszdQ6QeNr2GPKZjNS2gvTp2mlo/K4hLkbnbzbf+aBp0NFv+2vUqjaS2q1MZbPgQywix0Es2UiOBqTg5dFK+oVqkKvPl5rWjhJUjzdfbcT+2jwP3IXJNZwYwrweM+jrdoiIw6PPnuHvo0copx2PNXZyYhdycDbrwwmnADaDMqAmbj/XvDoaVzD5xFb2zgktDarKd9Sh7XEgxzOB5VQbxljrYVrYv8bVudLFwidLu/IOO58a4ikG9UfOxz8yPNu6b853KOtWnlwai7uNNDbfXmN+A7DILScT8NXy/NJbxYOQUt1pTHz4UajSBV9gicPhqXQhwshY3xUTNkUsSKbXoOJU6cbJGCyfEI5DCgiyzZtRuUIDosghgvIRWrENRA2c2LvFwGsl4m8iI4IPyA6pcCRLXDMq+w627+N61Blhnus5IGB6+ns+4sMIJyxhMsYK/Lbk+sD826uy1r72Koa8tCxrJ6H48r2IWa/4yEQacjKjjbVyvQ3g8CkP2GSdZyiqDpALUxQMY114SyorkO3+ZIXcpScjSx/PnHHoWpsCzVj7B1KqNAC1XPtIZciC8VOm3cD5HUDzNaBLklOmmjgWLiaQMZ8HcVVcIACAVYePV34="
-    - secure: "ETACaEtCf+zOPQvZIZwhYEaz2x+5/z7BoiHRwV+tEdGS0mx79c8k4oWVrcBjWo+zYBf4WpgWEIsd1QQ7vLuy2OZWBj7FObyhG3N+S2lBGBU/2/EbJXTZkehkTnzxHCI71drmVwvYjNCLUtTgELMOB71bXeSThh4ddJ8CSEVsJiCWieKdoi12XpqEGc86wz8KIBLmJgRxNFAkB3msOVLghDoLmlVJKB/IjQx/2eL+d6roY3EGol8ENw0YE0VR8U5iliIhFonJxCqKvbtxiULJAk9eeWofq8DnWjfuYep08aonMcgYALy2TTPmPf/nNn3QS5TiJmLpErTOud7S/APGwlC0pMsTRx72h61N8H5111p0e/ScYt6LKi6CrhiVFBDM48ULSMBkvGy7dlci5Zo79+Ez21jh46kN3TQzllInnvj+olAHTm+B8fq7OiKjA+A8INNUo6ub7DFQfL2kDtHTXGHSAYiIqufp4eDBFwVGrT+B80FOs/NEQNSJbwjRO2zrPXDA5wQUhXXQfYo+MwLk8yvjN9PRYgP4JVIHiL+y4S9qA7N6lyliGAHrctQaqml2mi7vY8m6wDtAaiItm+iSdjPwkzGiWes1zh3Jhwb+H5t2BGnJgciG2O6kHHGy1FKKonBpOihauktN+3tqX63mbkVJISgSmSAXaO0aFfr0DPU="
-    - secure: "iKqRm7aRgAkAyzrCt6RAjUPzUsvtGnJaEZTwrUPNNzaPBQvDxXBw1MKS0qBB1AyBFZSNocPUL9Xa5PUzY7xPJNakzDf10QCNUuZbEdvq+ahZF3nny88Jf3Bp8SneEY8u0/b+Sx+LPv7x5k8cd4ZTAH/BM8cQAqN7I0qkDmvZ9X5hOKb+5cfQbyiXHxKtnTNcGxNDi8/lA8PEyQ84Wu9otYXNBsRj/TrRdXuLUmua4snBl3WpTQsjmviLZeI8mSPTmN+evXYZeidy8XZnO6O6+ypDbecZWTZWB89Zf4wGYNQZ5hWOm0PIUJNC8fTjsfxbnvR9DJ6hf4P1YO+sSvWzfviIwfU8zH346bLBNV9ChVxQoqIxoKVYQIh1IsIFBnrLTkiixYxFDkQD2yJfH4j8e/FwXlSBedyAraumwkbjUx+iO7EmTvnPqT9LGhpsgKd7ZOggMbK43zBOk6MLcCIMdVFNyE1xVUO+7ndhJkaw/2NGJNJgI14hvrTP1oKIAXAZmJhzqYTN0iVBRLZizNkEVkx4MUUaJdKRPuuMEAtWGuDjPBdyE0SwruIW6Odd6KJ1YoUz+DZIFHNiC/OwA6vB704D/oC1Wc8Ym5GUCUuMZvym6ffQJE37RP1+bqa7Z1iIn0af3iTKC3G53bHDn+WLqHD3vk98BfNkJ2PHlQkRn6w="
+  language: php
+  php:
+    - '5.6'
   matrix:
-    - VERSION=7.6.2.1 EDITION=Ult
+    - VERSION=7.8.0.0 EDITION=Ent
 before_install:
+    - openssl aes-256-cbc -K $encrypted_3bc6373f0212_key -iv $encrypted_3bc6373f0212_iv -in .travis/encrypt.tar.enc -out encrypt.tar -d
+    - tar xvf encrypt.tar
 
-install:
-  - sudo curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/Files/install.sh -o install.sh
-  - sudo sh install.sh
-  - zip -r installer.zip $TRAVIS_BUILD_DIR
-  - cd /var/www/
-  - sudo curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION.zip -o sugar.zip
-  - sudo unzip sugar.zip &> /dev/null
-  - cd Sugar$EDITION-Full-$VERSION
-  - sudo curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION-tests.zip -o tests.zip
-  - sudo unzip tests.zip &> /dev/null
-  - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/config_si.php .
-  - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/silentInstall.php .
-  - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/moduleInstaller.php .
-  - sudo sed -e "s?%SUGAR_KEY%?$SUGAR_KEY?g" --in-place "config_si.php"
-  - sudo chmod -R 777 /var/www/
-  - sudo php silentInstall.php
-  - sudo php moduleInstaller.php -z $TRAVIS_BUILD_DIR/installer.zip
-  - composer install --no-dev
-  - sudo chmod -R 777 /var/www/
-script: cd /var/www/Sugar$EDITION-Full-$VERSION/tests/ && phpunit --group support
+before_script:
+    - unzip encrypt/Installers$VERSION/Sugar$EDITION-$VERSION.zip -d sugar &> /dev/null
+    - cp encrypt/config_si.php sugar/config_si.php
+    - sudo apt-get install apache2 libapache2-mod-php5
+    - sudo a2enmod actions
+    - sudo a2enmod rewrite
+    - echo "export PATH=/home/vagrant/.phpenv/bin:$PATH" | sudo tee -a /etc/apache2/envvars > /dev/null
+    - cat .encrypt/phpenv.txt | sudo tee /etc/apache2/conf.d/phpconfig > /dev/null
+    - cat encrypt/vhost.txt | sed -e "s,PATH,`pwd`,g" | sudo tee /etc/apache2/sites-available/default > /dev/null
+    - sudo service apache2 restart
+    - mysql -u root -e "CREATE USER 'sugarcrm'@'localhost' IDENTIFIED BY 'sugarcrm'"
+    - mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO 'sugarcrm'@'localhost' WITH GRANT OPTION;"
+    - curl 'http://localhost/sugar/install.php?goto=SilentInstall&cli=true'
+    - cd tests
+#install:
+#  - sudo curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/Files/install.sh -o install.sh
+#  - sudo sh install.sh
+#  - zip -r installer.zip $TRAVIS_BUILD_DIR
+#  - cd /var/www/
+#  - sudo curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION.zip -o sugar.zip
+#  - sudo unzip sugar.zip &> /dev/null
+#  - cd Sugar$EDITION-Full-$VERSION
+#  - sudo curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/$VERSION/Sugar$EDITION-$VERSION-tests.zip -o tests.zip
+#  - sudo unzip tests.zip &> /dev/null
+#  - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/config_si.php .
+#  - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/silentInstall.php .
+#  - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/moduleInstaller.php .
+#  - sudo sed -e "s?%SUGAR_KEY%?$SUGAR_KEY?g" --in-place "config_si.php"
+#  - sudo chmod -R 777 /var/www/
+#  - sudo php silentInstall.php
+#  - sudo php moduleInstaller.php -z $TRAVIS_BUILD_DIR/installer.zip
+#  - composer install --no-dev
+#  - sudo chmod -R 777 /var/www/
+#script: cd /var/www/Sugar$EDITION-Full-$VERSION/tests/ && phpunit --group support
 #language: php
 #php:
 #  - '5.4'
