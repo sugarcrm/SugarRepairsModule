@@ -1,12 +1,12 @@
 env:
   language: php
-php:
-  - '5.6'
-services:
-  - elasticsearch
-  - mysql
-matrix:
-  - VERSION=7.8.0.0 EDITION=Ult
+  php:
+    - '5.6'
+  services:
+    - elasticsearch
+    - mysql
+  matrix:
+    - VERSION=7.8.0.0 EDITION=Ult
 before_install:
     - sudo apt-get purge elasticsearch #remove latest ES
     - sudo curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.4.4.deb
