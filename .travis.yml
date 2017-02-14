@@ -2,22 +2,29 @@ env:
   language: php
   php:
     - '5.6'
+services:
+  - elasticsearch
+  - mysql
   matrix:
     - VERSION=7.8.0.0 EDITION=Ult
 before_install:
+    - sudo apt-get purge elasticsearch #remove latest ES
+    - sudo curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.4.4.deb
+    - sudo dpkg -i elasticsearch-1.4.4.deb #install a supported version of ES
+    - sudo /etc/init.d/elasticsearch start
     - curl https://scarlett.sugarondemand.com/custom/hosted/encrypt.tar.enc -o encrypt.tar.enc
-    - openssl aes-256-cbc -K $encrypted_3bc6373f0212_key -iv $encrypted_3bc6373f0212_iv -in encrypt.tar.enc -out encrypted.tar -d
-    - tar xvf encrypted.tar
+    - openssl aes-256-cbc -K $encrypted_3bc6373f0212_key -iv $encrypted_3bc6373f0212_iv -in encrypt.tar.enc -out encrypt.tar -d
+    - tar xvf encrypt.tar
 
 before_script:
     - unzip encrypt/Installers/$VERSION/Sugar$EDITION-$VERSION.zip -d sugar &> /dev/null
-    - cp SugarRepairsModule/encrypt/config_si.php sugar/config_si.php
+    - cp encrypt/config_si.php sugar/config_si.php
     - sudo apt-get install apache2 libapache2-mod-php5
     - sudo a2enmod actions
     - sudo a2enmod rewrite
     - echo "export PATH=/home/vagrant/.phpenv/bin:$PATH" | sudo tee -a /etc/apache2/envvars > /dev/null
-    - cat SugarRepairsModule/encrypted/phpenv.txt | sudo tee /etc/apache2/conf.d/phpconfig > /dev/null
-    - cat SugarRepairsModule/encrypted/vhost.txt | sed -e "s,PATH,`pwd`,g" | sudo tee /etc/apache2/sites-available/default > /dev/null
+    - cat encrypt/phpenv.txt | sudo tee /etc/apache2/conf.d/phpconfig > /dev/null
+    - cat encrypt/vhost.txt | sed -e "s,PATH,`pwd`,g" | sudo tee /etc/apache2/sites-available/default > /dev/null
     - sudo service apache2 restart
     - mysql -u root -e "CREATE USER 'sugarcrm'@'localhost' IDENTIFIED BY 'sugarcrm'"
     - mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO 'sugarcrm'@'localhost' WITH GRANT OPTION;"
