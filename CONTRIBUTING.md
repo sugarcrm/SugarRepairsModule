@@ -43,8 +43,8 @@ phpunit -v --debug --group support --stop-on-failure
 If you run into any errors with missing files from the tests, you can remove the broken test from your local. My list of changes per version are listed below
 
 ### 7.8 
-`cd sugar/tests`
 ```
+cd sugar/tests
 rm -Rf clients
 rm -Rf include
 rm -Rf modules
