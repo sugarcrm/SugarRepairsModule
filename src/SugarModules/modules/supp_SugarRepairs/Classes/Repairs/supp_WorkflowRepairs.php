@@ -15,52 +15,6 @@ class supp_WorkflowRepairs extends supp_Repairs
     }
 
     /**
-     * Gets all time period IDs not deleted
-     * @return array $timePeriodIds
-     */
-    public function getAllTimePeriodIds()
-    {
-
-        $query = new SugarQuery();
-        $query->select(array(
-            'id',
-        ));
-        $query->from(BeanFactory::newBean("TimePeriods"));
-        $query->where()
-              ->equals('deleted', '0');
-        $results = $query->execute();
-
-        $timePeriodIds = array();
-
-        foreach ($results as $row) {
-            $timePeriodIds[] = $row['id'];
-        }
-        return $timePeriodIds;
-    }
-
-    /**
-     * Disables a specific workflow
-     * @param $id
-     */
-    public function disableWorkflow($id)
-    {
-        $workflow = BeanFactory::getBean('WorkFlow', $id);
-
-        if ($workflow->status != 0) {
-
-            if (!$this->isTesting) {
-                $this->logChange("Disabling workflow '{$workflow->name}' ({$id})...");
-                $workflow->status = 0;
-                $workflow->save();
-            } else {
-                $this->logChange("-> Will disable workflow '{$workflow->name}' ({$id}).");
-            }
-        } else {
-            $this->log("-> Workflow '{$workflow->name}' ({$id}) is already disabled.");
-        }
-    }
-
-    /**
      * Repairs field level issues in the Workflows Actions table
      */
     public function repairActions()

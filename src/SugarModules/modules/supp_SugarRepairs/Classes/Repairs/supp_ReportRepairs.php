@@ -16,29 +16,6 @@ class supp_ReportRepairs extends supp_Repairs
     }
 
     /**
-     * Prefixes a given report with Broken: to let users know problematic reports
-     * @param $id
-     */
-    public function markReportBroken($id)
-    {
-        $message = "Broken: ";
-
-        $savedReport = BeanFactory::getBean('Reports', $id);
-
-        if (!$this->isTesting) {
-            if (substr($savedReport->name, 0, strlen($message)) !== $message) {
-                $this->logChange("-> Marking report '{$savedReport->name}' ({$savedReport->id}) as broken.");
-                $savedReport->name = $message . $savedReport->name;
-                $savedReport->save();
-            } else {
-                $this->log("-> Report '{$savedReport->name}' ({$savedReport->id}) is already marked as broken.");
-            }
-        } else {
-            $this->logChange("-> Will mark report '{$savedReport->name}' ({$savedReport->id}) as broken.");
-        }
-    }
-
-    /**
      * Iterates the filter
      * @param $filters
      */
