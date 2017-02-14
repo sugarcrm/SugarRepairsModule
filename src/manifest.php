@@ -25,9 +25,9 @@ $manifest = array(
     'icon' => '',
     'is_uninstallable' => true,
     'name' => 'Sugar Repairs',
-    'published_date' => '2016-01-30 19:27:01',
+    'published_date' => '2017-02-14 19:27:01',
     'type' => 'module',
-    'version' => '1.6',
+    'version' => '1.7',
     'remove_tables' => 'prompt',
 );
 

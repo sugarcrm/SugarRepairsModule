@@ -158,6 +158,7 @@ class supp_EmailAddressRepairs extends supp_Repairs
                          WHERE activity_type = 'removed'
                          AND deleted = 0
                          AND target_type not in ('Users')
+                         AND date_modified_ > '2016-10-19 22:48:00'
                          ORDER BY target_type, target_id
                          ";
 

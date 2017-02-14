@@ -5,3 +5,5 @@
 *.swp
 *.log
 .nfs*
+travis/encrypt/*
+travis/encrypt.tar
