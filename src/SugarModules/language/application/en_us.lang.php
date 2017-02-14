@@ -6,6 +6,7 @@ $app_list_strings['supp_sugarrepairs_type_dom']['Reports'] = 'Report Repairs';
 $app_list_strings['supp_sugarrepairs_type_dom']['Team Sets'] = 'Team Set Repairs';
 $app_list_strings['supp_sugarrepairs_type_dom']['Workflows'] = 'Workflow Repairs';
 $app_list_strings['supp_sugarrepairs_type_dom']['Vardefs'] = 'Vardef Repairs';
+$app_list_strings['supp_sugarrepairs_type_dom']['Metadata'] = 'Metadata Repairs';
 
 $app_list_strings['supp_sugarrepairs_status_dom']['New'] = 'New';
 $app_list_strings['supp_sugarrepairs_status_dom']['Completed'] = 'Completed';
