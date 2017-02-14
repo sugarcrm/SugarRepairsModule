@@ -10,7 +10,7 @@ before_install:
     - tar xvf encrypted.tar
 
 before_script:
-    - unzip SugarRepairsModule/encrypt/Installers/$VERSION/Sugar$EDITION-$VERSION.zip -d sugar &> /dev/null
+    - unzip encrypted/Installers/$VERSION/Sugar$EDITION-$VERSION.zip -d sugar &> /dev/null
     - cp SugarRepairsModule/encrypt/config_si.php sugar/config_si.php
     - sudo apt-get install apache2 libapache2-mod-php5
     - sudo a2enmod actions
