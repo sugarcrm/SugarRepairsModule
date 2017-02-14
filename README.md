@@ -216,7 +216,7 @@ Corrects common issues with Forecast Worksheets by rolling through the user "rep
 * timeperiod_id -- Required
   * Provide the specific timeperiod id to run the commit on
   * ALL can be passed to run for all timeperiods
-
+  
 ##Testing Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair forecasts --timeperiod_id fd480109-081e-3c71-0941-56f032288e4f`
 
@@ -225,6 +225,19 @@ Corrects common issues with Forecast Worksheets by rolling through the user "rep
 
 ##Issues Addressed
 * Bug [75779](https://web.sugarcrm.com/support/issues/75779) - Forecast worksheets totals are not accurate after making hierarchy changes.
+
+
+#:wrench: Metadata Repairs
+Corrects common issues with metadata files for Sidecar.
+
+##Testing Command
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair metadata`
+
+##Execute Command
+`cd "modules/supp_SugarRepairs/" && php cli.php --repair metadata --test false`
+
+##Issues Addressed
+* Modules created in 7.6.x, did not have Buttons definitions in RecordView, after upgrades to 7.7+ these modules would no longer have Change Log button ([Bug 77005](https://web.sugarcrm.com/support/issues/77005)). Places Change Log button, and default button definitions back on Record View if missing.
     
 #Contributing
 Everyone is welcome to be involved by creating or improving existing Sugar repairs. If you would like to contribute, please make sure to review the [CONTRIBUTOR TERMS](CONTRIBUTOR TERMS.pdf). When you update this [README](README.md), please check out the [contribution guidelines](CONTRIBUTING.md) for helpful hints and tips that will make it easier to accept your pull request.
