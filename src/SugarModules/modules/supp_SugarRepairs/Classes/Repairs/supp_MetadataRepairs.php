@@ -31,19 +31,17 @@ class supp_MetadataRepairs extends supp_Repairs {
         $this->logAll('Begin Metadata repairs');
 
         if (version_compare($sugar_version,'7.7','>=')){
-            $this->repairMissingAuditButtons();
+            $customModules = $this->getCustomModules();
+
+            if (!empty($customModules)){
+                $this->repairMissingAuditButtons($customModules);
+            }
         }
 
 
     }
 
-    public function repairMissingAuditButtons(){
-        $customModules = $this->getCustomModules();
-
-        if (empty($customModules)){
-            return;
-        }
-
+    public function repairMissingAuditButtons(array $customModules){
         foreach ($customModules as $moduleName => $modulePath) {
             $bean = BeanFactory::getBean($moduleName);
             if ($bean->is_AuditEnabled()) {
@@ -69,7 +67,7 @@ class supp_MetadataRepairs extends supp_Repairs {
                                 }else{
                                     $this->logChange("Updating $recordViewDef to include Change Log Button.");
                                 }
-                                $templateFile = $this->getTemplateFile($moduleName);
+                                $templateFile = $this->getModuleTemplateFile($moduleName,'clients/base/views/record/record.php');
                                 if ($templateFile) {
                                     $viewdefs = array();
                                     include $templateFile;
@@ -105,10 +103,10 @@ class supp_MetadataRepairs extends supp_Repairs {
 
     protected function hasAuditBtnDef(array $definition){
         foreach($definition as $buttonDef){
-            if ($buttonDef['name'] == 'audit_button'){
+            if (isset($buttonDef['name']) && $buttonDef['name'] == 'audit_button'){
                 return $buttonDef;
             }
-            if ($buttonDef['type'] == 'actiondropdown'){
+            if (isset($buttonDef['type']) && $buttonDef['type'] == 'actiondropdown'){
                 if (isset($buttonDef['buttons']) && is_array($buttonDef['buttons'])){
                     $definition = $this->hasAuditBtnDef($buttonDef['buttons']);
                     if ($definition !== FALSE){
@@ -120,13 +118,4 @@ class supp_MetadataRepairs extends supp_Repairs {
         return FALSE;
     }
 
-    protected function getTemplateFile($moduleName)
-    {
-        $template = StudioModuleFactory::getStudioModule($moduleName)->getType();
-        $templateFile = "include/SugarObjects/templates/$template/clients/base/views/record/record.php";
-        if (file_exists($templateFile)) {
-            return $templateFile;
-        }
-        return null;
-    }
 }

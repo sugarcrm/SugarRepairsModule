@@ -11,6 +11,31 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
     public $totalIssues = 0;
 
     /**
+     * Disables a specific process author definition
+     * @param $id
+     */
+    public function disablePADefinition($id)
+    {
+        $paDefinition = BeanFactory::retrieveBean('pmse_Project', $id);
+        if (is_object($paDefinition) === false) {
+            $this->logAction("-> Failed to locate PA Definition {$id}.");
+            return false;
+        }
+
+        if ($paDefinition->prj_status == "ACTIVE") {
+            if (!$this->isTesting) {
+                $this->logChange("Disabling PA Definition '{$paDefinition->name}' ({$id})...");
+                $paDefinition->prj_status = "INACTIVE";
+                $paDefinition->save();
+            } else {
+                $this->logChange("-> Will disable PA Definition '{$paDefinition->name}' ({$id}).");
+            }
+        } else {
+            $this->log("-> PA Definition '{$paDefinition->name}' ({$id}) is already disabled.");
+        }
+    }
+
+    /**
      * List of fields blacklisted for Process Author as of 7.6.2
      * @var array
      */

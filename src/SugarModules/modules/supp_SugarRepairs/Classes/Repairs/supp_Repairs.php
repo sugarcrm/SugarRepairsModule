@@ -631,29 +631,6 @@ abstract class supp_Repairs
     }
 
     /**
-     * Prefixes a given report with Broken: to let users know problematic reports
-     * @param $id
-     */
-    public function markReportBroken($id)
-    {
-        $message = "Broken: ";
-
-        $savedReport = BeanFactory::getBean('Reports', $id);
-
-        if (!$this->isTesting) {
-            if (substr($savedReport->name, 0, strlen($message)) !== $message) {
-                $this->logChange("-> Marking report '{$savedReport->name}' ({$savedReport->id}) as broken.");
-                $savedReport->name = $message . $savedReport->name;
-                $savedReport->save();
-            } else {
-                $this->log("-> Report '{$savedReport->name}' ({$savedReport->id}) is already marked as broken.");
-            }
-        } else {
-            $this->logChange("-> Will mark report '{$savedReport->name}' ({$savedReport->id}) as broken.");
-        }
-    }
-
-    /**
      * Should be used anytime an update query is being ran
      * @param $sql
      */
@@ -667,53 +644,6 @@ abstract class supp_Repairs
 
         $this->capture($this->cycle_id, $this->loggerTitle, 'Database', 'table', "The follow tables are backups:" . implode(',', $this->backupTables), $sql, "Capturing Update SQL'", 'Completed', 'P3');
         return $GLOBALS['db']->query($sql);
-    }
-
-    /**
-     * Disables a specific workflow
-     * @param $id
-     */
-    public function disableWorkflow($id)
-    {
-        $workflow = BeanFactory::getBean('WorkFlow', $id);
-
-        if ($workflow->status != 0) {
-
-            if (!$this->isTesting) {
-                $this->logChange("Disabling workflow '{$workflow->name}' ({$id})...");
-                $workflow->status = 0;
-                $workflow->save();
-            } else {
-                $this->logChange("-> Will disable workflow '{$workflow->name}' ({$id}).");
-            }
-        } else {
-            $this->log("-> Workflow '{$workflow->name}' ({$id}) is already disabled.");
-        }
-    }
-
-    /**
-     * Disables a specific process author definition
-     * @param $id
-     */
-    public function disablePADefinition($id)
-    {
-        $paDefinition = BeanFactory::retrieveBean('pmse_Project', $id);
-        if (is_object($paDefinition) === false) {
-            $this->logAction("-> Failed to locate PA Definition {$id}.");
-            return false;
-        }
-
-        if ($paDefinition->prj_status == "ACTIVE") {
-            if (!$this->isTesting) {
-                $this->logChange("Disabling PA Definition '{$paDefinition->name}' ({$id})...");
-                $paDefinition->prj_status = "INACTIVE";
-                $paDefinition->save();
-            } else {
-                $this->logChange("-> Will disable PA Definition '{$paDefinition->name}' ({$id}).");
-            }
-        } else {
-            $this->log("-> PA Definition '{$paDefinition->name}' ({$id}) is already disabled.");
-        }
     }
 
     /**
@@ -995,56 +925,6 @@ abstract class supp_Repairs
     }
 
     /**
-     * Gets all time period IDs not deleted
-     * @return array $timePeriodIds
-     */
-    public function getAllTimePeriodIds()
-    {
-
-        $query = new SugarQuery();
-        $query->select(array(
-            'id',
-        ));
-        $query->from(BeanFactory::newBean("TimePeriods"));
-        $query->where()
-            ->equals('deleted', '0');
-        $results = $query->execute();
-
-        $timePeriodIds = array();
-
-        foreach ($results as $row) {
-            $timePeriodIds[] = $row['id'];
-        }
-        return $timePeriodIds;
-    }
-
-    /**
-     * Removes all forecast_manager_worksheets records for
-     * the specified timeperiod
-     * @param string $timeperiod_id Time Period Id to remove forecast data
-     * @return array
-     */
-    public function clearForecastWorksheet($timeperiod_id)
-    {
-        if ($this->isTesting) {
-            return;
-        }
-
-        $sql = "
-            DELETE
-            FROM forecast_manager_worksheets
-            WHERE timeperiod_id = '$timeperiod_id'
-        ";
-
-        $res = $this->updateQuery($sql);
-        $affected_row_count = $GLOBALS['db']->getAffectedRowCount($res);
-        $GLOBALS['log']->info('Deleted ' . $affected_row_count . ' from forecast_manager_worksheets table.');
-        return array(
-            'affected_row_count' => $affected_row_count
-        );
-    }
-
-    /**
      * Returns the last JSON error in a readable format
      * @return string
      */
@@ -1113,5 +993,16 @@ abstract class supp_Repairs
  
  
          return $custMods;
+    }
+
+    public function getModuleTemplateFile($moduleName,$file)
+    {
+        $template = StudioModuleFactory::getStudioModule($moduleName)->getType();
+
+        $templateFile = "include/SugarObjects/templates/$template/".$file;
+        if (file_exists($templateFile)) {
+            return $templateFile;
+        }
+        return null;
     }
 }
