@@ -1,4 +1,7 @@
 # Sugar Repairs Module
+[![Build Status](https://travis-ci.org/sugarcrm/SugarRepairsModule.svg?&branch=master)](https://travis-ci.org/sugarcrm/SugarRepairsModule)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%205.3-8892BF.svg?style=flat-square)](https://php.net/)
+
 This module is designed to help assist with repairing common issues in a Sugar instance. You should always test the repairs against a cloned enviroment before executing on a production instance. This tool is to be used at your own risk.
 
 # Usage
