@@ -7,6 +7,9 @@ services:
 env:
   matrix:
     - VERSION=7.8.0.0 EDITION=Ent TESTS=7.8
+    - VERSION=7.8.0.0 EDITION=Pro TESTS=7.8
+    - VERSION=7.7.2.0 EDITION=Ent TESTS=7.7
+    - VERSION=7.7.2.0 EDITION=Pro TESTS=7.7
 before_install:
     - echo "error_reporting = E_ALL & ~E_NOTICE & ~E_STRICT" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
     - sudo apt-get purge elasticsearch #remove latest ES
