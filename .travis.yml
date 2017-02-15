@@ -17,7 +17,7 @@ before_install:
     - tar xvf encrypt.tar
 
 before_script:
-    - sudo unzip encrypt/Installers/$VERSION/Sugar$EDITION-$VERSION.zip -d sugar
+    - unzip encrypt/Installers/$VERSION/Sugar$EDITION-$VERSION.zip -d sugar &> /dev/null
     - cp encrypt/config_si.php sugar/config_si.php
     - sudo apt-get install apache2 libapache2-mod-php5
     - sudo a2enmod actions
