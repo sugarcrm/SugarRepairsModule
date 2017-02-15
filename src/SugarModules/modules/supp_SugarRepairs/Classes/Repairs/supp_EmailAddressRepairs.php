@@ -189,7 +189,6 @@ class supp_EmailAddressRepairs extends supp_Repairs
         }
     }
 
-
     /**
      * Executes the EmailAddress repairs
      * @param array $args
@@ -201,10 +200,15 @@ class supp_EmailAddressRepairs extends supp_Repairs
 
         $stamp = time();
 
-        if ($this->backupTable(array('email_addr_bean_rel', 'email_addresses'), $stamp)) {
+        if ($this->backupTable('email_addr_bean_rel', $stamp)) {
             $this->repairPrimaryEmailAddresses();
             $this->repairMultiplePrimaryAddresses();
-            $this->repairOptedOutAddresses();
+        }
+
+        if (version_compare($GLOBALS['sugar_version'], '7.7.2.0', '>=') && version_compare($GLOBALS['sugar_version'], '7.8.0.0', '<=')) {
+            if ($this->backupTable('email_addresses', $stamp)) {
+                $this->repairOptedOutAddresses();
+            }
         }
     }
 }

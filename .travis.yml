@@ -6,18 +6,18 @@ services:
 
 matrix:
   include:
-  - php: "5.6"
-    env: VERSION=7.8.0.0 EDITION=Ent TESTS=7.8
-  - php: "5.6"
-    env: VERSION=7.8.0.0 EDITION=Pro TESTS=7.8
-  - php: "5.6"
-    env: VERSION=7.7.2.0 EDITION=Ent TESTS=7.7
-  - php: "5.6"
-    env: VERSION=7.7.2.0 EDITION=Pro TESTS=7.7
-  - php: "5.3"
-    env: VERSION=7.7.2.0 EDITION=Ent TESTS=7.7
-  - php: "5.3"
-    env: VERSION=7.7.2.0 EDITION=Pro TESTS=7.7
+#  - php: "5.6"
+#    env: VERSION=7.8.0.0 EDITION=Ent TESTS=7.8
+#  - php: "5.6"
+#    env: VERSION=7.8.0.0 EDITION=Pro TESTS=7.8
+#  - php: "5.6"
+#    env: VERSION=7.7.2.0 EDITION=Ent TESTS=7.7
+#  - php: "5.6"
+#    env: VERSION=7.7.2.0 EDITION=Pro TESTS=7.7
+#  - php: "5.3"
+#    env: VERSION=7.7.2.0 EDITION=Ent TESTS=7.7
+#  - php: "5.3"
+#    env: VERSION=7.7.2.0 EDITION=Pro TESTS=7.7
   - php: "5.3"
     env: VERSION=6.5.24 EDITION=Ent TESTS=6.5
   - php: "5.3"
@@ -46,7 +46,8 @@ before_script:
     - sleep 10 #for elasticsearch
     - php cliSilentInstall.php
     - php $TRAVIS_BUILD_DIR/.travis/cliModuleInstall.php -i $TRAVIS_BUILD_DIR/Sugar$EDITION-Full-$VERSION -z $TRAVIS_BUILD_DIR/builds/package.zip
-    - composer install
+    - if test -f "composer.json"; then composer install;fi
     - sudo chmod -R 777 .
+    - cd tests/
 
-script: cd tests/ && ../vendor/phpunit/phpunit/phpunit --verbose --debug --group support --stop-on-failure
+script: [ -f "../vendor/phpunit/phpunit/phpunit" ] && ../vendor/phpunit/phpunit/phpunit --verbose --debug --group support --stop-on-failure || phpunit --verbose --debug --group support --stop-on-failure
