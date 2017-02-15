@@ -6,21 +6,22 @@ services:
   - mysql
 env:
   matrix:
-    - VERSION=7.8.0.0 EDITION=Ult
+    - VERSION=7.8.0.0 EDITION=Ult TESTS=7.8
 before_install:
     - sudo apt-get purge elasticsearch #remove latest ES
     - sudo curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.4.4.deb
     - sudo dpkg -i --force-confnew elasticsearch-1.4.4.deb #install a supported version of ES
     - sudo service elasticsearch restart
- #   - /etc/init.d/elasticsearch start
-    - curl https://scarlett.sugarondemand.com/custom/hosted/encrypt.tar.enc -o encrypt.tar.enc
-    - openssl aes-256-cbc -K $encrypted_3bc6373f0212_key -iv $encrypted_3bc6373f0212_iv -in encrypt.tar.enc -out encrypt.tar -d
-    - tar xvf encrypt.tar
+    - curl https://scarlett.sugarondemand.com/custom/hosted/encrypt.tar.gz.enc -o encrypt.tar.gz.enc
+    - openssl aes-256-cbc -K $encrypted_3bc6373f0212_key -iv $encrypted_3bc6373f0212_iv -in encrypt.tar.gz.enc -out encrypt.tar.gz -d
+    - tar -xzvf encrypt.tar.gz
 
 before_script:
+    - php build.php --name package
     - unzip encrypt/Installers/$VERSION/Sugar$EDITION-$VERSION.zip &> /dev/null
+    - cp -R encrypt/Tests/$TESTS/ Sugar$EDITION-Full-$VERSION/tests/
     - cp .travis/config_si.php Sugar$EDITION-Full-$VERSION/config_si.php
-    - cp .travis/silentInstall.php Sugar$EDITION-Full-$VERSION/silentInstall.php
+    - cp .travis/cliSilentInstall.php Sugar$EDITION-Full-$VERSION/cliSilentInstall.php
 #    - sudo apt-get install apache2 libapache2-mod-php5
 #    - sudo a2enmod actions
 #    - sudo a2enmod rewrite
@@ -32,8 +33,12 @@ before_script:
     - mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO 'sugarcrm'@'localhost' WITH GRANT OPTION;"
     - sudo chmod -R 777 Sugar$EDITION-Full-$VERSION
     - cd Sugar$EDITION-Full-$VERSION
-    - sleep 10
-    - php silentInstall.php
+    - sleep 10 #for elasticsearch
+    - php cliSilentInstall.php
+    - php cliModuleInstall.php -i $TRAVIS_BUILD_DIR/Sugar$EDITION-Full-$VERSION -z $TRAVIS_BUILD_DIR/builds/package.zip
+    - cd sugar
+    - composer install
+    - sudo chmod -R 777 .
     #- curl 'http://localhost/sugar/install.php?goto=SilentInstall&cli=true'
     #- cd tests
 #install:
@@ -100,4 +105,4 @@ before_script:
 #  - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/moduleInstaller.php .
 #  - sudo php moduleInstaller.php -z $TRAVIS_BUILD_DIR/installer.zip
 #  - composer install --no-dev
-script: cd sugar/tests/ && phpunit --group support
+script: cd tests/ && phpunit --verbose --debug --group support --stop-on-failure

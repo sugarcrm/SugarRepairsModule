@@ -52,3 +52,21 @@ rm -Rf modules
 rm -Rf upgrade
 ```
 
+#Travis-CI Tests
+
+##Encryption setup
+```
+cd .travis
+rm encrypt.tar.gz
+rm encrypt.tar.gz.enc
+tar -czvf encrypt.tar.gz encrypt
+travis encrypt-file encrypt.tar.gz --org
+
+upload file to ~/home
+connect to MS
+
+upload scarlett.sugarondemand.com encrypt.tar.gz.enc
+ms_support connect scarlett.sugarondemand.com
+
+mv /tmp/encrypt.tar.gz.enc custom/hosted/encrypt.tar.gz.enc
+```

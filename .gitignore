@@ -6,5 +6,6 @@
 *.log
 .nfs*
 .travis/encrypt/*
-.travis/encrypt.tar
-.travis/encrypt.tar.enc
+.travis/*.tar
+.travis/*.tar.gz
+.travis/*.enc
