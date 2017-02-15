@@ -148,7 +148,7 @@ class supp_EmailAddressRepairs extends supp_Repairs
      */
     public function repairOptedOutAddresses()
     {
-        if (version_compare($GLOBALS['sugar_version'], '7.7.2.0', '>=') || version_compare($GLOBALS['sugar_version'], '7.8.0.0', '<=')) {
+        if (version_compare($GLOBALS['sugar_version'], '7.7.2.0', '<') || version_compare($GLOBALS['sugar_version'], '7.8.0.0', '>')) {
             $this->log('Repair does not apply to this version.');
             return false;
         }
