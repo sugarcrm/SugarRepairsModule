@@ -8,6 +8,7 @@ env:
   matrix:
     - VERSION=7.8.0.0 EDITION=Ent TESTS=7.8
 before_install:
+    - echo "error_reporting = E_ALL & ~E_NOTICE & ~E_STRICT" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
     - sudo apt-get purge elasticsearch #remove latest ES
     - sudo curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.4.4.deb
     - sudo dpkg -i --force-confnew elasticsearch-1.4.4.deb #install a supported version of ES
@@ -104,4 +105,4 @@ before_script:
 #  - sudo cp -f $TRAVIS_BUILD_DIR/travis-ci/moduleInstaller.php .
 #  - sudo php moduleInstaller.php -z $TRAVIS_BUILD_DIR/installer.zip
 #  - composer install --no-dev
-script: cd tests/ && phpunit --verbose --debug --group support --stop-on-failure
+script: cd tests/ && ../vendor/phpunit/phpunit/phpunit --verbose --debug --group support --stop-on-failure
