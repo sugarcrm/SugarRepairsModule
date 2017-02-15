@@ -6,7 +6,7 @@ services:
   - mysql
 env:
   matrix:
-    - VERSION=7.8.0.0 EDITION=Ult TESTS=7.8
+    - VERSION=7.8.0.0 EDITION=Ent TESTS=7.8
 before_install:
     - sudo apt-get purge elasticsearch #remove latest ES
     - sudo curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.4.4.deb
