@@ -18,7 +18,7 @@ before_install:
 
 before_script:
     - unzip encrypt/Installers/$VERSION/Sugar$EDITION-$VERSION.zip &> /dev/null
-    - cp encrypt/config_si.php Sugar$EDITION-Full-$VERSION/config_si.php
+    - cp .travis/config_si.php Sugar$EDITION-Full-$VERSION/config_si.php
     - cp .travis/silentInstall.php Sugar$EDITION-Full-$VERSION/silentInstall.php
 #    - sudo apt-get install apache2 libapache2-mod-php5
 #    - sudo a2enmod actions
