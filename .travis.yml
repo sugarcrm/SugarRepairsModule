@@ -17,9 +17,9 @@ before_install:
     - tar xvf encrypt.tar
 
 before_script:
-    - unzip encrypt/Installers/$VERSION/Sugar$EDITION-$VERSION.zip -d sugar &> /dev/null
-    - cp encrypt/config_si.php sugar/config_si.php
-    - cp .travis/silentInstall.php sugar/silentInstall.php
+    - unzip encrypt/Installers/$VERSION/Sugar$EDITION-$VERSION.zip &> /dev/null
+    - cp encrypt/config_si.php Sugar$EDITION-Full-$VERSION/config_si.php
+    - cp .travis/silentInstall.php Sugar$EDITION-Full-$VERSION/silentInstall.php
     - sudo apt-get install apache2 libapache2-mod-php5
     - sudo a2enmod actions
     - sudo a2enmod rewrite
@@ -30,8 +30,7 @@ before_script:
     - mysql -u root -e "CREATE USER 'sugarcrm'@'localhost' IDENTIFIED BY 'sugarcrm'"
     - mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO 'sugarcrm'@'localhost' WITH GRANT OPTION;"
     - sudo chmod -R 777 sugar
-    - cd sugar
-    - ls
+    - cd Sugar$EDITION-Full-$VERSION
     - php silentInstall.php
     #- curl 'http://localhost/sugar/install.php?goto=SilentInstall&cli=true'
     - cd tests
