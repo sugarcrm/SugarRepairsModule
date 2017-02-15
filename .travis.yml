@@ -34,8 +34,8 @@ before_script:
     - sleep 10 #for elasticsearch
     - php cliSilentInstall.php
     - php $TRAVIS_BUILD_DIR/.travis/cliModuleInstall.php -i $TRAVIS_BUILD_DIR/Sugar$EDITION-Full-$VERSION -z $TRAVIS_BUILD_DIR/builds/package.zip
-    - if test -f "composer.json"; then composer install;fi
+    - if test -f "composer.json"; then composer install; fi
     - sudo chmod -R 777 .
     - cd tests/
 
-script: [ -f "../vendor/phpunit/phpunit/phpunit" ] && ../vendor/phpunit/phpunit/phpunit --verbose --debug --group support --stop-on-failure || phpunit --verbose --debug --group support --stop-on-failure
+script: if test -f "../vendor/phpunit/phpunit/phpunit"; then "../vendor/phpunit/phpunit/phpunit" --verbose --debug --group support --stop-on-failure ; else phpunit --verbose --debug --group support --stop-on-failure; fi
