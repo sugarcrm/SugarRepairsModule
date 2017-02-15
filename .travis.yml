@@ -20,20 +20,20 @@ before_script:
     - unzip encrypt/Installers/$VERSION/Sugar$EDITION-$VERSION.zip &> /dev/null
     - cp encrypt/config_si.php Sugar$EDITION-Full-$VERSION/config_si.php
     - cp .travis/silentInstall.php Sugar$EDITION-Full-$VERSION/silentInstall.php
-    - sudo apt-get install apache2 libapache2-mod-php5
-    - sudo a2enmod actions
-    - sudo a2enmod rewrite
-    - echo "export PATH=/home/vagrant/.phpenv/bin:$PATH" | sudo tee -a /etc/apache2/envvars > /dev/null
-    - cat encrypt/phpenv.txt | sudo tee /etc/apache2/conf.d/phpconfig > /dev/null
-    - cat encrypt/vhost.txt | sed -e "s,PATH,`pwd`,g" | sudo tee /etc/apache2/sites-available/default > /dev/null
-    - sudo service apache2 restart
+#    - sudo apt-get install apache2 libapache2-mod-php5
+#    - sudo a2enmod actions
+#    - sudo a2enmod rewrite
+#    - echo "export PATH=/home/vagrant/.phpenv/bin:$PATH" | sudo tee -a /etc/apache2/envvars > /dev/null
+#    - cat encrypt/phpenv.txt | sudo tee /etc/apache2/conf.d/phpconfig > /dev/null
+#    - cat encrypt/vhost.txt | sed -e "s,PATH,`pwd`,g" | sudo tee /etc/apache2/sites-available/default > /dev/null
+#    - sudo service apache2 restart
     - mysql -u root -e "CREATE USER 'sugarcrm'@'localhost' IDENTIFIED BY 'sugarcrm'"
     - mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO 'sugarcrm'@'localhost' WITH GRANT OPTION;"
     - sudo chmod -R 777 Sugar$EDITION-Full-$VERSION
     - cd Sugar$EDITION-Full-$VERSION
     - php silentInstall.php
     #- curl 'http://localhost/sugar/install.php?goto=SilentInstall&cli=true'
-    - cd tests
+    #- cd tests
 #install:
 #  - sudo curl -u $FTP_USER:$FTP_PASSWORD $FTP_URL/Files/install.sh -o install.sh
 #  - sudo sh install.sh
