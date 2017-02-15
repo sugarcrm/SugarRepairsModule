@@ -29,7 +29,7 @@ before_script:
     - sudo service apache2 restart
     - mysql -u root -e "CREATE USER 'sugarcrm'@'localhost' IDENTIFIED BY 'sugarcrm'"
     - mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO 'sugarcrm'@'localhost' WITH GRANT OPTION;"
-    - sudo chmod -R 777 sugar
+    - sudo chmod -R 777 Sugar$EDITION-Full-$VERSION
     - cd Sugar$EDITION-Full-$VERSION
     - php silentInstall.php
     #- curl 'http://localhost/sugar/install.php?goto=SilentInstall&cli=true'
