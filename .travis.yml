@@ -15,10 +15,6 @@ matrix:
   - php: "5.6"
     env: VERSION=7.7.2.0 EDITION=Pro TESTS=7.7
   - php: "5.3"
-    env: VERSION=7.8.0.0 EDITION=Ent TESTS=7.8
-  - php: "5.3"
-    env: VERSION=7.8.0.0 EDITION=Pro TESTS=7.8
-  - php: "5.3"
     env: VERSION=7.7.2.0 EDITION=Ent TESTS=7.7
   - php: "5.3"
     env: VERSION=7.7.2.0 EDITION=Pro TESTS=7.7
