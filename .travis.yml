@@ -36,7 +36,6 @@ before_script:
     - sleep 10 #for elasticsearch
     - php cliSilentInstall.php
     - php $TRAVIS_BUILD_DIR/.travis/cliModuleInstall.php -i $TRAVIS_BUILD_DIR/Sugar$EDITION-Full-$VERSION -z $TRAVIS_BUILD_DIR/builds/package.zip
-    - cd Sugar$EDITION-Full-$VERSION
     - composer install
     - sudo chmod -R 777 .
     #- curl 'http://localhost/sugar/install.php?goto=SilentInstall&cli=true'
