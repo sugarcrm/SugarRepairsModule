@@ -17,9 +17,11 @@ before_install:
     - tar xvf encrypt.tar
 
 before_script:
+    - pwd
     - unzip encrypt/Installers/$VERSION/Sugar$EDITION-$VERSION.zip -d sugar &> /dev/null
+    - pwd
     - cp encrypt/config_si.php sugar/config_si.php
-    - echo pwd
+    - pwd
     - cd ..
     - cp SugarRepairsModule/.travis/silentInstall.php sugar/silentInstall.php
     - sudo apt-get install apache2 libapache2-mod-php5
