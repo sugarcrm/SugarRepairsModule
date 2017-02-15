@@ -128,7 +128,6 @@ class suppSugarRepairsEmailAddressesRepairsTest extends Sugar_PHPUnit_Framework_
         $supp_EmailAddressTest->repairOptedOutAddresses();
 
         $email_addresses = $sea->getAddressesByGUID($contact->id, $contact->module_name);
-        print_r($email_addresses);
         $this->assertEquals($email_addresses[0]['opt_out'], 1);
     }
 }
