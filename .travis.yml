@@ -5,9 +5,9 @@ services:
 matrix:
   include:
   - php: '5.3'
-    env: VERSION=6.5.24 EDITION=Ent TESTS=6.5
+    env: VERSION=6.5.25 EDITION=Ent TESTS=6.5
   - php: '5.3'
-    env: VERSION=6.5.24 EDITION=Pro TESTS=6.5
+    env: VERSION=6.5.25 EDITION=Pro TESTS=6.5
 before_install:
 - echo "error_reporting = E_ALL & ~E_NOTICE & ~E_STRICT" >> ~/.phpenv/versions/$(phpenv
   version-name)/etc/php.ini
