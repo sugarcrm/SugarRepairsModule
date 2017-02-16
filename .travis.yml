@@ -37,8 +37,8 @@ before_script:
 - sudo chmod -R 777 .
 - cd tests/
 script: if test -f "../vendor/phpunit/phpunit/phpunit"; then "../vendor/phpunit/phpunit/phpunit"
-  --verbose --debug --group support --stop-on-failure ; else cp -R ../custom/tests modules && php phpunit.php
-  --group support; fi
+  --verbose --debug --group support --stop-on-failure ; else cp -R ../custom/tests modules && sed -i "105i $GLOBALS[\'log\'] = LoggerManager::getLogger(\'SugarCRM\');" ../include/database/MysqliManager.php && php phpunit.php
+  --verbose --debug --group support --stop-on-failure; fi
 env:
   global:
     secure: ELH/2ae0c9RWyaw2B9MlS6z48vhB90REneLhfn9k773ovWz6p5KDftpIHpxeY8Uc1MprVm8qkzdw8eTAUO8BMC0D33lhNkq+rvPzpsD4ZxGqSQqpeQZh3uO6zwQ36+L5x96C7qZEnOOtYRXPtyxYUGAissNTNQ95G5g9YZ8fU1xABiYIjEbRc9RhfdYghrqDHMPK7M43S58uLb22U+JrYvaBRUDdrgAmWkVChjd5WuKHDJ5r674wF2T2434TzeWKJ80BAZdjxgbjNUsez2qnDrDlJeozCZlSFo6sEhAuYZzy3FbmArBf6MfPPCf/lo1jwHEr9UEaQKam/qb/k8x7LKYQmDr8VOgvICFBdseS+/4sLCaBRudDKvGmaXiokHa4+k2MYABNyR8lGJURXXVZT9djbdkdW7G7aWcqfj7jsdrVn8mNo4qh2v0GcHeWPudUz9S7eRGKBIkgyYTyarSzR7fnCvNDlcGvDVEG9fvDhvIIUEYTMvQ7a9Fc5Z4iErnKnkOwGQ/ZK3b9aINlVdis2nDmhgpkf29R6y/MYfGCR6HkGjPqYgVoDmRIdPurdfht5gRZCKpRCsY8WCHVApcIkcqr+SEJh9fC1wEeXz13YhExAhbZZJueXX+56DpHkPZSE7ZBmHsrPiHFLSus6LnZoETUx4veW0GVcuCpUiZd6zc=
