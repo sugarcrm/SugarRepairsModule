@@ -367,9 +367,14 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
      */
     public function repairEventCriteria()
     {
+        if ((!$this->isEnt() && !$this->isUlt()) || (version_compare($GLOBALS['sugar_version'], '7.6', '<'))) {
+            $this->log('Repair ignored as it does not apply to this Edition.');
+            return false;
+        }
+
         $this->foundIssues = array();
         $sql = "
-            SELECT 
+            SELECT
                 p.id as prj_id, p.name, p.prj_module, ed.id as event_id, ed.evn_criteria
             FROM pmse_bpm_event_definition ed
                 JOIN pmse_project p
@@ -384,8 +389,8 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
             WHERE ed.deleted = '0'
                 AND ed.evn_type IN ('START','END')
                 AND ed.evn_status = 'ACTIVE'
-                AND ed.evn_criteria <> '' 
-                AND ed.evn_criteria <> '[]' 
+                AND ed.evn_criteria <> ''
+                AND ed.evn_criteria <> '[]'
                 AND ed.evn_criteria <> '1'
                 AND ed.evn_criteria IS NOT NULL
         ";
@@ -467,10 +472,15 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
      */
     public function repairActivities()
     {
+        if ((!$this->isEnt() && !$this->isUlt()) || (version_compare($GLOBALS['sugar_version'], '7.6', '<'))) {
+            $this->log('Repair ignored as it does not apply to this Edition.');
+            return false;
+        }
+
         $this->foundIssues = array();
         $sql = "
-            SELECT 
-                p.id as prj_id, p.name, p.prj_module, a.act_script_type, a.act_task_type, 
+            SELECT
+                p.id as prj_id, p.name, p.prj_module, a.act_script_type, a.act_task_type,
                 ad.id as activity_id, ad.act_field_module, ad.act_fields, ad.act_required_fields
             FROM pmse_bpm_activity_definition ad
                 JOIN pmse_bpmn_activity a
@@ -486,7 +496,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                         f.flo_element_origin = a.id AND
                         f.prj_id = a.prj_id AND
                         f.deleted = '0'
-            WHERE ad.deleted = '0' 
+            WHERE ad.deleted = '0'
                 AND (
                     (a.act_script_type IN ('CHANGE_FIELD','ADD_RELATED_RECORD') AND ad.act_fields <> '' AND ad.act_fields IS NOT NULL) OR
                     (a.act_task_type = 'USERTASK' AND ad.act_required_fields <> '' AND ad.act_required_fields IS NOT NULL)
@@ -595,10 +605,15 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
      */
     public function repairBusinessRules()
     {
+        if ((!$this->isEnt() && !$this->isUlt()) || (version_compare($GLOBALS['sugar_version'], '7.6', '<'))) {
+            $this->log('Repair ignored as it does not apply to this Edition.');
+            return false;
+        }
+
         $this->foundIssues = array();
         $sql = "
-            SELECT 
-                p.id as prj_id, p.name, p.prj_module, a.act_script_type, a.act_task_type, 
+            SELECT
+                p.id as prj_id, p.name, p.prj_module, a.act_script_type, a.act_task_type,
                 ad.id as activity_id, ad.act_field_module, ad.act_fields,
                 br.rst_source_Definition, br.id as br_id
             FROM pmse_bpm_activity_definition ad
@@ -619,7 +634,7 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
                         f.flo_element_origin = a.id AND
                         f.prj_id = a.prj_id AND
                         f.deleted = '0'
-            WHERE ad.deleted = '0' 
+            WHERE ad.deleted = '0'
                 AND a.act_script_type = 'BUSINESS_RULE'
                 AND a.act_task_type = 'SCRIPTTASK'
                 AND br.rst_source_Definition <> ''
@@ -781,13 +796,8 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
      */
     public function execute(array $args)
     {
-        if (!$this->isEnt() && !$this->isUlt()) {
+        if ((!$this->isEnt() && !$this->isUlt()) || (version_compare($GLOBALS['sugar_version'], '7.6', '<'))) {
             $this->log('Repair ignored as it does not apply to this Edition.');
-            return false;
-        }
-
-        if (version_compare($GLOBALS['sugar_version'], '7.6', '<')) {
-            $this->log('Repair ignored as it does not apply to this version.');
             return false;
         }
 
@@ -798,11 +808,13 @@ class supp_ProcessAuthorRepairs extends supp_Repairs
 
         $stamp = time();
 
-        if ($this->backupTable('pmse_bpm_event_definition', $stamp)
-            && $this->backupTable('pmse_bpm_activity_definition', $stamp)
-            && $this->backupTable('pmse_business_rules', $stamp)
-            && $this->backupTable('pmse_bpmn_event', $stamp)
-            && $this->backupTable('pmse_bpm_related_dependency', $stamp)
+        if ($this->backupTable(array(
+            'pmse_bpm_event_definition',
+            'pmse_bpm_activity_definition',
+            'pmse_business_rules',
+            'pmse_bpmn_event',
+            'pmse_bpm_related_dependency'
+        ), $stamp)
         ) {
             $this->repairEventCriteria();
             $this->repairActivities();

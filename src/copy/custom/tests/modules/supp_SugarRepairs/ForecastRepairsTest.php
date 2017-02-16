@@ -11,6 +11,14 @@ class suppSugarRepairsForecastWorksheetRepairsTest extends Sugar_PHPUnit_Framewo
 
     protected $reportIDs = array();
 
+    public function setUp()
+    {
+        parent::setUp();
+        SugarTestHelper::setUp("current_user");
+        $GLOBALS['current_user']->getSystemUser();
+        $GLOBALS['app_list_strings'] = return_app_list_strings_language('en_us');
+    }
+
     public static function setUpBeforeClass()
     {
         parent::setUpBeforeClass();

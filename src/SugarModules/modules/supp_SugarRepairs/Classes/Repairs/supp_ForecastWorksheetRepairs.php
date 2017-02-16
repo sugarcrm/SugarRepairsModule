@@ -266,6 +266,11 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
      */
     public function repairForecastWorksheets($timeperiod_id)
     {
+        if ((version_compare($GLOBALS['sugar_version'], '6.7.0', '<'))) {
+            $this->log('Repair ignored as it does not apply to this Edition.');
+            return false;
+        }
+
         $this->logAll('Begin forecast worksheet repairs');
 
         $userIdFilters = $this->getLevelOneManagers();
@@ -302,10 +307,17 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
 
     /**
      * Executes the forecast repairs
-     * @param bool $isTesting
+     *
+     * @param array $args
+     * @return bool
      */
     public function execute(array $args)
     {
+        if ((version_compare($GLOBALS['sugar_version'], '6.7.0', '<'))) {
+            $this->log('Repair ignored as it does not apply to this Edition.');
+            return false;
+        }
+
         //check for testing an other repair generic params
         parent::execute($args);
 
@@ -316,9 +328,12 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
             return false;
         }
 
-        if ($this->backupTable('forecast_manager_worksheets', $stamp) &&
-            $this->backupTable('forecast_worksheets', $stamp) &&
-            $this->backupTable('quotas', $stamp)
+        if ($this->backupTable(array(
+            'forecast_manager_worksheets',
+            'forecast_worksheets',
+            'quotas'
+        ),
+            $stamp)
         ) {
             $this->repairForecastWorksheets($args['timeperiod_id']);
         } else {

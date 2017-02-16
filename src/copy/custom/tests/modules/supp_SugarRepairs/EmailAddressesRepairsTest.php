@@ -15,6 +15,8 @@ class suppSugarRepairsEmailAddressesRepairsTest extends Sugar_PHPUnit_Framework_
     {
         parent::setUp();
         SugarTestHelper::setUp("current_user");
+        $GLOBALS['current_user']->getSystemUser();
+        $GLOBALS['app_list_strings'] = return_app_list_strings_language('en_us');
     }
 
     public function tearDown()
