@@ -37,7 +37,7 @@ before_script:
 - sudo chmod -R 777 .
 - cd tests/
 script: if test -f "../vendor/phpunit/phpunit/phpunit"; then "../vendor/phpunit/phpunit/phpunit"
-  --verbose --debug --group support --stop-on-failure ; else mv ../custom/tests modules && php phpunit.php --verbose --debug
+  --verbose --debug --group support --stop-on-failure ; else cp -R ../custom/tests modules && php phpunit.php --verbose --debug
   --group support --stop-on-failure; fi
 env:
   global:
