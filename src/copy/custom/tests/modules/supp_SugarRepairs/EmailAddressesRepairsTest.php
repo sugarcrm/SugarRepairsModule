@@ -17,7 +17,6 @@ class suppSugarRepairsEmailAddressesRepairsTest extends Sugar_PHPUnit_Framework_
         SugarTestHelper::setUp("current_user");
         $GLOBALS['current_user']->getSystemUser();
         $GLOBALS['app_list_strings'] = return_app_list_strings_language('en_us');
-        $GLOBALS['log'] = LoggerManager::getLogger('SugarCRM');
     }
 
     public function tearDown()
