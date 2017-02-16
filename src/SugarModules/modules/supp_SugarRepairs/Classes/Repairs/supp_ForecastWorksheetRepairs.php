@@ -44,7 +44,6 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
      */
     public function validateTimePeriodId($timeperiod_id)
     {
-
         $query = new SugarQuery();
         $query->select(array(
             'id',
@@ -69,7 +68,6 @@ class supp_ForecastWorksheetRepairs extends supp_Repairs
      */
     public function getLevelOneManagers()
     {
-
         $levelOneIds = array();
         $level = 1;
 

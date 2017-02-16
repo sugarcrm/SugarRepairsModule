@@ -105,6 +105,11 @@ class suppSugarRepairsForecastWorksheetRepairsTest extends Sugar_PHPUnit_Framewo
      */
     public function testGetAllTimePeriodIds()
     {
+        if (version_compare($GLOBALS['sugar_version'], '7.2', '<')) {
+            $this->markTestSkipped('Repair ignored as it does not apply to this version.');
+            return false;
+        }
+
         $repairs = new supp_ForecastWorksheetRepairs();
         $repairs->setTesting(false);
         $result = $repairs->getAllTimePeriodIds();
@@ -119,6 +124,10 @@ class suppSugarRepairsForecastWorksheetRepairsTest extends Sugar_PHPUnit_Framewo
      */
     public function testValidateTimePeriodId()
     {
+        if (version_compare($GLOBALS['sugar_version'], '7.2', '<')) {
+            $this->markTestSkipped('Repair ignored as it does not apply to this version.');
+            return false;
+        }
         $repairs = new supp_ForecastWorksheetRepairs();
         $repairs->setTesting(false);
         $result = $repairs->validateTimePeriodId("736d000c-f79d-11e5-9b16-a19e342a368f");
@@ -135,6 +144,10 @@ class suppSugarRepairsForecastWorksheetRepairsTest extends Sugar_PHPUnit_Framewo
      */
     public function testGetLevelOneManagers()
     {
+        if (version_compare($GLOBALS['sugar_version'], '7.2', '<')) {
+            $this->markTestSkipped('Repair ignored as it does not apply to this version.');
+            return false;
+        }
         $repairs = new supp_ForecastWorksheetRepairs();
         $repairs->setTesting(false);
         $result = $repairs->getLevelOneManagers();
@@ -154,6 +167,11 @@ class suppSugarRepairsForecastWorksheetRepairsTest extends Sugar_PHPUnit_Framewo
      */
     public function testGetNextLevelUsersByManager()
     {
+        if (version_compare($GLOBALS['sugar_version'], '7.2', '<')) {
+            $this->markTestSkipped('Repair ignored as it does not apply to this version.');
+            return false;
+        }
+
         $repairs = new supp_ForecastWorksheetRepairs();
         $repairs->setTesting(false);
         $repairs->getNextLevelUsersByManager(2, array('38c90c70-7788-13a2-668d-513e2b8df5e1'));
@@ -170,6 +188,11 @@ class suppSugarRepairsForecastWorksheetRepairsTest extends Sugar_PHPUnit_Framewo
      */
     public function testClearForecastWorksheet()
     {
+        if (version_compare($GLOBALS['sugar_version'], '7.2', '<')) {
+            $this->markTestSkipped('Repair ignored as it does not apply to this version.');
+            return false;
+        }
+
         $repairs = new supp_ForecastWorksheetRepairs();
         $repairs->setTesting(false);
         $results = $repairs->clearForecastWorksheet('736d000c-f79d-11e5-9b16-a19e342a368f');
@@ -192,6 +215,10 @@ class suppSugarRepairsForecastWorksheetRepairsTest extends Sugar_PHPUnit_Framewo
      */
     public function testClearRollupQuotas()
     {
+        if (version_compare($GLOBALS['sugar_version'], '7.2', '<')) {
+            $this->markTestSkipped('Repair ignored as it does not apply to this version.');
+            return false;
+        }
         $repairs = new supp_ForecastWorksheetRepairs();
         $repairs->setTesting(false);
         $results = $repairs->clearRollupQuotas('736d000c-f79d-11e5-9b16-a19e342a368f');
@@ -214,6 +241,10 @@ class suppSugarRepairsForecastWorksheetRepairsTest extends Sugar_PHPUnit_Framewo
      */
     public function testRepairForecastWorksheets()
     {
+        if (version_compare($GLOBALS['sugar_version'], '7.2', '<')) {
+            $this->markTestSkipped('Repair ignored as it does not apply to this version.');
+            return false;
+        }
         $repairs = new supp_ForecastWorksheetRepairs();
         $repairs->setTesting(false);
 

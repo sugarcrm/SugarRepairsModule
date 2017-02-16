@@ -1,41 +1,44 @@
 language: php
-
 services:
-  - elasticsearch
-  - mysql
-
+- elasticsearch
+- mysql
 matrix:
   include:
-  - php: "5.3"
+  - php: '5.3'
     env: VERSION=6.5.24 EDITION=Ent TESTS=6.5
-  - php: "5.3"
+  - php: '5.3'
     env: VERSION=6.5.24 EDITION=Pro TESTS=6.5
-    
 before_install:
-    - echo "error_reporting = E_ALL & ~E_NOTICE & ~E_STRICT" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-    - sudo apt-get purge elasticsearch #remove latest ES
-    - sudo curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.4.4.deb
-    - sudo dpkg -i --force-confnew elasticsearch-1.4.4.deb #install a supported version of ES
-    - sudo service elasticsearch restart
-    - curl https://scarlett.sugarondemand.com/custom/hosted/encrypt.tar.gz.enc -o encrypt.tar.gz.enc
-    - openssl aes-256-cbc -K $encrypted_3bc6373f0212_key -iv $encrypted_3bc6373f0212_iv -in encrypt.tar.gz.enc -out encrypt.tar.gz -d
-    - tar -xzvf encrypt.tar.gz
-
+- echo "error_reporting = E_ALL & ~E_NOTICE & ~E_STRICT" >> ~/.phpenv/versions/$(phpenv
+  version-name)/etc/php.ini
+- sudo apt-get purge elasticsearch
+- sudo curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.4.4.deb
+- sudo dpkg -i --force-confnew elasticsearch-1.4.4.deb
+- sudo service elasticsearch restart
+- curl https://scarlett.sugarondemand.com/custom/hosted/encrypt.tar.gz.enc -o encrypt.tar.gz.enc
+- openssl aes-256-cbc -k "$super_secret_password" -in encrypt.tar.gz.enc -out encrypt.tar.gz -d
+- tar -xzvf encrypt.tar.gz
 before_script:
-    - php build.php --name package
-    - unzip encrypt/Installers/$VERSION/Sugar$EDITION-$VERSION.zip &> /dev/null
-    - cp -R encrypt/Tests/$TESTS/ Sugar$EDITION-Full-$VERSION/tests/
-    - cp .travis/config_si.php Sugar$EDITION-Full-$VERSION/config_si.php
-    - cp .travis/cliSilentInstall.php Sugar$EDITION-Full-$VERSION/cliSilentInstall.php
-    - mysql -u root -e "CREATE USER 'sugarcrm'@'localhost' IDENTIFIED BY 'sugarcrm'"
-    - mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO 'sugarcrm'@'localhost' WITH GRANT OPTION;"
-    - sudo chmod -R 777 Sugar$EDITION-Full-$VERSION
-    - cd Sugar$EDITION-Full-$VERSION
-    - sleep 10 #for elasticsearch
-    - php cliSilentInstall.php
-    - php $TRAVIS_BUILD_DIR/.travis/cliModuleInstall.php -i $TRAVIS_BUILD_DIR/Sugar$EDITION-Full-$VERSION -z $TRAVIS_BUILD_DIR/builds/package.zip
-    - if test -f "composer.json"; then composer install; fi
-    - sudo chmod -R 777 .
-    - cd tests/
-
-script: if test -f "../vendor/phpunit/phpunit/phpunit"; then "../vendor/phpunit/phpunit/phpunit" --verbose --debug --group support --stop-on-failure ; else phpunit --verbose --debug --group support --stop-on-failure; fi
+- php build.php --name package
+- unzip encrypt/Installers/$VERSION/Sugar$EDITION-$VERSION.zip &> /dev/null
+- cp -R encrypt/Tests/$TESTS/ Sugar$EDITION-Full-$VERSION/tests/
+- cp .travis/config_si.php Sugar$EDITION-Full-$VERSION/config_si.php
+- cp .travis/cliSilentInstall.php Sugar$EDITION-Full-$VERSION/cliSilentInstall.php
+- mysql -u root -e "CREATE USER 'sugarcrm'@'localhost' IDENTIFIED BY 'sugarcrm'"
+- mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO 'sugarcrm'@'localhost' WITH GRANT
+  OPTION;"
+- sudo chmod -R 777 Sugar$EDITION-Full-$VERSION
+- cd Sugar$EDITION-Full-$VERSION
+- sleep 10
+- php cliSilentInstall.php
+- php $TRAVIS_BUILD_DIR/.travis/cliModuleInstall.php -i $TRAVIS_BUILD_DIR/Sugar$EDITION-Full-$VERSION
+  -z $TRAVIS_BUILD_DIR/builds/package.zip
+- if test -f "composer.json"; then composer install; fi
+- sudo chmod -R 777 .
+- cd tests/
+script: if test -f "../vendor/phpunit/phpunit/phpunit"; then "../vendor/phpunit/phpunit/phpunit"
+  --verbose --debug --group support --stop-on-failure ; else cp -R ../custom/tests modules && phpunit --verbose --debug
+  --group support --stop-on-failure; fi
+env:
+  global:
+    secure: ELH/2ae0c9RWyaw2B9MlS6z48vhB90REneLhfn9k773ovWz6p5KDftpIHpxeY8Uc1MprVm8qkzdw8eTAUO8BMC0D33lhNkq+rvPzpsD4ZxGqSQqpeQZh3uO6zwQ36+L5x96C7qZEnOOtYRXPtyxYUGAissNTNQ95G5g9YZ8fU1xABiYIjEbRc9RhfdYghrqDHMPK7M43S58uLb22U+JrYvaBRUDdrgAmWkVChjd5WuKHDJ5r674wF2T2434TzeWKJ80BAZdjxgbjNUsez2qnDrDlJeozCZlSFo6sEhAuYZzy3FbmArBf6MfPPCf/lo1jwHEr9UEaQKam/qb/k8x7LKYQmDr8VOgvICFBdseS+/4sLCaBRudDKvGmaXiokHa4+k2MYABNyR8lGJURXXVZT9djbdkdW7G7aWcqfj7jsdrVn8mNo4qh2v0GcHeWPudUz9S7eRGKBIkgyYTyarSzR7fnCvNDlcGvDVEG9fvDhvIIUEYTMvQ7a9Fc5Z4iErnKnkOwGQ/ZK3b9aINlVdis2nDmhgpkf29R6y/MYfGCR6HkGjPqYgVoDmRIdPurdfht5gRZCKpRCsY8WCHVApcIkcqr+SEJh9fC1wEeXz13YhExAhbZZJueXX+56DpHkPZSE7ZBmHsrPiHFLSus6LnZoETUx4veW0GVcuCpUiZd6zc=

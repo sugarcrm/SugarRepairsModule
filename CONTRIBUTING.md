@@ -60,7 +60,7 @@ cd .travis
 rm encrypt.tar.gz
 rm encrypt.tar.gz.enc
 tar -czvf encrypt.tar.gz encrypt
-travis encrypt-file encrypt.tar.gz --org
+openssl aes-256-cbc -k "password" -in encrypt.tar.gz -out encrypt.tar.gz.enc
 
 upload file to ~/home
 connect to MS
