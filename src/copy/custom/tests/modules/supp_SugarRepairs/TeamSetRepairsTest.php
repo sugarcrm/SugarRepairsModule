@@ -12,7 +12,7 @@ class suppSugarRepairsTeamSetRepairsTest extends Sugar_PHPUnit_Framework_TestCas
     {
         parent::setUp();
         SugarTestHelper::setUp("current_user");
-        $GLOBALS['current_user']->getSystemUser();
+        $GLOBALS['current_user']->is_admin = 1;
         $GLOBALS['app_list_strings'] = return_app_list_strings_language('en_us');
     }
 
