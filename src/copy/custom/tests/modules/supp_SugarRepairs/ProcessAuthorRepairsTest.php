@@ -24,11 +24,7 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
         parent::setUpBeforeClass();
 
         $repairs = new supp_ProcessAuthorRepairs();
-        if (!$repairs->isEnt() && !$repairs->isUlt()) {
-            return;
-        }
-
-        if (version_compare($GLOBALS['sugar_version'], '7.2', '<')) {
+        if ((!$repairs->isEnt() && !$repairs->isUlt()) || (version_compare($GLOBALS['sugar_version'], '7.2', '<'))) {
             return;
         }
 
@@ -931,8 +927,8 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
     public function testDisablePADefinition()
     {
         $repairs = new supp_ProcessAuthorRepairs();
-        if (!$repairs->isEnt() && !$repairs->isUlt()) {
-            $this->markTestSkipped('Skipping test');
+        if ((!$repairs->isEnt() && !$repairs->isUlt()) || (version_compare($GLOBALS['sugar_version'], '7.2', '<'))) {
+            $this->markTestSkipped('Reapir does not apply to this version or edition');
             return;
         }
 
@@ -951,8 +947,8 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
     public function testSetEventDefinition()
     {
         $repairs = new supp_ProcessAuthorRepairs();
-        if (!$repairs->isEnt() && !$repairs->isUlt()) {
-            $this->markTestSkipped('Skipping test');
+        if ((!$repairs->isEnt() && !$repairs->isUlt()) || (version_compare($GLOBALS['sugar_version'], '7.2', '<'))) {
+            $this->markTestSkipped('Reapir does not apply to this version or edition');
             return;
         }
 
@@ -984,8 +980,8 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
     public function testSetActionDefinition()
     {
         $repairs = new supp_ProcessAuthorRepairs();
-        if (!$repairs->isEnt() && !$repairs->isUlt()) {
-            $this->markTestSkipped('Skipping test');
+        if ((!$repairs->isEnt() && !$repairs->isUlt()) || (version_compare($GLOBALS['sugar_version'], '7.2', '<'))) {
+            $this->markTestSkipped('Reapir does not apply to this version or edition');
             return;
         }
 
@@ -1017,8 +1013,8 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
     public function testSetBusinessRuleDefinition()
     {
         $repairs = new supp_ProcessAuthorRepairs();
-        if (!$repairs->isEnt() && !$repairs->isUlt()) {
-            $this->markTestSkipped('Skipping test');
+        if ((!$repairs->isEnt() && !$repairs->isUlt()) || (version_compare($GLOBALS['sugar_version'], '7.2', '<'))) {
+            $this->markTestSkipped('Reapir does not apply to this version or edition');
             return;
         }
 
@@ -1050,8 +1046,8 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
     public function testValidatePAFieldExists()
     {
         $repairs = new supp_ProcessAuthorRepairs();
-        if (!$repairs->isEnt() && !$repairs->isUlt()) {
-            $this->markTestSkipped('Skipping test');
+        if ((!$repairs->isEnt() && !$repairs->isUlt()) || (version_compare($GLOBALS['sugar_version'], '7.2', '<'))) {
+            $this->markTestSkipped('Reapir does not apply to this version or edition');
             return;
         }
 
@@ -1088,8 +1084,8 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
     public function testValidatePAOptionListExists()
     {
         $repairs = new supp_ProcessAuthorRepairs();
-        if (!$repairs->isEnt() && !$repairs->isUlt()) {
-            $this->markTestSkipped('Skipping test');
+        if ((!$repairs->isEnt() && !$repairs->isUlt()) || (version_compare($GLOBALS['sugar_version'], '7.2', '<'))) {
+            $this->markTestSkipped('Reapir does not apply to this version or edition');
             return;
         }
 
@@ -1138,8 +1134,8 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
     public function testValidatePASelectedKey()
     {
         $repairs = new supp_ProcessAuthorRepairs();
-        if (!$repairs->isEnt() && !$repairs->isUlt()) {
-            $this->markTestSkipped('Skipping test');
+        if ((!$repairs->isEnt() && !$repairs->isUlt()) || (version_compare($GLOBALS['sugar_version'], '7.2', '<'))) {
+            $this->markTestSkipped('Reapir does not apply to this version or edition');
             return;
         }
 
@@ -1194,8 +1190,8 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
     public function testRepairEventCriteria()
     {
         $repairs = new supp_ProcessAuthorRepairs();
-        if (!$repairs->isEnt() && !$repairs->isUlt()) {
-            $this->markTestSkipped('Skipping test');
+        if ((!$repairs->isEnt() && !$repairs->isUlt()) || (version_compare($GLOBALS['sugar_version'], '7.2', '<'))) {
+            $this->markTestSkipped('Reapir does not apply to this version or edition');
             return;
         }
 
@@ -1234,8 +1230,8 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
     public function testRepairActivities()
     {
         $repairs = new supp_ProcessAuthorRepairs();
-        if (!$repairs->isEnt() && !$repairs->isUlt()) {
-            $this->markTestSkipped('Skipping test');
+        if ((!$repairs->isEnt() && !$repairs->isUlt()) || (version_compare($GLOBALS['sugar_version'], '7.2', '<'))) {
+            $this->markTestSkipped('Reapir does not apply to this version or edition');
             return;
         }
 
@@ -1290,8 +1286,8 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
     public function testRepairBusinessRules()
     {
         $repairs = new supp_ProcessAuthorRepairs();
-        if (!$repairs->isEnt() && !$repairs->isUlt()) {
-            $this->markTestSkipped('Skipping test');
+        if ((!$repairs->isEnt() && !$repairs->isUlt()) || (version_compare($GLOBALS['sugar_version'], '7.2', '<'))) {
+            $this->markTestSkipped('Reapir does not apply to this version or edition');
             return;
         }
 
@@ -1338,8 +1334,8 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
     public function testIsBlacklistedPAField()
     {
         $repairs = new supp_ProcessAuthorRepairs();
-        if (!$repairs->isEnt() && !$repairs->isUlt()) {
-            $this->markTestSkipped('Skipping test');
+        if ((!$repairs->isEnt() && !$repairs->isUlt()) || (version_compare($GLOBALS['sugar_version'], '7.2', '<'))) {
+            $this->markTestSkipped('Reapir does not apply to this version or edition');
             return;
         }
 
@@ -1375,8 +1371,8 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
     public function testIsBlacklistedPAFieldType()
     {
         $repairs = new supp_ProcessAuthorRepairs();
-        if (!$repairs->isEnt() && !$repairs->isUlt()) {
-            $this->markTestSkipped('Skipping test');
+        if ((!$repairs->isEnt() && !$repairs->isUlt()) || (version_compare($GLOBALS['sugar_version'], '7.2', '<'))) {
+            $this->markTestSkipped('Reapir does not apply to this version or edition');
             return;
         }
 
@@ -1414,8 +1410,8 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
     public function testDeleteBlacklistedDefinition()
     {
         $repairs = new supp_ProcessAuthorRepairs();
-        if (!$repairs->isEnt() && !$repairs->isUlt()) {
-            $this->markTestSkipped('Skipping test');
+        if ((!$repairs->isEnt() && !$repairs->isUlt()) || (version_compare($GLOBALS['sugar_version'], '7.2', '<'))) {
+            $this->markTestSkipped('Reapir does not apply to this version or edition');
             return;
         }
 
@@ -1487,8 +1483,8 @@ class suppSugarRepairsProcessAuthorRepairsTest extends Sugar_PHPUnit_Framework_T
     public function testDeleteBusinessRuleDefinition()
     {
         $repairs = new supp_ProcessAuthorRepairs();
-        if (!$repairs->isEnt() && !$repairs->isUlt()) {
-            $this->markTestSkipped('Skipping test');
+        if ((!$repairs->isEnt() && !$repairs->isUlt()) || (version_compare($GLOBALS['sugar_version'], '7.2', '<'))) {
+            $this->markTestSkipped('Reapir does not apply to this version or edition');
             return;
         }
 
