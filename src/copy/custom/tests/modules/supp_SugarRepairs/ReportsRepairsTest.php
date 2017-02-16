@@ -93,6 +93,11 @@ class suppSugarRepairsReportsRepairsTest extends Sugar_PHPUnit_Framework_TestCas
 
     public function testLegacyTeamSetDefinitionRepair()
     {
+        if (version_compare($GLOBALS['sugar_version'], '7.0', '<')) {
+            $this->markTestSkipped('Repair ignored as it does not apply to this version.');
+            return false;
+        }
+
         $jsonObj = getJSONobj();
         $reportBean = BeanFactory::newBean('Reports');
         $reportBean->name = 'Legacy TeamSet Report Test';
@@ -109,7 +114,7 @@ class suppSugarRepairsReportsRepairsTest extends Sugar_PHPUnit_Framework_TestCas
 
         $reportTest = new supp_ReportRepairs();
         $reportTest->setTesting(false);
-        $reportTest->execute(array('test' => false));
+        $reportTest->repairReports();
 
         $savedReport = BeanFactory::getBean('Reports', $reportID);
         $patterns = array('/\"team_sets\"/', '/\:team_sets\"/', '/Team Set/', '/\"relationship_name\":\"(\w+)_team_sets\"/');

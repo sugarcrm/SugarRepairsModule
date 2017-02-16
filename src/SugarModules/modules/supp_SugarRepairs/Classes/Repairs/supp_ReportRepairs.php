@@ -186,6 +186,11 @@ class supp_ReportRepairs extends supp_Repairs
      */
     public function repairTeamSets(&$JSONcontent, $report)
     {
+        if (version_compare($GLOBALS['sugar_version'], '7.0', '<')) {
+            $this->log('Repair team sets ignored as it does not apply to this version.');
+            return false;
+        }
+
         $update = FALSE;
         $patterns = array('/\"team_sets\"/', '/\:team_sets\"/', '/Team Set/', '/\"relationship_name\":\"(\w+)_team_sets\"/');
         $replacements = array('"team_link"', ':team_link"', 'Teams', '"relationship_name":"${1}_team_link"');
