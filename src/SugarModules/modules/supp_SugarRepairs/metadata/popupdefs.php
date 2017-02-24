@@ -1,6 +1,7 @@
 <?php
+// Copyright 2017 SugarCRM Inc.  Licensed by SugarCRM under the Apache 2.0 license.
+
 if (!defined('sugarEntry') || !sugarEntry) die('Not A Valid Entry Point');
-// Copyright 2016 SugarCRM Inc.  Licensed by SugarCRM under the Apache 2.0 license.
 $module_name = 'supp_SugarRepairs';
 $object_name = 'supp_SugarRepairs';
 $_module_name = 'supp_sugarrepairs';

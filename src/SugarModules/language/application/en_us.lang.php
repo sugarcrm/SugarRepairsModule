@@ -1,5 +1,5 @@
 <?php
-// Copyright 2016 SugarCRM Inc.  Licensed by SugarCRM under the Apache 2.0 license.
+// Copyright 2017 SugarCRM Inc.  Licensed by SugarCRM under the Apache 2.0 license.
 
 $app_list_strings['supp_sugarrepairs_type_dom']['Language'] = 'Language Repairs';
 $app_list_strings['supp_sugarrepairs_type_dom']['Reports'] = 'Report Repairs';

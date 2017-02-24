@@ -1,5 +1,5 @@
 <?php
-// Copyright 2016 SugarCRM Inc.  Licensed by SugarCRM under the Apache 2.0 license.
+// Copyright 2017 SugarCRM Inc.  Licensed by SugarCRM under the Apache 2.0 license.
 $mod_strings = array(
     'LBL_ASSIGNED_TO_ID' => 'Assigned User Id',
     'LBL_ASSIGNED_TO_NAME' => 'Assigned to',

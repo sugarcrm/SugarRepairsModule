@@ -1,7 +1,8 @@
 <?php
-// Copyright 2016 SugarCRM Inc.  Licensed by SugarCRM under the Apache 2.0 license.
+// Copyright 2017 SugarCRM Inc.  Licensed by SugarCRM under the Apache 2.0 license.
 
 require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_Repairs.php');
+require_once('modules/supp_SugarRepairs/Classes/supp_History.php');
 
 class supp_EmailAddressRepairs extends supp_Repairs
 {
@@ -148,9 +149,29 @@ class supp_EmailAddressRepairs extends supp_Repairs
      */
     public function repairOptedOutAddresses()
     {
-        if (version_compare($GLOBALS['sugar_version'], '7.7.2.0', '<') || version_compare($GLOBALS['sugar_version'], '7.8.0.0', '>')) {
+        if (version_compare($GLOBALS['sugar_version'], '7.7.2.0', '<')) {
             $this->log('Repair does not apply to this version.');
             return false;
+        }
+
+        $startDate = supp_History::getPatchedDate('7.7.2.0', '7.8.0.0');
+        $endDate = supp_History::getPatchedDate('7.8.0.1');
+
+        if ($startDate == false && version_compare($GLOBALS['sugar_version'], '7.7.2.0', '>=') && version_compare($GLOBALS['sugar_version'], '7.8.0.0', '<=')) {
+            $startDate = '2016-10-19 22:48:00'; // release of 7.7.2.0
+        }
+
+        $startRange = '';
+        if ($startDate == false) {
+            $this->log('Opt-out repair does not apply to new installs after 7.8.0.1.');
+            return false;
+        } else {
+            $startRange = " AND date_modified >= '{$startDate}' ";
+        }
+
+        $endRange = '';
+        if ($endDate !== false) {
+            $endRange = " AND date_modified < '{$endDate}' ";
         }
 
         $findOptedOut = "SELECT distinct target_id, target_type
@@ -158,7 +179,8 @@ class supp_EmailAddressRepairs extends supp_Repairs
                          WHERE activity_type = 'removed'
                          AND deleted = 0
                          AND target_type not in ('Users')
-                         AND date_modified > '2016-10-19 22:48:00'
+                         {$startRange}
+                         {$endRange}
                          ORDER BY target_type, target_id
                          ";
 

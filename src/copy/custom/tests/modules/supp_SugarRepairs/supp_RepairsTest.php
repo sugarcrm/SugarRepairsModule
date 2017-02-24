@@ -1,4 +1,6 @@
 <?php
+// Copyright 2017 SugarCRM Inc.  Licensed by SugarCRM under the Apache 2.0 license.
+
 require_once 'custom/tests/modules/supp_SugarRepairs/Stubs/RepairStub.php';
 
 /**

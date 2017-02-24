@@ -1,5 +1,6 @@
 <?php
-// created: 2016-03-01 11:40:30
+// Copyright 2017 SugarCRM Inc.  Licensed by SugarCRM under the Apache 2.0 license.
+
 $searchFields['supp_SugarRepairs'] = array(
     'name' =>
         array(
