@@ -130,6 +130,7 @@ class suppSugarRepairsEmailAddressesRepairsTest extends Sugar_PHPUnit_Framework_
         $supp_EmailAddressTest->repairOptedOutAddresses();
 
         if (version_compare($GLOBALS['sugar_version'], '7.7.2.0', '<') || version_compare($GLOBALS['sugar_version'], '7.8.0.0', '>')) {
+            $email_addresses = $sea->getAddressesByGUID($contact->id, $contact->module_name);
             $this->assertEquals($email_addresses[0]['opt_out'], 0);
         } else {
             $email_addresses = $sea->getAddressesByGUID($contact->id, $contact->module_name);
