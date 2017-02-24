@@ -3,6 +3,7 @@
 
 require_once('modules/supp_SugarRepairs/Classes/Repairs/supp_Repairs.php');
 require_once('modules/supp_SugarRepairs/Classes/supp_History.php');
+require_once('modules/supp_SugarRepairs/Classes/supp_TimeDate.php');
 
 class supp_EmailAddressRepairs extends supp_Repairs
 {
@@ -154,11 +155,17 @@ class supp_EmailAddressRepairs extends supp_Repairs
             return false;
         }
 
-        $startDate = supp_History::getPatchedDate('7.7.2.0', '7.8.0.0');
-        $endDate = supp_History::getPatchedDate('7.8.0.1');
+        $uh = new supp_History();
+        $td = new supp_TimeDate();
 
-        if ($startDate == false && version_compare($GLOBALS['sugar_version'], '7.7.2.0', '>=') && version_compare($GLOBALS['sugar_version'], '7.8.0.0', '<=')) {
-            $startDate = '2016-10-19 22:48:00'; // release of 7.7.2.0
+        $startPatch = $uh->getPatch('7.7.2.0', '7.8.0.0');
+        $endPatch = $uh->getPatch('7.8.0.1');
+
+        $startDate = false;
+        if ($startPatch == false && version_compare($GLOBALS['sugar_version'], '7.7.2.0', '>=') && version_compare($GLOBALS['sugar_version'], '7.8.0.0', '<=')) {
+            $startDate = $td->convertToDateTime('2016-10-19 22:48:00'); // release of 7.7.2.0
+        } else {
+            $startDate = $td->convertToDateTime($startPatch->date_entered);
         }
 
         $startRange = '';
@@ -166,11 +173,12 @@ class supp_EmailAddressRepairs extends supp_Repairs
             $this->log('Opt-out repair does not apply to new installs after 7.8.0.1.');
             return false;
         } else {
-            $startRange = " AND date_modified >= '{$startDate}' ";
+            $startRange = " AND date_modified >= '" . $startDate->asDb() . "' ";
         }
 
         $endRange = '';
-        if ($endDate !== false) {
+        if ($endPatch !== false) {
+            $endDate = $td->convertToDateTime($endPatch->date_entered);
             $endRange = " AND date_modified < '{$endDate}' ";
         }
 

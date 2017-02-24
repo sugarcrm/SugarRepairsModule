@@ -4,38 +4,68 @@
 /**
  * History helpers for Sugar
  */
-class supp_History
+class supp_History extends \UpgradeHistory
 {
+    /**
+     * Returns the exact versions applicable to an installed entry
+     * @return bool
+     */
+    function getExactVersions()
+    {
+        $manifest = $this->getManifest();
+
+        if (isset($manifest['acceptable_sugar_versions']['exact_matches']) && !empty($manifest['acceptable_sugar_versions']['exact_matches'])) {
+            return $manifest['acceptable_sugar_versions']['exact_matches'];
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns the manifest if valid
+     * @return bool|mixed
+     */
+    function getManifest()
+    {
+        $manifest = unserialize(base64_decode($this->manifest));
+
+        if (is_array($manifest)) {
+            return $manifest;
+        }
+
+        return false;
+    }
+
     /**
      * Returns all installed upgrade patches
      * @return array
      */
-    public static function getInstalledPatches($sort = 'DESC')
+    function getInstalledPatches($sort = 'DESC')
     {
-        return self::getInstalledByType('patch', $sort);
+        return $this->getInstalledByType('patch', $sort);
     }
 
     /**
-     * Returns the date an instance was upgraded to or past a specific version
+     * Returns the patch that upgraded an instance to or past a specific version
      *
      * @param $startVersion
      * @param bool $endVersion
      * @return bool
      */
-    public static function getPatchedDate($startVersion, $endVersion = false)
+    function getPatch($startVersion, $endVersion = false)
     {
-        $patches = self::getInstalledPatches('ASC');
+        $patches = $this->getInstalledPatches('ASC');
 
         if ($endVersion) {
             foreach ($patches as $patch) {
-                if (version_compare($patch['version'], $startVersion, ">=") && version_compare($patch['version'], $endVersion, "<=")) {
-                    return $patch['date_entered'];
+                if (version_compare($patch->version, $startVersion, ">=") && version_compare($patch->version, $endVersion, "<=")) {
+                    return $patch;
                 }
             }
         } else {
             foreach ($patches as $patch) {
-                if (version_compare($patch['version'], $startVersion, ">=")) {
-                    return $patch['date_entered'];
+                if (version_compare($patch->version, $startVersion, ">=")) {
+                    return $patch;
                 }
             }
         }
@@ -47,9 +77,9 @@ class supp_History
      * Returns all installed modules
      * @return array
      */
-    public static function getInstalledModules($sort = 'DESC')
+    function getInstalledModules($sort = 'DESC')
     {
-        return self::getInstalledByType('module', $sort);
+        return $this->getInstalledByType('module', $sort);
     }
 
     /**
@@ -57,15 +87,23 @@ class supp_History
      * @param $type
      * @return array
      */
-    public static function getInstalledByType($type, $sort = 'DESC')
+    function getInstalledByType($type, $sort = 'DESC')
     {
-        $sql = "SELECT * FROM upgrade_history WHERE type = '{$type}' AND status = 'installed' ORDER BY date_entered {$sort}";
+        $sort = strtoupper($sort);
+
+        if ($sort !== 'DESC') {
+            $sort = 'ASC';
+        }
+
+        $sql = "SELECT id FROM upgrade_history WHERE type = '{$type}' AND status = 'installed' ORDER BY date_entered {$sort}";
         $result = $GLOBALS['db']->query($sql);
 
         $installed = array();
 
         while ($row = $GLOBALS['db']->fetchByAssoc($result)) {
-            $installed[$row['id']] = $row;
+            $uh = new History();
+            $uh->retrieve($row['id']);
+            $installed[$row['id']] = $uh;
         }
 
         return $installed;
