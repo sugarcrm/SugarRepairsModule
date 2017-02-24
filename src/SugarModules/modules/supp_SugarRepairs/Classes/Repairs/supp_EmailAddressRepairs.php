@@ -161,8 +161,20 @@ class supp_EmailAddressRepairs extends supp_Repairs
         $startPatch = $uh->getPatch('7.7.2.0', '7.8.0.0');
         $endPatch = $uh->getPatch('7.8.0.1');
 
+        $upgradedFromPatch = $uh->getUpgradedFromPatch(array(
+            '7.7.2.0',
+            '7.8.0.0'
+        ));
+
         $startDate = false;
-        if ($startPatch == false && version_compare($GLOBALS['sugar_version'], '7.7.2.0', '>=') && version_compare($GLOBALS['sugar_version'], '7.8.0.0', '<=')) {
+        if (
+            $startPatch == false
+            && (
+                ($upgradedFromPatch !== false)
+                ||
+                (version_compare($GLOBALS['sugar_version'], '7.7.2.0', '>=') && version_compare($GLOBALS['sugar_version'], '7.8.0.0', '<='))
+            )
+        ) {
             $startDate = $td->convertToDateTime('2016-10-19 22:48:00'); // release of 7.7.2.0
         } else {
             $startDate = $td->convertToDateTime($startPatch->date_entered);

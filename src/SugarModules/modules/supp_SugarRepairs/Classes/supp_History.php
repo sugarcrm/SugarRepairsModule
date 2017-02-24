@@ -7,6 +7,34 @@
 class supp_History extends \UpgradeHistory
 {
     /**
+     * Determines the patch an instance was directly upgraded from a specific release
+     *
+     * @param $releases
+     * @param string $sort
+     * @return bool
+     */
+    function getUpgradedFromPatch($releases, $sort = 'ASC')
+    {
+        if (!is_array($releases)) {
+            $releases = array($releases);
+        }
+
+        $patches = $this->getInstalledPatches($sort);
+
+        foreach($patches as $patch) {
+            $exactVersions = $patch->getExactVersions();
+
+            if (count($exactVersions) == 1) {
+                if (in_array(reset($exactVersions), $releases)) {
+                    return $patch;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Returns the exact versions applicable to an installed entry
      * @return bool
      */
