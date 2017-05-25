@@ -109,9 +109,7 @@ If a flag is thrown, manual intervention will be required. Scenarios that can th
 * Runs the report repair.
 * Runs the process author repairs
 
-
-
-#: wrench: Team Set Repairs
+# : wrench: Team Set Repairs
 Corrects common issues with team sets.
 
 ## Testing Command
