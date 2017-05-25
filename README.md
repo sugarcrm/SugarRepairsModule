@@ -9,58 +9,58 @@ This repo is a module loadable package that can be installed to Sugar through th
 
 When testing mode is off, the repair actions will backup any modified tables to `<table name>_srm_<timestamp>`. Any files modified or created will have their contents store in a record under the Sugar Repairs module that you can access through the UI. All log messages will be output to your terminal window as well as stored in the Sugar log file. Any items noted as `[Sugar Repairs][<cycle>][<action>][Change]` are information about file rewrites and database updates. Any items noted as `[Sugar Repairs][<cycle>][<action>][Action]` will require a manual change to correct from a developer or administrator of the system.
 
-##Things to note
+## Things to note
 * It is highly recommended to remove the Sugar Repairs module before upgrading.
 * This package can not be installed to the Sugar On-Demand envrionment by customers as it will not pass package scanner and you will not have direct access to the command line. If you are experiencing an issue with your instance, please open a [support ticket](https://web.sugarcrm.com/support/cases).
 
-##Building Installer Package
+## Building Installer Package
 To build the installer package, you will need to download the contents on this repository and execute:
 ```
 php build.php
 ```
 Once completed, the installer .zip package will be located under `./builds/`.
 
-##Running Repairs
+## Running Repairs
 Repairs will need to be run differently based on your environment and can only be executed from the command line.
 
-##For Local & On-Demand ION
+## For Local & On-Demand ION
 For local instances and ION, you will need to change to the supp_SugarRepairs directory and run the cli.php directly.
 
-###Testing Command
+### Testing Command
 ```
 cd "modules/supp_SugarRepairs/" && php cli.php --repair <action>
 ```
 
-###Execute Command
+### Execute Command
 ```
 cd "modules/supp_SugarRepairs/" && php cli.php --repair <action> --test false
 ```
 
-##For On-Demand Mothership
+## For On-Demand Mothership
 For mothership, you will need to change to the instances directory and run shadow-shell:
 
-###Testing Command
+### Testing Command
 ```
 $options = array('repair' => '<action>');require_once("./modules/supp_SugarRepairs/cli.php");
 ```
 
-###Execute Command
+### Execute Command
 ```
 $options = array('repair' => '<action>', 'test' => false);require_once("./modules/supp_SugarRepairs/cli.php");
 ```
 
 
 
-#:wrench: Language Repairs
+# :wrench: Language Repairs
 Corrects common language file issues. The various issues addressed are shown below:
 
-##Testing Command
+## Testing Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair lang`
 
-##Execute Command
+## Execute Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair lang --test false`
 
-##Issues Addressed
+## Issues Addressed
 * Health Check Errors:
 
   * [Health Check Error: Bad vardefs - key] (https://support.sugarcrm.com/Knowledge_Base/Administration/Install/Troubleshooting_Health_Check_Output/Health_Check_Error_Bad_Vardefs_Key/)
@@ -111,16 +111,16 @@ If a flag is thrown, manual intervention will be required. Scenarios that can th
 
 
 
-#:wrench: Team Set Repairs
+#: wrench: Team Set Repairs
 Corrects common issues with team sets.
 
-##Testing Command
+## Testing Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair team`
 
-##Execute Command
+## Execute Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair team --test false`
 
-##Issues Addressed
+## Issues Addressed
 * Duplicate teams in a team set
   * Removes any duplicate team relationships to a team set.
        
@@ -129,31 +129,31 @@ Corrects common issues with team sets.
 
 
 
-#:wrench: Workflow Repairs
+# :wrench: Workflow Repairs
 Corrects common issues with workflows.
 
-##Testing Command
+## Testing Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair workflow`
 
-##Execute Command
+## Execute Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair workflow --test false`
 
-##Issues Addressed
+## Issues Addressed
 * Workflows with invalid fields
   * Disables any workflows with missing or invalid fields.
 
 
 
-#:wrench: Process Author Repairs
+# :wrench: Process Author Repairs
 Corrects common issues with Process Author Definitions.
 
-##Testing Command
+## Testing Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair processAuthor`
 
-##Execute Command
+## Execute Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair processAuthor --test false`
 
-##Issues Addressed
+## Issues Addressed
 * Event Criteria with invalid fields.
   * Disables any Process Author Definition with criteria referencing missing or invalid fields.
   * Works on Start, Wait, and Receive Message events.
@@ -162,35 +162,32 @@ Corrects common issues with Process Author Definitions.
 
 
 
-#:wrench: Vardef Repairs
+# :wrench: Vardef Repairs
 Corrects common issues with vardefs.
 
-##Testing Command
+## Testing Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair vardef`
 
-##Execute Command
+## Execute Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair vardef --test false`
 
-##Issues Addressed
+## Issues Addressed
 * Enum/Multienum fields with invalid default values.
   * Attempts to find a valid default value key. If no value is found, field is left alone.
        
 * Enum/Multienum fields with invalid visibility gird.
   * Attempts to find a valid key. If no key is found, the grid is removed.
    
-
-
-
-#:wrench: Report Repairs
+# :wrench: Report Repairs
 Corrects common issues with reports.
 
-##Testing Command
+## Testing Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair reports`
 
-##Execute Command
+## Execute Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair reports --test false`
 
-##Issues Addressed
+## Issues Addressed
 * If a report is using a deleted field, it will be marked as broken.
 * If a field has a corrected language key, it will be updated.
 * If a report is using an invalid language key, it will be marked as broken,
@@ -198,51 +195,51 @@ Corrects common issues with reports.
    
    
    
-#:wrench: Email Address Repairs
+# :wrench: Email Address Repairs
 Corrects common issues with Email Addresses.
 
-##Testing Command
+## Testing Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair emailAddresses`
 
-##Execute Command
+## Execute Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair emailAddresses --test false`
 
-##Issues Addressed
+## Issues Addressed
 * Bug [75588](https://web.sugarcrm.com/support/issues/75588) - Any Bean that has at least one email address, and no primary designation will get the oldest email address updated to be the primary.
 * Bug [77929](https://web.sugarcrm.com/support/issues/77929) - Opting out from a campaigns does not update opt out email address.
 
 
-#:wrench: Forecast Worksheet Repairs
+# :wrench: Forecast Worksheet Repairs
 Corrects common issues with Forecast Worksheets by rolling through the user "reports_to" hierarchy and re-commits forecasts in the proper order.
 
-##Parameters
+## Parameters
 * timeperiod_id -- Required
   * Provide the specific timeperiod id to run the commit on
   * ALL can be passed to run for all timeperiods
   
-##Testing Command
+## Testing Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair forecasts --timeperiod_id fd480109-081e-3c71-0941-56f032288e4f`
 
-##Execute Command
+## Execute Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair forecasts --timeperiod_id fd480109-081e-3c71-0941-56f032288e4f --test false`
 
-##Issues Addressed
+## Issues Addressed
 * Bug [75779](https://web.sugarcrm.com/support/issues/75779) - Forecast worksheets totals are not accurate after making hierarchy changes.
 
 
-#:wrench: Metadata Repairs
+# :wrench: Metadata Repairs
 Corrects common issues with metadata files for Sidecar.
 
-##Testing Command
+## Testing Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair metadata`
 
-##Execute Command
+## Execute Command
 `cd "modules/supp_SugarRepairs/" && php cli.php --repair metadata --test false`
 
-##Issues Addressed
+## Issues Addressed
 * Bug [77005](https://web.sugarcrm.com/support/issues/77005) Modules created in 7.6.x, did not have Buttons definitions in RecordView, after upgrades to 7.7+ these modules would no longer have Change Log button. Places Change Log button, and default button definitions back on Record View if missing.
     
-#Contributing
+# Contributing
 Everyone is welcome to be involved by creating or improving existing Sugar repairs. If you would like to contribute, please make sure to review the [CONTRIBUTOR TERMS](CONTRIBUTOR TERMS.pdf). When you update this [README](README.md), please check out the [contribution guidelines](CONTRIBUTING.md) for helpful hints and tips that will make it easier to accept your pull request.
 
 ## Contributors
