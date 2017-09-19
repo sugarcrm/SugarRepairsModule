@@ -12,9 +12,9 @@ matrix:
     env: VERSION=7.7.2.1 EDITION=Ent TESTS=7.7
   - php: "5.6"
     env: VERSION=7.7.2.1 EDITION=Pro TESTS=7.7
-  - php: "5.3"
+  - php: "5.4"
     env: VERSION=7.7.2.1 EDITION=Ent TESTS=7.7
-  - php: "5.3"
+  - php: "5.4"
     env: VERSION=7.7.2.1 EDITION=Pro TESTS=7.7
 
 before_install:
